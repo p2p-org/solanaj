@@ -1,1 +1,1 @@
-# solana-java
+# solanaj
