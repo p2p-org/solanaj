@@ -23,5 +23,20 @@
       <artifactId>bitcoinj-core</artifactId>
       <version>0.15.8</version>
     </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>4.9.0</version>
+    </dependency>
+    <dependency>
+	    <groupId>com.squareup.moshi</groupId>
+	    <artifactId>moshi</artifactId>
+	    <version>1.9.2</version>
+	  </dependency>
+    <dependency>
+	    <groupId>com.squareup.moshi</groupId>
+	    <artifactId>moshi-adapters</artifactId>
+	    <version>1.9.2</version>
+	  </dependency>
   </dependencies>
 </project>
