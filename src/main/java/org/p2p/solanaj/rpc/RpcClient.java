@@ -40,7 +40,6 @@ public class RpcClient {
         JsonAdapter<RpcResponce<T>> resultAdapter = new Moshi.Builder().build()
                 .adapter(Types.newParameterizedType(RpcResponce.class, Type.class.cast(clazz)));
 
-        System.out.println(rpcRequestJsonAdapter.toJson(rpcRequest));
         Request request = new Request.Builder().url(endpoint)
                 .post(RequestBody.create(rpcRequestJsonAdapter.toJson(rpcRequest), JSON)).build();
 
