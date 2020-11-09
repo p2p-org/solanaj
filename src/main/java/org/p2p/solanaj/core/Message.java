@@ -12,10 +12,9 @@ public class Message {
     private class MessageHeader {
         static final int HEADER_LENGTH = 3;
 
-        // TODO
-        byte numRequiredSignatures = 1;
+        byte numRequiredSignatures = 0;
         byte numReadonlySignedAccounts = 0;
-        byte numReadonlyUnsignedAccounts = 1;
+        byte numReadonlyUnsignedAccounts = 0;
 
         byte[] toByteArray() {
             return new byte[] { numRequiredSignatures, numReadonlySignedAccounts, numReadonlyUnsignedAccounts };
@@ -39,12 +38,11 @@ public class Message {
 
     private MessageHeader messageHeader;
     private String recentBlockhash;
-    private List<AccountMeta> accountKeys;
+    private AccountKeysList accountKeys;
     private List<TransactionInstruction> instructions;
 
     public Message() {
-        this.messageHeader = new MessageHeader();
-        this.accountKeys = new ArrayList<AccountMeta>();
+        this.accountKeys = new AccountKeysList();
         this.instructions = new ArrayList<TransactionInstruction>();
     }
 
@@ -61,23 +59,35 @@ public class Message {
     }
 
     public byte[] serialize() {
-        int accountKeysSize = accountKeys.size();
+
+        if (recentBlockhash == null) {
+            throw new IllegalArgumentException("recentBlockhash required");
+        }
+
+        if (instructions.size() == 0) {
+            throw new IllegalArgumentException("No instructions provided");
+        }
+
+        messageHeader = new MessageHeader();
+
+        List<AccountMeta> keysList = accountKeys.getList();
+        int accountKeysSize = keysList.size();
 
         byte[] accountAddressesLength = ShortvecEncoding.encodeLength(accountKeysSize);
 
         int compiledInstructionsLength = 0;
-        List<CompiledInstruction> compiledInstructions = new ArrayList<Message.CompiledInstruction>();
+        List<CompiledInstruction> compiledInstructions = new ArrayList<CompiledInstruction>();
 
         for (TransactionInstruction instruction : instructions) {
             int keysSize = instruction.getKeys().size();
-            
+
             byte[] keyIndices = new byte[keysSize];
             for (int i = 0; i < keysSize; i++) {
-                keyIndices[i] = (byte) findAccountIndex(instruction.getKeys().get(i).getPublicKey());
+                keyIndices[i] = (byte) findAccountIndex(keysList, instruction.getKeys().get(i).getPublicKey());
             }
 
             CompiledInstruction compiledInstruction = new CompiledInstruction();
-            compiledInstruction.programIdIndex = (byte) findAccountIndex(instruction.getProgramId());
+            compiledInstruction.programIdIndex = (byte) findAccountIndex(keysList, instruction.getProgramId());
             compiledInstruction.keyIndicesCount = ShortvecEncoding.encodeLength(keysSize);
             compiledInstruction.keyIndices = keyIndices;
             compiledInstruction.dataLength = ShortvecEncoding.encodeLength(instruction.getData().length);
@@ -96,17 +106,31 @@ public class Message {
 
         ByteBuffer out = ByteBuffer.allocate(bufferSize);
 
-        out.put(messageHeader.toByteArray());
-       
-        out.put(accountAddressesLength);
-        for (AccountMeta accountMeta : accountKeys) {
-            out.put(accountMeta.getPublicKey().toByteArray());
+        ByteBuffer accountKeysBuff = ByteBuffer.allocate(accountKeysSize * PublicKey.PUBLIC_KEY_LENGTH);
+        for (AccountMeta accountMeta : accountKeys.getList()) {
+            accountKeysBuff.put(accountMeta.getPublicKey().toByteArray());
+
+            if (accountMeta.isSigner()) {
+                messageHeader.numRequiredSignatures += 1;
+                if (!accountMeta.isWritable()) {
+                    messageHeader.numReadonlySignedAccounts += 1;
+                }
+            } else {
+                if (!accountMeta.isWritable()) {
+                    messageHeader.numReadonlyUnsignedAccounts += 1;
+                }
+            }
         }
+
+        out.put(messageHeader.toByteArray());
+
+        out.put(accountAddressesLength);
+        out.put(accountKeysBuff.array());
 
         out.put(Base58.decode(recentBlockhash));
 
         out.put(instructionsLength);
-        for(CompiledInstruction compiledInstruction:compiledInstructions) {
+        for (CompiledInstruction compiledInstruction : compiledInstructions) {
             out.put(compiledInstruction.programIdIndex);
             out.put(compiledInstruction.keyIndicesCount);
             out.put(compiledInstruction.keyIndices);
@@ -117,9 +141,9 @@ public class Message {
         return out.array();
     }
 
-    private int findAccountIndex(PublicKey key) {
-        for (int i = 0; i < accountKeys.size(); i++) {
-            if (accountKeys.get(i).getPublicKey().equals(key)) {
+    private int findAccountIndex(List<AccountMeta> accountMetaList, PublicKey key) {
+        for (int i = 0; i < accountMetaList.size(); i++) {
+            if (accountMetaList.get(i).getPublicKey().equals(key)) {
                 return i;
             }
         }

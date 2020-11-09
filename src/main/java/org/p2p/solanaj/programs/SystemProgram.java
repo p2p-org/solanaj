@@ -16,7 +16,7 @@ public class SystemProgram {
     public static TransactionInstruction transfer(PublicKey fromPublicKey, PublicKey toPublickKey, int lamports) {
         ArrayList<AccountMeta> keys = new ArrayList<AccountMeta>();
         keys.add(new AccountMeta(fromPublicKey, true, true));
-        keys.add(new AccountMeta(toPublickKey, false, false));
+        keys.add(new AccountMeta(toPublickKey, false, true));
 
         // 4 byte instruction index + 8 bytes lamports
         byte[] data = new byte[4 + 8];
