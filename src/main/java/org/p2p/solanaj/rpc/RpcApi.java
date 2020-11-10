@@ -5,9 +5,11 @@ import java.util.Base64;
 import java.util.List;
 
 import org.p2p.solanaj.core.Account;
+import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
 import org.p2p.solanaj.rpc.types.RecentBlockhash;
 import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig;
+import org.p2p.solanaj.rpc.types.RpcResultTypes.ValueLong;
 
 public class RpcApi {
     private RpcClient client;
@@ -34,5 +36,13 @@ public class RpcApi {
         params.add(new RpcSendTransactionConfig());
 
         return client.call("sendTransaction", params, String.class);
+    }
+
+    public long getBalance(PublicKey account) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(account.toString());
+
+        return client.call("getBalance", params, ValueLong.class).getValue();
     }
 }
