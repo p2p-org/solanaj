@@ -10,9 +10,9 @@ Solanaj is an API for integrating with Solnan blockchain using the [Solana RPC A
 - OkHttp
 - Moshi
 
-###Example
+### Example
 
-#####Transfer lamports
+##### Transfer lamports
 
 ```java
 RpcClient client = new RpcClient(Cluster.TESTNET);
@@ -29,7 +29,7 @@ transaction.addInstruction(SystemProgram.transfer(fromPublicKey, toPublickKey, l
 String signature = client.getApi().sendTransaction(transaction, signer);
 ```
 
-#####Get balance
+##### Get balance
 
 ```java
 RpcClient client = new RpcClient(Cluster.TESTNET);
