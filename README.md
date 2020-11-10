@@ -37,6 +37,10 @@ RpcClient client = new RpcClient(Cluster.TESTNET);
 long balance = client.getApi().getBalance(new PublicKey("QqCCvshxtqMAL2CVALqiJB7uEeE5mjSPsseQdDzsRUo"));
 ```
 
+## Contribution
+
+Welcome to contribute, feel free to change and open a PR.
+
 
 ## License
 
