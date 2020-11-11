@@ -1,5 +1,6 @@
 # solanaj
 
+Solana blockchain client, written in pure Java.
 Solanaj is an API for integrating with Solnan blockchain using the [Solana RPC API](https://docs.solana.com/apps/jsonrpc-api)
 
 ## Requirements
