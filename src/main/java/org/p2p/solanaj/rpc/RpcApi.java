@@ -1,5 +1,6 @@
 package org.p2p.solanaj.rpc;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -7,9 +8,12 @@ import java.util.List;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
+import org.p2p.solanaj.rpc.types.ConfigObjects.*;
 import org.p2p.solanaj.rpc.types.ConfirmedTransaction;
+import org.p2p.solanaj.rpc.types.ProgramAccount;
 import org.p2p.solanaj.rpc.types.RecentBlockhash;
 import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig;
+import org.p2p.solanaj.rpc.types.SignatureInformation;
 import org.p2p.solanaj.rpc.types.RpcResultTypes.ValueLong;
 
 public class RpcApi {
@@ -56,6 +60,46 @@ public class RpcApi {
         // params.add("json");
 
         return client.call("getConfirmedTransaction", params, ConfirmedTransaction.class);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<SignatureInformation> getConfirmedSignaturesForAddress2(PublicKey account, int limit)
+            throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(account.toString());
+        params.add(new ConfirmedSignFAddr2(limit));
+
+        List<AbstractMap> rawResult = client.call("getConfirmedSignaturesForAddress2", params, List.class);
+
+        List<SignatureInformation> result = new ArrayList<SignatureInformation>();
+        for (AbstractMap item : rawResult) {
+            result.add(new SignatureInformation(item));
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<ProgramAccount> getProgramAccounts(PublicKey account, long offset, String bytes) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(account.toString());
+
+        List<Object> filters = new ArrayList<Object>();
+        filters.add(new Filter(new Memcmp(offset, bytes)));
+
+        ProgramAccountConfig programAccountConfig = new ProgramAccountConfig(filters);
+        params.add(programAccountConfig);
+
+        List<AbstractMap> rawResult = client.call("getProgramAccounts", params, List.class);
+
+        List<ProgramAccount> result = new ArrayList<ProgramAccount>();
+        for (AbstractMap item : rawResult) {
+            result.add(new ProgramAccount(item));
+        }
+
+        return result;
     }
 
 }
