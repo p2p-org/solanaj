@@ -7,6 +7,7 @@ import java.util.List;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
+import org.p2p.solanaj.rpc.types.ConfirmedTransaction;
 import org.p2p.solanaj.rpc.types.RecentBlockhash;
 import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig;
 import org.p2p.solanaj.rpc.types.RpcResultTypes.ValueLong;
@@ -45,4 +46,16 @@ public class RpcApi {
 
         return client.call("getBalance", params, ValueLong.class).getValue();
     }
+
+    public ConfirmedTransaction getConfirmedTransaction(String signature) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(signature);
+        // TODO jsonParsed, base58, base64
+        // the default encoding is JSON
+        // params.add("json");
+
+        return client.call("getConfirmedTransaction", params, ConfirmedTransaction.class);
+    }
+
 }
