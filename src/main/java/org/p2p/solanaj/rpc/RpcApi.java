@@ -9,6 +9,7 @@ import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
 import org.p2p.solanaj.rpc.types.ConfigObjects.*;
+import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.rpc.types.ConfirmedTransaction;
 import org.p2p.solanaj.rpc.types.ProgramAccount;
 import org.p2p.solanaj.rpc.types.RecentBlockhash;
@@ -100,6 +101,15 @@ public class RpcApi {
         }
 
         return result;
+    }
+
+    public AccountInfo getAccountInfo(PublicKey account) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(account.toString());
+        params.add(new RpcSendTransactionConfig());
+
+        return client.call("getAccountInfo", params, AccountInfo.class);
     }
 
 }
