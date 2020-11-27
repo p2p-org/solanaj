@@ -112,4 +112,12 @@ public class RpcApi {
         return client.call("getAccountInfo", params, AccountInfo.class);
     }
 
+    public long getMinimumBalanceForRentExemption(long dataLength) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(dataLength);
+
+        return client.call("getMinimumBalanceForRentExemption", params, Long.class);
+    }
+
 }
