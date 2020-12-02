@@ -125,4 +125,12 @@ public class RpcApi {
         return client.call("getMinimumBalanceForRentExemption", params, Long.class);
     }
 
+    public long getBlockTime(long block) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(block);
+
+        return client.call("getBlockTime", params, Long.class);
+    }
+
 }
