@@ -133,4 +133,13 @@ public class RpcApi {
         return client.call("getBlockTime", params, Long.class);
     }
 
+    public String requestAirdrop(PublicKey address, long lamports) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(address.toString());
+        params.add(lamports);
+
+        return client.call("requestAirdrop", params, String.class);
+    }
+
 }
