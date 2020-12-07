@@ -2,6 +2,7 @@ package org.p2p.solanaj.core;
 
 import java.util.Arrays;
 import org.bitcoinj.core.Base58;
+import org.p2p.solanaj.utils.ByteUtils;
 
 public class PublicKey {
 
@@ -24,6 +25,11 @@ public class PublicKey {
         }
 
         this.pubkey = pubkey;
+    }
+
+    public static PublicKey readPubkey(byte[] bytes, int offset) {
+        byte[] buf = ByteUtils.readBytes(bytes, offset, PUBLIC_KEY_LENGTH);
+        return new PublicKey(buf);
     }
 
     public byte[] toByteArray() {

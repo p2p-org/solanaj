@@ -3,6 +3,8 @@ package org.p2p.solanaj.core;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayOutputStream;
+
 public class PublicKeyTest {
 
     @Test(expected = IllegalArgumentException.class)
@@ -38,4 +40,17 @@ public class PublicKeyTest {
 
         assertFalse(key.equals(new PublicKey("11111111111111111111111111111112")));
     }
+
+    @Test
+    public void readPubkey() {
+        PublicKey key = new PublicKey("11111111111111111111111111111111");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        bos.write(1);
+        bos.writeBytes(key.toByteArray());
+
+        byte[] bytes = bos.toByteArray();
+        assertEquals(key.toString(), PublicKey.readPubkey(bytes, 1).toString());
+    }
+
 }
