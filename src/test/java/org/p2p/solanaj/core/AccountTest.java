@@ -3,6 +3,8 @@ package org.p2p.solanaj.core;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.bitcoinj.core.Base58;
 
 public class AccountTest {
@@ -20,6 +22,14 @@ public class AccountTest {
     public void generateNewAccount() {
         Account account = new Account();
         assertEquals(64, account.getSecretKey().length);
+    }
+
+    @Test
+    public void fromMnemonic() {
+        Account acc = Account.fromMnemonic(Arrays.asList("spider", "federal", "bleak", "unable", "ask", "weasel",
+                "diamond", "electric", "illness", "wheat", "uphold", "mind"), "");
+
+        assertEquals("BQWWFhzBdw2vKKBUX17NHeFbCoFQHfRARpdztPE2tDJ", acc.getPublicKey().toString());
     }
 
 }
