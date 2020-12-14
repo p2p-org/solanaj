@@ -42,6 +42,9 @@ public class Transaction {
             throw new IllegalArgumentException("No signers");
         }
 
+        Account feePayer = signers.get(0);
+        messgae.setFeePayer(feePayer);
+
         serializedMessage = messgae.serialize();
 
         for (Account signer : signers) {
