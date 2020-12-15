@@ -165,7 +165,6 @@ public class Message {
             }
         }
 
-        // TODO throw an error
-        return -1;
+        throw new RuntimeException("unable to find account index");
     }
 }
