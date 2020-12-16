@@ -2,7 +2,7 @@ package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
 
-public class RpcResponce<T> {
+public class RpcResponse<T> {
 
     public static class Error {
         @Json(name = "code")

@@ -1,9 +1,10 @@
 package org.p2p.solanaj.core;
 
+import org.bitcoinj.core.Base58;
 import org.junit.Test;
 import org.p2p.solanaj.programs.SystemProgram;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 public class MessageTest {
 
@@ -13,9 +14,13 @@ public class MessageTest {
         PublicKey toPublickKey = new PublicKey("GrDMoeqMLFjeXQ24H56S1RLgT4R76jsuWCd6SvXyGPQ5");
         int lamports = 3000;
 
+        Account signer = new Account(Base58
+                .decode("4Z7cXSyeFR8wNGMVXUE1TwtKn5D5Vu7FzEv69dokLv7KrQk7h6pu4LF8ZRR9yQBhc7uSM6RTTZtU1fmaxiNrxXrs"));
+
         Message message = new Message();
         message.addInstruction(SystemProgram.transfer(fromPublicKey, toPublickKey, lamports));
         message.setRecentBlockHash("Eit7RCyhUixAe2hGBS8oqnw59QK3kgMMjfLME5bm9wRn");
+        message.setFeePayer(signer);
 
         assertArrayEquals(new int[] { 1, 0, 1, 3, 6, 26, 217, 208, 83, 135, 21, 72, 83, 126, 222, 62, 38, 24, 73, 163,
                 223, 183, 253, 2, 250, 188, 117, 178, 35, 200, 228, 106, 219, 133, 61, 12, 235, 122, 188, 208, 216, 117,

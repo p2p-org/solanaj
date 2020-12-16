@@ -15,7 +15,7 @@ import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 
 import org.p2p.solanaj.rpc.types.RpcRequest;
-import org.p2p.solanaj.rpc.types.RpcResponce;
+import org.p2p.solanaj.rpc.types.RpcResponse;
 
 public class RpcClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -37,15 +37,15 @@ public class RpcClient {
         RpcRequest rpcRequest = new RpcRequest(method, params);
 
         JsonAdapter<RpcRequest> rpcRequestJsonAdapter = new Moshi.Builder().build().adapter(RpcRequest.class);
-        JsonAdapter<RpcResponce<T>> resultAdapter = new Moshi.Builder().build()
-                .adapter(Types.newParameterizedType(RpcResponce.class, Type.class.cast(clazz)));
+        JsonAdapter<RpcResponse<T>> resultAdapter = new Moshi.Builder().build()
+                .adapter(Types.newParameterizedType(RpcResponse.class, Type.class.cast(clazz)));
 
         Request request = new Request.Builder().url(endpoint)
                 .post(RequestBody.create(rpcRequestJsonAdapter.toJson(rpcRequest), JSON)).build();
 
         try {
             Response response = httpClient.newCall(request).execute();
-            RpcResponce<T> rpcResult = resultAdapter.fromJson(response.body().string());
+            RpcResponse<T> rpcResult = resultAdapter.fromJson(response.body().string());
 
             if (rpcResult.getError() != null) {
                 throw new RpcException(rpcResult.getError().getMessage());
