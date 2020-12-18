@@ -1,10 +1,6 @@
 package org.p2p.solanaj.rpc;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
@@ -109,10 +105,24 @@ public class RpcApi {
     }
 
     public AccountInfo getAccountInfo(PublicKey account) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+        return getAccountInfo(account, new HashMap<>());
+    }
+
+    public AccountInfo getAccountInfo(PublicKey account, Map<String, Object> additionalParams) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        Map<String, Object> parameterMap = new HashMap<>();
+
+        parameterMap.put("commitment", additionalParams.getOrDefault("commitment", "max"));
+        parameterMap.put("encoding", additionalParams.getOrDefault("encoding", "base64"));
+
+        // No default for dataSlice
+        if (additionalParams.containsKey("dataSlice")) {
+            parameterMap.put("dataSlice", additionalParams.get("dataSlice"));
+        }
 
         params.add(account.toString());
-        params.add(new RpcSendTransactionConfig());
+        params.add(parameterMap);
 
         return client.call("getAccountInfo", params, AccountInfo.class);
     }
