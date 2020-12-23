@@ -151,7 +151,8 @@ public class Message {
         int feePayerIndex = findAccountIndex(keysList, feePayer.getPublicKey());
 
         List<AccountMeta> newList = new ArrayList<AccountMeta>();
-        newList.add(keysList.get(feePayerIndex));
+        AccountMeta feePayerMeta = keysList.get(feePayerIndex);
+        newList.add(new AccountMeta(feePayerMeta.getPublicKey(), true, true));
         keysList.remove(feePayerIndex);
         newList.addAll(keysList);
 
