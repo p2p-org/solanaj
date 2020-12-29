@@ -5,6 +5,7 @@ import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
+import org.p2p.solanaj.serum.AccountFlags;
 
 import java.util.Arrays;
 import java.util.Base64;
@@ -82,7 +83,6 @@ public class MainnetTest {
             // Pubkey of BTC/USDC market
             final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F");
 
-
             // Get account Info
             final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey);
             final List<String> accountData = accountInfo.getValue().getData();
@@ -94,24 +94,16 @@ public class MainnetTest {
             // TODO handle the two v1 markets later
 
             if (base64Data != null) {
-                //System.out.println("data=" + base64Data);
                 Base64.Decoder decoder = Base64.getDecoder();
                 byte[] bytes = decoder.decode(accountData.get(0));
                 System.out.println("Blob #1 (5 bytes) = " + new String(Arrays.copyOfRange(bytes, 0, 5)));
 
                 // Get account flags (next 8 bits)
-                byte accountFlags = Arrays.copyOfRange(bytes, 5, 6)[0];
+                byte accountFlagsByte = Arrays.copyOfRange(bytes, 5, 6)[0];
+                final AccountFlags accountFlags = new AccountFlags(accountFlagsByte);
 
-                System.out.println("Accounts Flags #1 (1 byte (up to 8 booleans))) = " + String.format("%8s", Integer.toBinaryString(accountFlags & 0xFF)).replace(' ', '0'));
-
-                boolean isMarketInitialized = false;
-                if ((accountFlags & initialized) == initialized)
-                {
-                    isMarketInitialized = true;
-                }
-
-
-                System.out.println("Bit #6 (Market initialized boolean) = " + isMarketInitialized);
+                System.out.println("Accounts Flags #1 (1 byte (up to 8 booleans))) = " + String.format("%8s", Integer.toBinaryString(accountFlagsByte & 0xFF)).replace(' ', '0'));
+                System.out.println("Account Flags (deserialized) (Initialized flag) = " + accountFlags.isInitialized());
                 System.out.println("Blob #2 (last 7 bytes) = " + new String(Arrays.copyOfRange(bytes, bytes.length - 7, bytes.length)));
             }
 
