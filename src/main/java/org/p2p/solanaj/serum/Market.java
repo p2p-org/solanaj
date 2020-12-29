@@ -7,20 +7,40 @@ import java.util.Arrays;
 public class Market {
 
     private AccountFlags accountFlags;
+    private PublicKey ownAddress;
 
     public static Market readMarket(byte[] data) {
         Market market = new Market();
-        AccountFlags tmpAccountFlags = new AccountFlags(Arrays.copyOfRange(data, 5, 6)[0]);
-        System.out.println("Blob #1 (5 bytes) = " + new String(Arrays.copyOfRange(data, 0, 5)));
 
-        System.out.println("Account Flags (deserialized) (Initialized flag) = " + tmpAccountFlags.isInitialized());
+        // Account flags
+        final AccountFlags accountFlags = AccountFlags.readAccountFlags(data);
+        market.setAccountFlags(accountFlags);
 
         // publicKeyLayout("ownAddress") = 32 bytes from position 13 (8 bytes for the WideBit starting at position 5)
-        final PublicKey ownAddress = PublicKey.readPubkey(data, 13);
-        System.out.println("Own Address (Base58) = " + ownAddress.toBase58());
+        final PublicKey ownAddress = PublicKey.readSerumPubkey(data);
+        market.setOwnAddress(ownAddress);
 
+        // temporary, for debugging
+        System.out.println("Account Flags (deserialized) (Initialized flag) = " + accountFlags.isInitialized());
+        System.out.println("Own Address (Base58) = " + ownAddress.toBase58());
         System.out.println("Blob #2 (last 7 bytes) = " + new String(Arrays.copyOfRange(data, data.length - 7, data.length)));
 
-        return new Market();
+        return market;
+    }
+
+    public AccountFlags getAccountFlags() {
+        return accountFlags;
+    }
+
+    public void setAccountFlags(AccountFlags accountFlags) {
+        this.accountFlags = accountFlags;
+    }
+
+    public PublicKey getOwnAddress() {
+        return ownAddress;
+    }
+
+    public void setOwnAddress(PublicKey ownAddress) {
+        this.ownAddress = ownAddress;
     }
 }

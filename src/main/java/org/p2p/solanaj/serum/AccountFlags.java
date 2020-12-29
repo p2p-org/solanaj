@@ -1,5 +1,7 @@
 package org.p2p.solanaj.serum;
 
+import java.util.Arrays;
+
 public class AccountFlags {
 
     // Holds all 8 booleans (1 for each bit)
@@ -43,6 +45,10 @@ public class AccountFlags {
 
     public boolean isAsks() {
         return ((bitMask & asks) == asks);
+    }
+
+    public static AccountFlags readAccountFlags(byte[] data) {
+        return new AccountFlags(Arrays.copyOfRange(data, 5, 6)[0]);
     }
 
 
