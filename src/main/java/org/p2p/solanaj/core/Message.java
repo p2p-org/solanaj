@@ -34,7 +34,7 @@ public class Message {
         }
     }
 
-    private static final int RECENT_BLOCK_HASH_LENGT = 32;
+    private static final int RECENT_BLOCK_HASH_LENGTH = 32;
 
     private MessageHeader messageHeader;
     private String recentBlockhash;
@@ -101,7 +101,7 @@ public class Message {
 
         byte[] instructionsLength = ShortvecEncoding.encodeLength(compiledInstructions.size());
 
-        int bufferSize = MessageHeader.HEADER_LENGTH + RECENT_BLOCK_HASH_LENGT + accountAddressesLength.length
+        int bufferSize = MessageHeader.HEADER_LENGTH + RECENT_BLOCK_HASH_LENGTH + accountAddressesLength.length
                 + (accountKeysSize * PublicKey.PUBLIC_KEY_LENGTH) + instructionsLength.length
                 + compiledInstructionsLength;
 
@@ -151,7 +151,8 @@ public class Message {
         int feePayerIndex = findAccountIndex(keysList, feePayer.getPublicKey());
 
         List<AccountMeta> newList = new ArrayList<AccountMeta>();
-        newList.add(keysList.get(feePayerIndex));
+        AccountMeta feePayerMeta = keysList.get(feePayerIndex);
+        newList.add(new AccountMeta(feePayerMeta.getPublicKey(), true, true));
         keysList.remove(feePayerIndex);
         newList.addAll(keysList);
 
