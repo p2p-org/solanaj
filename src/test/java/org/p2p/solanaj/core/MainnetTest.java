@@ -78,21 +78,6 @@ public class MainnetTest {
         }
     }
 
-    /**
-     *   blob(5),
-     *
-     *   accountFlagsLayout('accountFlags'),
-     *
-     *   publicKeyLayout('ownAddress'),
-     *
-     *   u64('vaultSignerNonce'),
-     *
-     *   publicKeyLayout('baseMint'),
-     *   publicKeyLayout('quoteMint'),
-     *
-     *   ....
-     *
-     */
     @Test
     public void marketAccountTest() {
         try {

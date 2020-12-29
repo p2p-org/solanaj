@@ -8,22 +8,33 @@ public class Market {
 
     private AccountFlags accountFlags;
     private PublicKey ownAddress;
+    private long vaultSignerNonce;
+    private PublicKey baseMint;
+    private PublicKey quoteMint;
 
     public static Market readMarket(byte[] data) {
         Market market = new Market();
 
-        // Account flags
         final AccountFlags accountFlags = AccountFlags.readAccountFlags(data);
         market.setAccountFlags(accountFlags);
 
-        // publicKeyLayout("ownAddress") = 32 bytes from position 13 (8 bytes for the WideBit starting at position 5)
-        final PublicKey ownAddress = PublicKey.readSerumPubkey(data);
+        final PublicKey ownAddress = SerumUtils.readOwnAddressPubkey(data);
         market.setOwnAddress(ownAddress);
 
+        final long vaultSignerNonce = SerumUtils.readVaultSignerNonce(data);
+        market.setVaultSignerNonce(vaultSignerNonce);
+
+        final PublicKey baseMint = SerumUtils.readBaseMintPubkey(data);
+        market.setBaseMint(baseMint);
+
+        final PublicKey quoteMint = SerumUtils.readQuoteMintPubkey(data);
+        market.setQuoteMint(quoteMint);
+
         // temporary, for debugging
-        System.out.println("Account Flags (deserialized) (Initialized flag) = " + accountFlags.isInitialized());
         System.out.println("Own Address (Base58) = " + ownAddress.toBase58());
-        System.out.println("Blob #2 (last 7 bytes) = " + new String(Arrays.copyOfRange(data, data.length - 7, data.length)));
+        System.out.println("Vault signer nonce = " + vaultSignerNonce);
+        System.out.println("Base mint (Base58) = " + baseMint.toBase58());
+        System.out.println("Quote mint (Base58) = " + quoteMint.toBase58());
 
         return market;
     }
@@ -42,5 +53,29 @@ public class Market {
 
     public void setOwnAddress(PublicKey ownAddress) {
         this.ownAddress = ownAddress;
+    }
+
+    public long getVaultSignerNonce() {
+        return vaultSignerNonce;
+    }
+
+    public void setVaultSignerNonce(long vaultSignerNonce) {
+        this.vaultSignerNonce = vaultSignerNonce;
+    }
+
+    public PublicKey getBaseMint() {
+        return baseMint;
+    }
+
+    public void setBaseMint(PublicKey baseMint) {
+        this.baseMint = baseMint;
+    }
+
+    public PublicKey getQuoteMint() {
+        return quoteMint;
+    }
+
+    public void setQuoteMint(PublicKey quoteMint) {
+        this.quoteMint = quoteMint;
     }
 }

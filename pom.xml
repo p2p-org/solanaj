@@ -40,14 +40,20 @@
       <version>4.9.0</version>
     </dependency>
     <dependency>
-	    <groupId>com.squareup.moshi</groupId>
-	    <artifactId>moshi</artifactId>
-	    <version>1.9.2</version>
-	  </dependency>
+        <groupId>com.squareup.moshi</groupId>
+        <artifactId>moshi</artifactId>
+        <version>1.9.2</version>
+    </dependency>
     <dependency>
-	    <groupId>com.squareup.moshi</groupId>
-	    <artifactId>moshi-adapters</artifactId>
-	    <version>1.9.2</version>
-	  </dependency>
+        <groupId>com.squareup.moshi</groupId>
+        <artifactId>moshi-adapters</artifactId>
+        <version>1.9.2</version>
+        </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>1.7.30</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

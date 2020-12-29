@@ -32,11 +32,6 @@ public class PublicKey {
         return new PublicKey(buf);
     }
 
-    public static PublicKey readSerumPubkey(byte[] bytes) {
-        byte[] buf = ByteUtils.readBytes(bytes, 13, PUBLIC_KEY_LENGTH);
-        return new PublicKey(buf);
-    }
-
     public byte[] toByteArray() {
         return pubkey;
     }
