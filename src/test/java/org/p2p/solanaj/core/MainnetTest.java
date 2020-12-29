@@ -6,6 +6,7 @@ import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.serum.AccountFlags;
+import org.p2p.solanaj.serum.Market;
 
 import java.util.Arrays;
 import java.util.Base64;
@@ -77,6 +78,21 @@ public class MainnetTest {
         }
     }
 
+    /**
+     *   blob(5),
+     *
+     *   accountFlagsLayout('accountFlags'),
+     *
+     *   publicKeyLayout('ownAddress'),
+     *
+     *   u64('vaultSignerNonce'),
+     *
+     *   publicKeyLayout('baseMint'),
+     *   publicKeyLayout('quoteMint'),
+     *
+     *   ....
+     *
+     */
     @Test
     public void marketAccountTest() {
         try {
@@ -96,15 +112,7 @@ public class MainnetTest {
             if (base64Data != null) {
                 Base64.Decoder decoder = Base64.getDecoder();
                 byte[] bytes = decoder.decode(accountData.get(0));
-                System.out.println("Blob #1 (5 bytes) = " + new String(Arrays.copyOfRange(bytes, 0, 5)));
-
-                // Get account flags (next 8 bits)
-                byte accountFlagsByte = Arrays.copyOfRange(bytes, 5, 6)[0];
-                final AccountFlags accountFlags = new AccountFlags(accountFlagsByte);
-
-                System.out.println("Accounts Flags #1 (1 byte (up to 8 booleans))) = " + String.format("%8s", Integer.toBinaryString(accountFlagsByte & 0xFF)).replace(' ', '0'));
-                System.out.println("Account Flags (deserialized) (Initialized flag) = " + accountFlags.isInitialized());
-                System.out.println("Blob #2 (last 7 bytes) = " + new String(Arrays.copyOfRange(bytes, bytes.length - 7, bytes.length)));
+                Market market = Market.readMarket(bytes);
             }
 
             // Verify any balance
