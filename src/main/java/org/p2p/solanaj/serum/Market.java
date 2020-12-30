@@ -17,6 +17,18 @@ public class Market {
     private long quoteFeesAccrued;
     private long quoteDustThreshold;
 
+    private PublicKey requestQueue;
+    private PublicKey eventQueue;
+
+    private PublicKey bids;
+    private PublicKey asks;
+
+    private long baseLotSize;
+    private long quoteLotSize;
+    private long feeRateBps;
+    private long referrerRebatesAccrued;
+
+
     public static Market readMarket(byte[] data) {
         Market market = new Market();
 
@@ -56,6 +68,21 @@ public class Market {
         final long quoteDustThreshold = SerumUtils.readQuoteDustThreshold(data);
         market.setQuoteDustThreshold(quoteDustThreshold);
 
+        final PublicKey requestQueue = SerumUtils.readRequestQueuePubkey(data);
+        market.setRequestQueue(requestQueue);
+
+        final PublicKey eventQueue = SerumUtils.readEventQueuePubkey(data);
+        market.setEventQueue(eventQueue);
+
+        final PublicKey bids = SerumUtils.readBidsPubkey(data);
+        market.setBids(bids);
+
+        final PublicKey asks = SerumUtils.readAsksPubkey(data);
+        market.setAsks(asks);
+
+        final long baseLotSize = SerumUtils.readBaseLotSize(data);
+        market.setBaseLotSize(baseLotSize);
+
         // temporary, for debugging
         System.out.println("Own Address = " + market.getOwnAddress().toBase58());
         System.out.println("Vault signer nonce = " + market.getVaultSignerNonce());
@@ -65,10 +92,16 @@ public class Market {
         System.out.println("Base deposits total = " + market.getBaseDepositsTotal());
         System.out.println("Base fees accrued = " + market.getBaseFeesAccrued());
         System.out.println("Quote vault = " + market.getQuoteVault().toBase58());
-
         System.out.println("Quote deposits total = " + market.getQuoteDepositsTotal());
         System.out.println("Quote fees accrued = " + market.getQuoteFeesAccrued());
         System.out.println("Quote dust threshold = " + market.getQuoteDustThreshold());
+        System.out.println("Request queue = " + market.getRequestQueue().toBase58());
+        System.out.println("Event queue = " + market.getEventQueue().toBase58());
+        System.out.println("Bids = " + market.getBids().toBase58());
+        System.out.println("Asks = " + market.getAsks().toBase58());
+        System.out.println("Base lot size = " + market.getBaseLotSize());
+
+
 
 
         return market;
@@ -168,5 +201,69 @@ public class Market {
 
     public void setQuoteDustThreshold(long quoteDustThreshold) {
         this.quoteDustThreshold = quoteDustThreshold;
+    }
+
+    public PublicKey getRequestQueue() {
+        return requestQueue;
+    }
+
+    public void setRequestQueue(PublicKey requestQueue) {
+        this.requestQueue = requestQueue;
+    }
+
+    public PublicKey getEventQueue() {
+        return eventQueue;
+    }
+
+    public void setEventQueue(PublicKey eventQueue) {
+        this.eventQueue = eventQueue;
+    }
+
+    public PublicKey getBids() {
+        return bids;
+    }
+
+    public void setBids(PublicKey bids) {
+        this.bids = bids;
+    }
+
+    public PublicKey getAsks() {
+        return asks;
+    }
+
+    public void setAsks(PublicKey asks) {
+        this.asks = asks;
+    }
+
+    public long getBaseLotSize() {
+        return baseLotSize;
+    }
+
+    public void setBaseLotSize(long baseLotSize) {
+        this.baseLotSize = baseLotSize;
+    }
+
+    public long getQuoteLotSize() {
+        return quoteLotSize;
+    }
+
+    public void setQuoteLotSize(long quoteLotSize) {
+        this.quoteLotSize = quoteLotSize;
+    }
+
+    public long getFeeRateBps() {
+        return feeRateBps;
+    }
+
+    public void setFeeRateBps(long feeRateBps) {
+        this.feeRateBps = feeRateBps;
+    }
+
+    public long getReferrerRebatesAccrued() {
+        return referrerRebatesAccrued;
+    }
+
+    public void setReferrerRebatesAccrued(long referrerRebatesAccrued) {
+        this.referrerRebatesAccrued = referrerRebatesAccrued;
     }
 }
