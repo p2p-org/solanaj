@@ -29,10 +29,10 @@ import org.p2p.solanaj.core.PublicKey;
  *     private PublicKey asks; 317-348
  *
  *
- *     private long baseLotSize; 349
- *     private long quoteLotSize;
- *     private long feeRateBps;
- *     private long referrerRebatesAccrued;
+ *     private long baseLotSize; 349-356
+ *     private long quoteLotSize; 357-364
+ *     private long feeRateBps; 365-372
+ *     private long referrerRebatesAccrued 373-380;
  *
  *   ....
  *
@@ -55,6 +55,10 @@ public class SerumUtils {
     private static final int BIDS_OFFSET = 285;
     private static final int ASKS_OFFSET = 317;
     private static final int BASE_LOT_SIZE_OFFSET = 349;
+    private static final int QUOTE_LOT_SIZE_OFFSET = 357;
+    private static final int FEE_RATE_BPS_OFFSET = 365;
+    private static final int REFERRER_REBATES_ACCRUED_OFFSET = 373;
+
 
 
 
@@ -120,5 +124,17 @@ public class SerumUtils {
 
     public static long readBaseLotSize(byte[] bytes) {
         return Utils.readInt64(bytes, BASE_LOT_SIZE_OFFSET);
+    }
+
+    public static long readQuoteLotSize(byte[] bytes) {
+        return Utils.readInt64(bytes, QUOTE_LOT_SIZE_OFFSET);
+    }
+
+    public static long readFeeRateBps(byte[] bytes) {
+        return Utils.readInt64(bytes, FEE_RATE_BPS_OFFSET);
+    }
+
+    public static long readReferrerRebatesAccrued(byte[] bytes) {
+        return Utils.readInt64(bytes, REFERRER_REBATES_ACCRUED_OFFSET);
     }
 }

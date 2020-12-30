@@ -83,6 +83,15 @@ public class Market {
         final long baseLotSize = SerumUtils.readBaseLotSize(data);
         market.setBaseLotSize(baseLotSize);
 
+        final long quoteLotSize = SerumUtils.readQuoteLotSize(data);
+        market.setQuoteLotSize(quoteLotSize);
+
+        final long feeRateBps = SerumUtils.readFeeRateBps(data);
+        market.setFeeRateBps(feeRateBps);
+
+        final long referrerRebatesAccrued = SerumUtils.readReferrerRebatesAccrued(data);
+        market.setReferrerRebatesAccrued(referrerRebatesAccrued);
+
         // temporary, for debugging
         System.out.println("Own Address = " + market.getOwnAddress().toBase58());
         System.out.println("Vault signer nonce = " + market.getVaultSignerNonce());
@@ -100,9 +109,9 @@ public class Market {
         System.out.println("Bids = " + market.getBids().toBase58());
         System.out.println("Asks = " + market.getAsks().toBase58());
         System.out.println("Base lot size = " + market.getBaseLotSize());
-
-
-
+        System.out.println("Quote lot size = " + market.getQuoteLotSize());
+        System.out.println("Fee rate bps = " + market.getFeeRateBps());
+        System.out.println("Referrer rebates accrued = " + market.getReferrerRebatesAccrued());
 
         return market;
     }
