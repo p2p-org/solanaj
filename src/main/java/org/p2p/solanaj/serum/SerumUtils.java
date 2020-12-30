@@ -21,7 +21,7 @@ import org.p2p.solanaj.core.PublicKey;
  *   publicKeyLayout('baseVault'), 117-148
  *
  *
- *   u64('baseDepositsTotal'),
+ *   u64('baseDepositsTotal'), 149-156
  *   u64('baseFeesAccrued'),
  *
  *   publicKeyLayout('quoteVault'),
@@ -43,6 +43,7 @@ public class SerumUtils {
     private static final int BASE_MINT_OFFSET = 53;
     private static final int QUOTE_MINT_OFFSET = 85;
     private static final int BASE_VAULT_OFFSET = 117;
+    private static final int BASE_DEPOSITS_TOTAL_OFFSET = 149;
 
     public static PublicKey readOwnAddressPubkey(byte[] bytes) {
         return PublicKey.readPubkey(bytes, OWN_ADDRESS_OFFSET);
@@ -62,5 +63,9 @@ public class SerumUtils {
 
     public static PublicKey readBaseVaultPubkey(byte[] bytes) {
         return PublicKey.readPubkey(bytes, BASE_VAULT_OFFSET);
+    }
+
+    public static long readBaseDepositsTotal(byte[] bytes) {
+        return Utils.readInt64(bytes, BASE_DEPOSITS_TOTAL_OFFSET);
     }
 }

@@ -10,6 +10,7 @@ public class Market {
     private PublicKey baseMint;
     private PublicKey quoteMint;
     private PublicKey baseVault;
+    private long baseDepositsTotal;
 
     public static Market readMarket(byte[] data) {
         Market market = new Market();
@@ -32,12 +33,16 @@ public class Market {
         final PublicKey baseVault = SerumUtils.readBaseVaultPubkey(data);
         market.setBaseVault(baseVault);
 
+        final long baseDepositsTotal = SerumUtils.readBaseDepositsTotal(data);
+        market.setBaseDepositsTotal(baseDepositsTotal);
+
         // temporary, for debugging
-        System.out.println("Own Address (Base58) = " + ownAddress.toBase58());
+        System.out.println("Own Address (Base58) = " + market.getOwnAddress().toBase58());
         System.out.println("Vault signer nonce = " + vaultSignerNonce);
-        System.out.println("Base mint (Base58) = " + baseMint.toBase58());
-        System.out.println("Quote mint (Base58) = " + quoteMint.toBase58());
-        System.out.println("Base vault (Base58) = " + baseVault.toBase58());
+        System.out.println("Base mint (Base58) = " + market.getBaseMint().toBase58());
+        System.out.println("Quote mint (Base58) = " + market.getQuoteMint().toBase58());
+        System.out.println("Base vault (Base58) = " + market.getBaseVault().toBase58());
+        System.out.println("Base deposits total = " + market.getBaseDepositsTotal());
 
         return market;
     }
@@ -88,5 +93,13 @@ public class Market {
 
     public void setBaseVault(PublicKey baseVault) {
         this.baseVault = baseVault;
+    }
+
+    public long getBaseDepositsTotal() {
+        return baseDepositsTotal;
+    }
+
+    public void setBaseDepositsTotal(long baseDepositsTotal) {
+        this.baseDepositsTotal = baseDepositsTotal;
     }
 }
