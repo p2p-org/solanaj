@@ -2,8 +2,6 @@ package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.core.PublicKey;
 
-import java.util.Arrays;
-
 public class Market {
 
     private AccountFlags accountFlags;
@@ -11,6 +9,7 @@ public class Market {
     private long vaultSignerNonce;
     private PublicKey baseMint;
     private PublicKey quoteMint;
+    private PublicKey baseVault;
 
     public static Market readMarket(byte[] data) {
         Market market = new Market();
@@ -30,11 +29,15 @@ public class Market {
         final PublicKey quoteMint = SerumUtils.readQuoteMintPubkey(data);
         market.setQuoteMint(quoteMint);
 
+        final PublicKey baseVault = SerumUtils.readBaseVaultPubkey(data);
+        market.setBaseVault(baseVault);
+
         // temporary, for debugging
         System.out.println("Own Address (Base58) = " + ownAddress.toBase58());
         System.out.println("Vault signer nonce = " + vaultSignerNonce);
         System.out.println("Base mint (Base58) = " + baseMint.toBase58());
         System.out.println("Quote mint (Base58) = " + quoteMint.toBase58());
+        System.out.println("Base vault (Base58) = " + baseVault.toBase58());
 
         return market;
     }
@@ -77,5 +80,13 @@ public class Market {
 
     public void setQuoteMint(PublicKey quoteMint) {
         this.quoteMint = quoteMint;
+    }
+
+    public PublicKey getBaseVault() {
+        return baseVault;
+    }
+
+    public void setBaseVault(PublicKey baseVault) {
+        this.baseVault = baseVault;
     }
 }

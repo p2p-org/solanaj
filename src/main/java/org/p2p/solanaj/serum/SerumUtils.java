@@ -15,6 +15,24 @@ import org.p2p.solanaj.core.PublicKey;
  *   publicKeyLayout('baseMint'), 53-84
  *   publicKeyLayout('quoteMint'), 85-116
  *
+ *
+ *
+ *
+ *   publicKeyLayout('baseVault'), 117-148
+ *
+ *
+ *   u64('baseDepositsTotal'),
+ *   u64('baseFeesAccrued'),
+ *
+ *   publicKeyLayout('quoteVault'),
+ *   u64('quoteDepositsTotal'),
+ *   u64('quoteFeesAccrued'),
+ *
+ *   u64('quoteDustThreshold'),
+ *
+ *   publicKeyLayout('requestQueue'),
+ *   publicKeyLayout('eventQueue'),
+ *
  *   ....
  *
  */
@@ -24,6 +42,7 @@ public class SerumUtils {
     private static final int VAULT_SIGNER_NONCE_OFFSET = 28;
     private static final int BASE_MINT_OFFSET = 53;
     private static final int QUOTE_MINT_OFFSET = 85;
+    private static final int BASE_VAULT_OFFSET = 117;
 
     public static PublicKey readOwnAddressPubkey(byte[] bytes) {
         return PublicKey.readPubkey(bytes, OWN_ADDRESS_OFFSET);
@@ -39,5 +58,9 @@ public class SerumUtils {
 
     public static PublicKey readQuoteMintPubkey(byte[] bytes) {
         return PublicKey.readPubkey(bytes, QUOTE_MINT_OFFSET);
+    }
+
+    public static PublicKey readBaseVaultPubkey(byte[] bytes) {
+        return PublicKey.readPubkey(bytes, BASE_VAULT_OFFSET);
     }
 }
