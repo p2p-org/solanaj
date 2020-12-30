@@ -11,6 +11,11 @@ public class Market {
     private PublicKey quoteMint;
     private PublicKey baseVault;
     private long baseDepositsTotal;
+    private long baseFeesAccrued;
+    private PublicKey quoteVault;
+    private long quoteDepositsTotal;
+    private long quoteFeesAccrued;
+    private long quoteDustThreshold;
 
     public static Market readMarket(byte[] data) {
         Market market = new Market();
@@ -36,13 +41,35 @@ public class Market {
         final long baseDepositsTotal = SerumUtils.readBaseDepositsTotal(data);
         market.setBaseDepositsTotal(baseDepositsTotal);
 
+        final long baseFeesAccrued = SerumUtils.readBaseFeesAccrued(data);
+        market.setBaseFeesAccrued(baseFeesAccrued);
+
+        final PublicKey quoteVault = SerumUtils.readQuoteVaultOffset(data);
+        market.setQuoteVault(quoteVault);
+
+        final long quoteDepositsTotal = SerumUtils.readQuoteDepositsTotal(data);
+        market.setQuoteDepositsTotal(quoteDepositsTotal);
+
+        final long quoteFeesAccrued = SerumUtils.readQuoteFeesAccrued(data);
+        market.setQuoteFeesAccrued(quoteFeesAccrued);
+
+        final long quoteDustThreshold = SerumUtils.readQuoteDustThreshold(data);
+        market.setQuoteDustThreshold(quoteDustThreshold);
+
         // temporary, for debugging
-        System.out.println("Own Address (Base58) = " + market.getOwnAddress().toBase58());
-        System.out.println("Vault signer nonce = " + vaultSignerNonce);
-        System.out.println("Base mint (Base58) = " + market.getBaseMint().toBase58());
-        System.out.println("Quote mint (Base58) = " + market.getQuoteMint().toBase58());
-        System.out.println("Base vault (Base58) = " + market.getBaseVault().toBase58());
+        System.out.println("Own Address = " + market.getOwnAddress().toBase58());
+        System.out.println("Vault signer nonce = " + market.getVaultSignerNonce());
+        System.out.println("Base mint = " + market.getBaseMint().toBase58());
+        System.out.println("Quote mint = " + market.getQuoteMint().toBase58());
+        System.out.println("Base vault = " + market.getBaseVault().toBase58());
         System.out.println("Base deposits total = " + market.getBaseDepositsTotal());
+        System.out.println("Base fees accrued = " + market.getBaseFeesAccrued());
+        System.out.println("Quote vault = " + market.getQuoteVault().toBase58());
+
+        System.out.println("Quote deposits total = " + market.getQuoteDepositsTotal());
+        System.out.println("Quote fees accrued = " + market.getQuoteFeesAccrued());
+        System.out.println("Quote dust threshold = " + market.getQuoteDustThreshold());
+
 
         return market;
     }
@@ -101,5 +128,45 @@ public class Market {
 
     public void setBaseDepositsTotal(long baseDepositsTotal) {
         this.baseDepositsTotal = baseDepositsTotal;
+    }
+
+    public long getBaseFeesAccrued() {
+        return baseFeesAccrued;
+    }
+
+    public void setBaseFeesAccrued(long baseFeesAccrued) {
+        this.baseFeesAccrued = baseFeesAccrued;
+    }
+
+    public PublicKey getQuoteVault() {
+        return quoteVault;
+    }
+
+    public void setQuoteVault(PublicKey quoteVault) {
+        this.quoteVault = quoteVault;
+    }
+
+    public long getQuoteDepositsTotal() {
+        return quoteDepositsTotal;
+    }
+
+    public void setQuoteDepositsTotal(long quoteDepositsTotal) {
+        this.quoteDepositsTotal = quoteDepositsTotal;
+    }
+
+    public long getQuoteFeesAccrued() {
+        return quoteFeesAccrued;
+    }
+
+    public void setQuoteFeesAccrued(long quoteFeesAccrued) {
+        this.quoteFeesAccrued = quoteFeesAccrued;
+    }
+
+    public long getQuoteDustThreshold() {
+        return quoteDustThreshold;
+    }
+
+    public void setQuoteDustThreshold(long quoteDustThreshold) {
+        this.quoteDustThreshold = quoteDustThreshold;
     }
 }
