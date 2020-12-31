@@ -29,13 +29,9 @@ public class Market {
     private long referrerRebatesAccrued;
 
     public void getBidsOrderbook() {
-
-
-
-
+        // TODO - implement
         System.out.println("Getting bid orderbook");
     }
-
 
     public static Market readMarket(byte[] data) {
         Market market = new Market();
