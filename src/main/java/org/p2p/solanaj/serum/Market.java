@@ -28,6 +28,14 @@ public class Market {
     private long feeRateBps;
     private long referrerRebatesAccrued;
 
+    public void getBidsOrderbook() {
+
+
+
+
+        System.out.println("Getting bid orderbook");
+    }
+
 
     public static Market readMarket(byte[] data) {
         Market market = new Market();
@@ -91,27 +99,6 @@ public class Market {
 
         final long referrerRebatesAccrued = SerumUtils.readReferrerRebatesAccrued(data);
         market.setReferrerRebatesAccrued(referrerRebatesAccrued);
-
-        // temporary, for debugging
-        System.out.println("Own Address = " + market.getOwnAddress().toBase58());
-        System.out.println("Vault signer nonce = " + market.getVaultSignerNonce());
-        System.out.println("Base mint = " + market.getBaseMint().toBase58());
-        System.out.println("Quote mint = " + market.getQuoteMint().toBase58());
-        System.out.println("Base vault = " + market.getBaseVault().toBase58());
-        System.out.println("Base deposits total = " + market.getBaseDepositsTotal());
-        System.out.println("Base fees accrued = " + market.getBaseFeesAccrued());
-        System.out.println("Quote vault = " + market.getQuoteVault().toBase58());
-        System.out.println("Quote deposits total = " + market.getQuoteDepositsTotal());
-        System.out.println("Quote fees accrued = " + market.getQuoteFeesAccrued());
-        System.out.println("Quote dust threshold = " + market.getQuoteDustThreshold());
-        System.out.println("Request queue = " + market.getRequestQueue().toBase58());
-        System.out.println("Event queue = " + market.getEventQueue().toBase58());
-        System.out.println("Bids = " + market.getBids().toBase58());
-        System.out.println("Asks = " + market.getAsks().toBase58());
-        System.out.println("Base lot size = " + market.getBaseLotSize());
-        System.out.println("Quote lot size = " + market.getQuoteLotSize());
-        System.out.println("Fee rate bps = " + market.getFeeRateBps());
-        System.out.println("Referrer rebates accrued = " + market.getReferrerRebatesAccrued());
 
         return market;
     }
@@ -274,5 +261,31 @@ public class Market {
 
     public void setReferrerRebatesAccrued(long referrerRebatesAccrued) {
         this.referrerRebatesAccrued = referrerRebatesAccrued;
+    }
+
+    @Override
+    public String toString() {
+        return "Market{" +
+                "accountFlags=" + accountFlags +
+                ", ownAddress=" + ownAddress +
+                ", vaultSignerNonce=" + vaultSignerNonce +
+                ", baseMint=" + baseMint +
+                ", quoteMint=" + quoteMint +
+                ", baseVault=" + baseVault +
+                ", baseDepositsTotal=" + baseDepositsTotal +
+                ", baseFeesAccrued=" + baseFeesAccrued +
+                ", quoteVault=" + quoteVault +
+                ", quoteDepositsTotal=" + quoteDepositsTotal +
+                ", quoteFeesAccrued=" + quoteFeesAccrued +
+                ", quoteDustThreshold=" + quoteDustThreshold +
+                ", requestQueue=" + requestQueue +
+                ", eventQueue=" + eventQueue +
+                ", bids=" + bids +
+                ", asks=" + asks +
+                ", baseLotSize=" + baseLotSize +
+                ", quoteLotSize=" + quoteLotSize +
+                ", feeRateBps=" + feeRateBps +
+                ", referrerRebatesAccrued=" + referrerRebatesAccrued +
+                '}';
     }
 }

@@ -88,16 +88,12 @@ public class MainnetTest {
             final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey);
             final List<String> accountData = accountInfo.getValue().getData();
             final String base64Data = accountData.get(0);
-            System.out.println("Got data for pubkey CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F");
-            System.out.println("Raw data (Base64) = " + base64Data);
 
-            // assume every market is v2
-            // TODO handle the two v1 markets later
-
+            // Deserialize market from the binary data
             if (base64Data != null) {
-                Base64.Decoder decoder = Base64.getDecoder();
-                byte[] bytes = decoder.decode(accountData.get(0));
+                byte[] bytes = Base64.getDecoder().decode(accountData.get(0));
                 Market market = Market.readMarket(bytes);
+                System.out.println(market.toString());
             }
 
             // Verify any balance
