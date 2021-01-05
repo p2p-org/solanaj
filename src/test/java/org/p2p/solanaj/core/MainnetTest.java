@@ -101,25 +101,25 @@ public class MainnetTest {
                 Market market = Market.readMarket(bytes);
                 System.out.println(market.toString());
 
-                // Deserialize the bid order book. This is just proof of concept - will be moved into classes.
-                // If orderbook.dat exists, use it.
-                byte[] data = new byte[0];
-
-                try {
-                    data = Files.readAllBytes(Paths.get("orderbook.dat"));
-                } catch (IOException e) {
-                    // e.printStackTrace();
-                }
-
-                if (data.length == 0) {
-                    AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
-                    data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
-                }
-
-                OrderBook bidOrderBook = OrderBook.readOrderBook(data);
-                market.setBidOrderBook(bidOrderBook);
-
-                System.out.println(bidOrderBook.getAccountFlags().toString());
+//                // Deserialize the bid order book. This is just proof of concept - will be moved into classes.
+//                // If orderbook.dat exists, use it.
+//                byte[] data = new byte[0];
+//
+//                try {
+//                    data = Files.readAllBytes(Paths.get("orderbook.dat"));
+//                } catch (IOException e) {
+//                    // e.printStackTrace();
+//                }
+//
+//                if (data.length == 0) {
+//                    AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
+//                    data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
+//                }
+//
+//                OrderBook bidOrderBook = OrderBook.readOrderBook(data);
+//                market.setBidOrderBook(bidOrderBook);
+//
+//                System.out.println(bidOrderBook.getAccountFlags().toString());
 
             }
 
