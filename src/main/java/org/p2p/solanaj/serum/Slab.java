@@ -5,7 +5,29 @@ import org.p2p.solanaj.utils.ByteUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+/**
+ * slab header layout:
+ * const SLAB_HEADER_LAYOUT = struct(
+ *   [
+ *     // Number of modified slab nodes
+ *     u32('bumpIndex'),
+ *     zeros(4), // Consider slabs with more than 2^32 nodes to be invalid
+ *
+ *     // Linked list of unused nodes
+ *     u32('freeListLen'),
+ *     zeros(4),
+ *     u32('freeListHead'),
+ *
+ *     u32('root'),
+ *
+ *     u32('leafCount'),
+ *     zeros(4),
+ *   ],
+ *   'header',
+ * );
+ */
 public class Slab {
+
     private int bumpIndex;
 
     public static Slab readOrderBookSlab(byte[] data) {
@@ -45,7 +67,6 @@ public class Slab {
         //  read your integers using ByteBuffer's getInt().
         //  four bytes converted into an integer!
         System.out.println(bb.getInt(0));
-        Integer.MAX_VALUE
 
         return bb.getInt(0);
     }
