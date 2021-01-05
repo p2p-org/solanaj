@@ -27,17 +27,17 @@ import java.nio.ByteOrder;
  * const SLAB_HEADER_LAYOUT = struct(
  *   [
  *     // Number of modified slab nodes
- *     u32('bumpIndex'), 5-9
- *     zeros(4), // Consider slabs with more than 2^32 nodes to be invalid 10-14
+ *     u32('bumpIndex'), 13-16
+ *     zeros(4), // Consider slabs with more than 2^32 nodes to be invalid 17-20
  *
  *     // Linked list of unused nodes
- *     u32('freeListLen'), 15-19
- *     zeros(4), //20-24
- *     u32('freeListHead'), 25-29
+ *     u32('freeListLen'), 21-24
+ *     zeros(4), //25-28
+ *     u32('freeListHead'), 29-32
  *
- *     u32('root'), 30-34
+ *     u32('root'), 33-36
  *
- *     u32('leafCount'), 35-39
+ *     u32('leafCount'), 37-40
  *     zeros(4),
  *   ],
  *   'header',
@@ -66,11 +66,11 @@ public class Slab {
     // Offsets. TODO put these in their own file
     // STARTS at 13, since accountflags from the orderbook struct ends there. TODO - refactor this into something sensible
 
-    private static final int BUMP_INDEX_OFFSET = 5 + 13;
-    private static final int FREE_LIST_LEN_OFFSET = 15 + 13;
-    private static final int FREE_LIST_HEAD_OFFSET = 20 + 13;
-    private static final int ROOT_OFFSET = 25 + 13;
-    private static final int LEAF_COUNT_OFFSET = 30 + 13;
+    private static final int BUMP_INDEX_OFFSET = 13;
+    private static final int FREE_LIST_LEN_OFFSET = 21;
+    private static final int FREE_LIST_HEAD_OFFSET = 29;
+    private static final int ROOT_OFFSET = 33;
+    private static final int LEAF_COUNT_OFFSET = 37;
 
     private int bumpIndex;
     private int freeListLen;
