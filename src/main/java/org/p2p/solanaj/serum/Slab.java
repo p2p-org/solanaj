@@ -6,6 +6,19 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ * export const SLAB_LAYOUT = struct([
+ *   SLAB_HEADER_LAYOUT,
+ *   seq(
+ *     SLAB_NODE_LAYOUT,
+ *     offset(
+ *       SLAB_HEADER_LAYOUT.layoutFor('bumpIndex'),
+ *       SLAB_HEADER_LAYOUT.offsetOf('bumpIndex') - SLAB_HEADER_LAYOUT.span,
+ *     ),
+ *     'nodes',
+ *   ),
+ * ]);
+ *
+ *
  * slab header layout:
  * const SLAB_HEADER_LAYOUT = struct(
  *   [
