@@ -2,6 +2,11 @@ package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.core.PublicKey;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Decodes an Orderbook object from bytes.
  *
@@ -51,6 +56,13 @@ public class OrderBook {
         orderBook.setSlab(slab);
 
         //System.out.println("bumpIndex = " + slab.getBumpIndex());
+
+        Path path = Paths.get("orderbook.dat");
+        try {
+            Files.write(path, data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return orderBook;
 
