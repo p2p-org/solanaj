@@ -50,7 +50,7 @@ public class OrderBook {
         final Slab slab = Slab.readOrderBookSlab(data);
         orderBook.setSlab(slab);
 
-        System.out.println("bumpIndex = " + slab.getBumpIndex());
+        //System.out.println("bumpIndex = " + slab.getBumpIndex());
 
         return orderBook;
 
