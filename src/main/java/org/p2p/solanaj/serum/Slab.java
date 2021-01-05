@@ -6,9 +6,16 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ *export const ORDERBOOK_LAYOUT = struct([
+ *   blob(5), 0-4
+ *   accountFlagsLayout('accountFlags'), 5-12
+ *   SLAB_LAYOUT.replicate('slab'), 13 - ...
+ *   blob(7),
+ * ]);
  *
  * first 5 bytes = "serum", start at position 5
- * zero(4) = blob(4) = 4 bytes
+ *
+ * note: zero(4) = blob(4) = 4 bytes
  *
  * export const SLAB_LAYOUT = struct([
  *   SLAB_HEADER_LAYOUT,
