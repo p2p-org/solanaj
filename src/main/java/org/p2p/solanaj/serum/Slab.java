@@ -47,6 +47,21 @@ import java.util.Base64;
  *   ],
  *   'header',
  * );
+ *
+ * const SLAB_NODE_LAYOUT = union(u32('tag'), blob(68), 'node');
+ * SLAB_NODE_LAYOUT.addVariant(0, struct([]), 'uninitialized');
+ * SLAB_NODE_LAYOUT.addVariant(
+ *   1,
+ *   struct([
+ *     // Only the first prefixLen high-order bits of key are meaningful
+ *     u32('prefixLen'),
+ *     u128('key'),
+ *     seq(u32(), 2, 'children'),
+ *   ]),
+ *   'innerNode',
+ * );
+ *
+ * ....
  */
 public class Slab {
 
