@@ -2,13 +2,8 @@ package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.utils.ByteUtils;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Base64;
 
 /**
  *
@@ -42,7 +37,7 @@ import java.util.Base64;
  *
  *     u32('root'), 30-34
  *
- *     u32('leafCount'),
+ *     u32('leafCount'), 35-39
  *     zeros(4),
  *   ],
  *   'header',
@@ -63,31 +58,28 @@ import java.util.Base64;
  *
  * ....
  */
+// Takes in bytes following an AccountFlag object.
 public class Slab {
 
     private static final int INT32_SIZE = 4;
 
     // Offsets. TODO put these in their own file
-    private static final int BUMP_INDEX_OFFSET = 5;
-    private static final int FREE_LIST_LEN_OFFSET = 15;
-    private static final int FREE_LIST_HEAD_OFFSET = 25;
-    private static final int ROOT_OFFSET = 30;
+    // STARTS at 13, since accountflags from the orderbook struct ends there. TODO - refactor this into something sensible
+
+    private static final int BUMP_INDEX_OFFSET = 5 + 13;
+    private static final int FREE_LIST_LEN_OFFSET = 15 + 13;
+    private static final int FREE_LIST_HEAD_OFFSET = 20 + 13;
+    private static final int ROOT_OFFSET = 25 + 13;
+    private static final int LEAF_COUNT_OFFSET = 30 + 13;
 
     private int bumpIndex;
     private int freeListLen;
     private int freeListHead; // memory address?
     private int root;
+    private int leafCount;
 
     public static Slab readOrderBookSlab(byte[] data) {
         final Slab slab = new Slab();
-        //String base64 = Base64.getEncoder().encodeToString(data);
-        //System.out.println("slab b64 = " + base64);
-        Path path = Paths.get("data.txt");
-        try {
-            Files.write(path, data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         int bumpIndex = slab.readBumpIndex(data);
         slab.setBumpIndex(bumpIndex);
@@ -101,15 +93,33 @@ public class Slab {
         int root = slab.readRoot(data);
         slab.setRoot(root);
 
+        int leafCount = slab.readLeafcount(data);
+        slab.setLeafCount(leafCount);
+
 
         System.out.println("bumpIndex = " + bumpIndex);
         System.out.println("freeListLen = " + freeListLen);
         System.out.println("freeListHead = " + freeListHead);
         System.out.println("root = " + root);
+        System.out.println("leafCount = " + leafCount);
 
 
 
         return slab;
+    }
+
+    public int getLeafCount() {
+        return leafCount;
+    }
+
+    public void setLeafCount(int leafCount) {
+        this.leafCount = leafCount;
+    }
+
+    private int readLeafcount(byte[] data) {
+        final byte[] bumpIndexBytes = ByteUtils.readBytes(data, LEAF_COUNT_OFFSET, INT32_SIZE);
+
+        return readInt32(bumpIndexBytes);
     }
 
     public int getRoot() {
