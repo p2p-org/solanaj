@@ -8,6 +8,7 @@ import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.serum.AccountFlags;
 import org.p2p.solanaj.serum.Market;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -94,6 +95,13 @@ public class MainnetTest {
                 byte[] bytes = Base64.getDecoder().decode(accountData.get(0));
                 Market market = Market.readMarket(bytes);
                 System.out.println(market.toString());
+
+                AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
+                byte[] bidAccountBytes = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
+
+                AccountFlags accountFlags = AccountFlags.readAccountFlags(bidAccountBytes);
+                System.out.println(accountFlags.toString());
+
             }
 
             // Verify any balance

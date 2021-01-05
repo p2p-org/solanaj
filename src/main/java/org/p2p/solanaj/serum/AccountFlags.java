@@ -48,8 +48,20 @@ public class AccountFlags {
     }
 
     public static AccountFlags readAccountFlags(byte[] data) {
-        return new AccountFlags(Arrays.copyOfRange(data, 5, 6)[0]);
+        return new AccountFlags(Arrays.copyOfRange(data, 5, 12)[0]);
     }
 
-
+    @Override
+    public String toString() {
+        return "AccountFlags{" +
+                "bitMask=" + bitMask +
+                ", initialized=" + isInitialized() +
+                ", market=" + isMarket() +
+                ", openOrders=" + isOpenOrders() +
+                ", requestQueue=" + isRequestQueue() +
+                ", eventQueue=" + isEventQueue() +
+                ", bids=" + isBids() +
+                ", asks=" + isAsks() +
+                '}';
+    }
 }
