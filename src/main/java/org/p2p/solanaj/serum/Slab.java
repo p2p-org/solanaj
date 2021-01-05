@@ -6,6 +6,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ *
+ * first 5 bytes = "serum", start at position 5
+ * zero(4) = blob(4) = 4 bytes
+ *
  * export const SLAB_LAYOUT = struct([
  *   SLAB_HEADER_LAYOUT,
  *   seq(
@@ -41,6 +45,11 @@ import java.nio.ByteOrder;
  */
 public class Slab {
 
+    private static final int INT32_SIZE = 4;
+
+    // Offsets. TODO put these in their own file
+    private static final int BUMP_INDEX_OFFSET = 5;
+
     private int bumpIndex;
 
     public static Slab readOrderBookSlab(byte[] data) {
@@ -61,7 +70,7 @@ public class Slab {
     }
 
     private int readBumpIndex(byte[] data) {
-        final byte[] bumpIndexBytes = ByteUtils.readBytes(data, 5, 4);
+        final byte[] bumpIndexBytes = ByteUtils.readBytes(data, BUMP_INDEX_OFFSET, INT32_SIZE);
         
         return readInt32(bumpIndexBytes);
     }
@@ -75,12 +84,10 @@ public class Slab {
         //  if the file uses little endian as apposed to network
         //  (big endian, Java's native) format,
         //  then set the byte order of the ByteBuffer
-        bb.order(ByteOrder.BIG_ENDIAN);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
 
         //  read your integers using ByteBuffer's getInt().
         //  four bytes converted into an integer!
-        System.out.println(bb.getInt(0));
-
         return bb.getInt(0);
     }
 
