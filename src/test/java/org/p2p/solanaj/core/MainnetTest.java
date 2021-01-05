@@ -8,6 +8,7 @@ import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.serum.AccountFlags;
 import org.p2p.solanaj.serum.Market;
 import org.p2p.solanaj.serum.OrderBook;
+import org.p2p.solanaj.serum.Slab;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +20,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MainnetTest {
 
@@ -143,6 +144,14 @@ public class MainnetTest {
         OrderBook bidOrderBook = OrderBook.readOrderBook(data);
 
         System.out.println(bidOrderBook.getAccountFlags().toString());
+
+        Slab slab = bidOrderBook.getSlab();
+
+        assertNotNull(slab);
+        assertEquals(141, slab.getBumpIndex());
+        assertEquals(78, slab.getFreeListLen());
+        assertEquals(56, slab.getFreeListHead());
+        assertEquals(32, slab.getLeafCount());
     }
 
 }
