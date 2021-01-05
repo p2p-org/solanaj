@@ -57,12 +57,12 @@ public class OrderBook {
 
         //System.out.println("bumpIndex = " + slab.getBumpIndex());
 
-        Path path = Paths.get("orderbook.dat");
-        try {
-            Files.write(path, data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        Path path = Paths.get("orderbook.dat");
+//        try {
+//            Files.write(path, data);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         return orderBook;
 

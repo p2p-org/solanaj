@@ -9,7 +9,11 @@ import org.p2p.solanaj.serum.AccountFlags;
 import org.p2p.solanaj.serum.Market;
 import org.p2p.solanaj.serum.OrderBook;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -98,11 +102,23 @@ public class MainnetTest {
                 System.out.println(market.toString());
 
                 // Deserialize the bid order book. This is just proof of concept - will be moved into classes.
-                AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
-                byte[] bidAccountBytes = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
+                // If orderbook.dat exists, use it.
+                byte[] data = new byte[0];
 
-                OrderBook bidOrderBook = OrderBook.readOrderBook(bidAccountBytes);
+                try {
+                    data = Files.readAllBytes(Paths.get("orderbook.dat"));
+                } catch (IOException e) {
+                    // e.printStackTrace();
+                }
+
+                if (data.length == 0) {
+                    AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
+                    data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
+                }
+
+                OrderBook bidOrderBook = OrderBook.readOrderBook(data);
                 market.setBidOrderBook(bidOrderBook);
+
                 System.out.println(bidOrderBook.getAccountFlags().toString());
 
             }
@@ -112,6 +128,21 @@ public class MainnetTest {
         } catch (RpcException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void orderBookTest() {
+        byte[] data = new byte[0];
+
+        try {
+            data = Files.readAllBytes(Paths.get("orderbook.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        OrderBook bidOrderBook = OrderBook.readOrderBook(data);
+
+        System.out.println(bidOrderBook.getAccountFlags().toString());
     }
 
 }
