@@ -7,6 +7,7 @@ import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.serum.AccountFlags;
 import org.p2p.solanaj.serum.Market;
+import org.p2p.solanaj.serum.OrderBook;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -96,11 +97,13 @@ public class MainnetTest {
                 Market market = Market.readMarket(bytes);
                 System.out.println(market.toString());
 
+                // Deserialize the bid order book. This is just proof of concept - will be moved into classes.
                 AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
                 byte[] bidAccountBytes = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
 
-                AccountFlags accountFlags = AccountFlags.readAccountFlags(bidAccountBytes);
-                System.out.println(accountFlags.toString());
+                OrderBook bidOrderBook = OrderBook.readOrderBook(bidAccountBytes);
+                market.setBidOrderBook(bidOrderBook);
+                System.out.println(bidOrderBook.getAccountFlags().toString());
 
             }
 
