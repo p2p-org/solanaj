@@ -45,10 +45,22 @@ import java.nio.ByteOrder;
  *     u32('root'), 33-36
  *
  *     u32('leafCount'), 37-40
- *     zeros(4),
+ *     zeros(4), 41-44.
  *   ],
  *   'header',
  * );
+ *
+ * 45 - 48 = ??? = tag and then 68 bytes of data, for N number of times, where N = offset(
+ *  *       SLAB_HEADER_LAYOUT.layoutFor('bumpIndex'),
+ *  *       SLAB_HEADER_LAYOUT.offsetOf('bumpIndex') - SLAB_HEADER_LAYOUT.span,
+ *  *     );
+ *
+ *  45-48 = tag 1,
+ *  49-116 = blob 1
+ *  117-120 = tag 2
+ *  121-188 = blob 2
+ *  189-192 = tag 3
+ *  ...
  *
  * const SLAB_NODE_LAYOUT = union(u32('tag'), blob(68), 'node');
  * SLAB_NODE_LAYOUT.addVariant(0, struct([]), 'uninitialized');
