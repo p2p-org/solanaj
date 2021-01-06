@@ -4,6 +4,7 @@ import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 
 /**
  *export const ORDERBOOK_LAYOUT = struct([
@@ -96,6 +97,7 @@ public class Slab {
     private int freeListHead; // memory address?
     private int root;
     private int leafCount;
+    private ArrayList<SlabNode> slabNodes;
 
     public static Slab readOrderBookSlab(byte[] data) {
         final Slab slab = new Slab();
@@ -114,6 +116,14 @@ public class Slab {
 
         int leafCount = slab.readLeafcount(data);
         slab.setLeafCount(leafCount);
+
+        ArrayList<SlabNode> slabNodes = new ArrayList<>();
+
+        // calculate number of leafs or whatever to iterate through and use a for loop to create the arraylist
+        // slabNodes is backed by an array, which is all we want.
+        // in this example, let's just get... 5 nodes for now. calculation on # of nodes to count tbd.
+        // could also do subtraction + division based on the size of the data field.
+        // probably better to use the hardcoded typescript algorithm (conversion TBD)
 
 
         System.out.println("bumpIndex = " + bumpIndex);
@@ -213,4 +223,11 @@ public class Slab {
         return bb.getInt(0);
     }
 
+    public ArrayList<SlabNode> getSlabNodes() {
+        return slabNodes;
+    }
+
+    public void setSlabNodes(ArrayList<SlabNode> slabNodes) {
+        this.slabNodes = slabNodes;
+    }
 }
