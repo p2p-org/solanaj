@@ -91,6 +91,7 @@ public class Slab {
     private static final int FREE_LIST_HEAD_OFFSET = 29;
     private static final int ROOT_OFFSET = 33;
     private static final int LEAF_COUNT_OFFSET = 37;
+    private static final int SLAB_NODE_OFFSET = 45;
 
     private int bumpIndex;
     private int freeListLen;
@@ -117,14 +118,20 @@ public class Slab {
         int leafCount = slab.readLeafcount(data);
         slab.setLeafCount(leafCount);
 
+        // StabNode should be an interface
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
+        // read rest of the binary into slabnodebytes
+        byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, data.length-SLAB_NODE_OFFSET);
+
+        // TODO - pass in the start of the slabNodes binary instead of start of entire binary
+        slabNodes = slab.readSlabNodes(slabNodeBytes);
 
         // calculate number of leafs or whatever to iterate through and use a for loop to create the arraylist
         // slabNodes is backed by an array, which is all we want.
         // in this example, let's just get... 5 nodes for now. calculation on # of nodes to count tbd.
         // could also do subtraction + division based on the size of the data field.
         // probably better to use the hardcoded typescript algorithm (conversion TBD)
-
+        System.out.println("");
 
         System.out.println("bumpIndex = " + bumpIndex);
         System.out.println("freeListLen = " + freeListLen);
@@ -135,6 +142,59 @@ public class Slab {
 
 
         return slab;
+    }
+
+    /**
+     * [tag 4 bytes][blob 68 bytes]
+     * repeated for N times
+     * todo- add parameter N to this call
+     * @param data
+     * @return
+     */
+    private ArrayList<SlabNode> readSlabNodes(byte[] data) {
+        ArrayList<SlabNode> slabNodes = new ArrayList<>();
+
+        int tag1 = readInt32(ByteUtils.readBytes(data, 0, INT32_SIZE));
+        byte[] blob1 = ByteUtils.readBytes(data, 4, 68);
+
+        System.out.println("tag 1 = " + tag1 + ", type = " + getTagType(tag1));
+
+        // parse blob 1
+        // parse innerNode
+        // struct([
+        // *     // Only the first prefixLen high-order bits of key are meaningful
+        // *     u32('prefixLen'),
+        // *     u128('key'),
+        // *     seq(u32(), 2, 'children'),
+        // *   ]),
+        if (tag1 == 1) {
+            int prefixLen = readInt32(ByteUtils.readBytes(blob1, 0, INT32_SIZE));
+            System.out.println("prefixLen = " + prefixLen);
+
+            // Only the first prefixLen high-order bits of key are meaningful\
+//            int numBytesToRead = (int) Math.ceil(prefixLen / 4.00);
+//
+//            System.out.println("length = " + numBytesToRead);
+//            byte[] key = ByteUtils.readBytes(data, 45+4, numBytesToRead);
+//            System.out.println("key = " + new String(key));
+
+
+        }
+
+
+
+        System.out.println("blob 1 = " + new String(blob1));
+
+
+        return slabNodes;
+    }
+
+    private String getTagType(int tag) {
+        if (tag == 1){
+            return "innerNode";
+        } else {
+            return "unknown";
+        }
     }
 
     public int getLeafCount() {
