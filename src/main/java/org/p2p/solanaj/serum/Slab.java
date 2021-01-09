@@ -121,10 +121,27 @@ public class Slab {
         // StabNode should be an interface
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
         // read rest of the binary into slabnodebytes
-        byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, data.length-SLAB_NODE_OFFSET);
+
+        System.out.println("reading slabnode at offset 45");
+        byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, 72);
 
         // TODO - pass in the start of the slabNodes binary instead of start of entire binary
         slabNodes = slab.readSlabNodes(slabNodeBytes);
+
+        System.out.println("reading slabnode at offset 117");
+        slab.readSlabNodes(ByteUtils.readBytes(data, 117, 72));
+
+        System.out.println("reading slabnode at offset 189");
+        slab.readSlabNodes(ByteUtils.readBytes(data, 189, 72));
+
+        System.out.println("reading slabnode at offset 261");
+        slab.readSlabNodes(ByteUtils.readBytes(data, 261, 72));
+
+        System.out.println("reading slabnode at offset 333");
+        slab.readSlabNodes(ByteUtils.readBytes(data, 333, 72));
+
+        System.out.println("reading slabnode at offset 405");
+        slab.readSlabNodes(ByteUtils.readBytes(data, 405, 72));
 
         // calculate number of leafs or whatever to iterate through and use a for loop to create the arraylist
         // slabNodes is backed by an array, which is all we want.
@@ -158,7 +175,7 @@ public class Slab {
         int tag1 = readInt32(ByteUtils.readBytes(data, 0, INT32_SIZE));
         byte[] blob1 = ByteUtils.readBytes(data, TAG_LENGTH, 68);
 
-        System.out.println("tag 1 = " + tag1 + ", type = " + getTagType(tag1));
+        System.out.println("tag = " + tag1 + ", type = " + getTagType(tag1));
 
         // parse blob 1
         // parse innerNode
@@ -188,9 +205,7 @@ public class Slab {
 
         }
 
-        
-        //System.out.println("blob 1 = " + new String(blob1));
-
+        System.out.println();
 
         return slabNodes;
     }

@@ -1,6 +1,6 @@
 package org.p2p.solanaj.serum;
 
-public class SlabNode {
+public abstract class SlabNode {
 
     // first 4 bytes
     private int tag;
