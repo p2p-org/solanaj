@@ -1,5 +1,6 @@
 package org.p2p.solanaj.serum;
 
+import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.utils.ByteUtils;
 
@@ -159,22 +160,22 @@ public class Slab {
         int TAG_LENGTH = 4;
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
 
-        System.out.println("reading slabnode at offset 0");
+        System.out.println("reading slabnode at offset 0+45");
         readSlabNode(ByteUtils.readBytes(data, 0, 72));
 
-        System.out.println("reading slabnode at offset 72");
+        System.out.println("reading slabnode at offset 72+45");
         readSlabNode(ByteUtils.readBytes(data, 72, 72));
 
-        System.out.println("reading slabnode at offset 144");
+        System.out.println("reading slabnode at offset 144+45");
         readSlabNode(ByteUtils.readBytes(data, 144, 72));
 
-        System.out.println("reading slabnode at offset 216");
+        System.out.println("reading slabnode at offset 216+45");
         readSlabNode(ByteUtils.readBytes(data, 216, 72));
 
-        System.out.println("reading slabnode at offset 288");
+        System.out.println("reading slabnode at offset 288+45");
         readSlabNode(ByteUtils.readBytes(data, 288, 72));
 
-        System.out.println("reading slabnode at offset 360");
+        System.out.println("reading slabnode at offset 360+45");
         readSlabNode(ByteUtils.readBytes(data, 360, 72));
 
         // parse blob 1
@@ -221,6 +222,7 @@ public class Slab {
             byte ownerSlot = ByteUtils.readBytes(blob1, 0, 1)[0];
             System.out.println("ownerSlot = " + ownerSlot);
             byte feeTier = ByteUtils.readBytes(blob1, 1, 1)[0];
+            System.out.println("feeTier = " + feeTier);
             // 2 empty bytes
 
             // "(price, seqNum)"
@@ -231,6 +233,13 @@ public class Slab {
             // Open orders account
             PublicKey owner = PublicKey.readPubkey(blob1, 20);
             System.out.println("owner = " + owner.toBase58());
+
+            // In units of lot size
+            long quantity = Utils.readInt64(blob1, 52);
+            System.out.println("quantity = " + quantity);
+
+            long clientOrderId = Utils.readInt64(blob1, 60);
+            System.out.println("clientOrderId = " + clientOrderId);
 
 
         } else {
