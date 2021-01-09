@@ -152,10 +152,11 @@ public class Slab {
      * @return
      */
     private ArrayList<SlabNode> readSlabNodes(byte[] data) {
+        int TAG_LENGTH = 4;
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
 
         int tag1 = readInt32(ByteUtils.readBytes(data, 0, INT32_SIZE));
-        byte[] blob1 = ByteUtils.readBytes(data, 4, 68);
+        byte[] blob1 = ByteUtils.readBytes(data, TAG_LENGTH, 68);
 
         System.out.println("tag 1 = " + tag1 + ", type = " + getTagType(tag1));
 
@@ -167,23 +168,28 @@ public class Slab {
         // *     u128('key'),
         // *     seq(u32(), 2, 'children'),
         // *   ]),
+        // Blob1 = blob data of slabNode
         if (tag1 == 1) {
             int prefixLen = readInt32(ByteUtils.readBytes(blob1, 0, INT32_SIZE));
             System.out.println("prefixLen = " + prefixLen);
 
             // Only the first prefixLen high-order bits of key are meaningful\
-//            int numBytesToRead = (int) Math.ceil(prefixLen / 4.00);
-//
-//            System.out.println("length = " + numBytesToRead);
-//            byte[] key = ByteUtils.readBytes(data, 45+4, numBytesToRead);
-//            System.out.println("key = " + new String(key));
+            int numBytesToRead = (int) Math.ceil(prefixLen / 4.00);
+            System.out.println("size of key (in bytes) = " + numBytesToRead);
 
+            byte[] key = ByteUtils.readBytes(blob1, 4, numBytesToRead);
+            System.out.println("key = " + new String(key));
+
+            int child1 = readInt32(ByteUtils.readBytes(blob1, 20, 4));
+            System.out.println("child1 = " + child1);
+
+            int child2 = readInt32(ByteUtils.readBytes(blob1, 24, 4));
+            System.out.println("child2 = " + child2);
 
         }
 
-
-
-        System.out.println("blob 1 = " + new String(blob1));
+        
+        //System.out.println("blob 1 = " + new String(blob1));
 
 
         return slabNodes;
