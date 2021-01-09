@@ -125,10 +125,10 @@ public class Slab {
         // read rest of the binary into slabnodebytes
 
         System.out.println("reading slabnode at offset 45");
-        byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, 1000);
+        byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, data.length-45);
 
         // TODO - pass in the start of the slabNodes binary instead of start of entire binary
-        slabNodes = slab.readSlabNodes(slabNodeBytes);
+        slabNodes = slab.readSlabNodes(slabNodeBytes, bumpIndex);
 
 
         // calculate number of leafs or whatever to iterate through and use a for loop to create the arraylist
@@ -156,27 +156,31 @@ public class Slab {
      * @param data
      * @return
      */
-    private ArrayList<SlabNode> readSlabNodes(byte[] data) {
-        int TAG_LENGTH = 4;
+    private ArrayList<SlabNode> readSlabNodes(byte[] data, int bumpIndex) {
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
 
-        System.out.println("reading slabnode at offset 0+45");
-        readSlabNode(ByteUtils.readBytes(data, 0, 72));
+        for (int i = 0; i < bumpIndex; i++) {
+            System.out.println("Reading slabNode at offset = " + ((72 * i)+45));
+            readSlabNode(ByteUtils.readBytes(data, (72 * i), 72));
+        }
 
-        System.out.println("reading slabnode at offset 72+45");
-        readSlabNode(ByteUtils.readBytes(data, 72, 72));
-
-        System.out.println("reading slabnode at offset 144+45");
-        readSlabNode(ByteUtils.readBytes(data, 144, 72));
-
-        System.out.println("reading slabnode at offset 216+45");
-        readSlabNode(ByteUtils.readBytes(data, 216, 72));
-
-        System.out.println("reading slabnode at offset 288+45");
-        readSlabNode(ByteUtils.readBytes(data, 288, 72));
-
-        System.out.println("reading slabnode at offset 360+45");
-        readSlabNode(ByteUtils.readBytes(data, 360, 72));
+//        System.out.println("reading slabnode at offset 0+45");
+//        readSlabNode(ByteUtils.readBytes(data, 0, 72));
+//
+//        System.out.println("reading slabnode at offset 72+45");
+//        readSlabNode(ByteUtils.readBytes(data, 72, 72));
+//
+//        System.out.println("reading slabnode at offset 144+45");
+//        readSlabNode(ByteUtils.readBytes(data, 144, 72));
+//
+//        System.out.println("reading slabnode at offset 216+45");
+//        readSlabNode(ByteUtils.readBytes(data, 216, 72));
+//
+//        System.out.println("reading slabnode at offset 288+45");
+//        readSlabNode(ByteUtils.readBytes(data, 288, 72));
+//
+//        System.out.println("reading slabnode at offset 360+45");
+//        readSlabNode(ByteUtils.readBytes(data, 360, 72));
 
         // parse blob 1
         // parse innerNode
