@@ -1,5 +1,6 @@
 package org.p2p.solanaj.serum;
 
+import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
@@ -214,16 +215,29 @@ public class Slab {
             int child2 = readInt32(ByteUtils.readBytes(blob1, 24, 4));
             System.out.println("child2 = " + child2);
 
-            SlabInnerNode slabInnerNode = new SlabInnerNode();
-            slabInnerNode.setKey(key);
-            slabInnerNode.setChild1(child1);
-            slabInnerNode.setChild2(child2);
-            slabInnerNode.setPrefixLen(prefixLen);
+            slabNode = new SlabInnerNode(prefixLen, key, child1, child2);
+        } else if (tag == 2) {
+            System.out.println("tag 2 detected: leafnode");
+            byte ownerSlot = ByteUtils.readBytes(blob1, 0, 1)[0];
+            System.out.println("ownerSlot = " + ownerSlot);
+            byte feeTier = ByteUtils.readBytes(blob1, 1, 1)[0];
+            // 2 empty bytes
 
-            slabNode = slabInnerNode;
+            // "(price, seqNum)"
+            // key starts at byte 4, u128. u128 = 128 bits = 16 * 8
+            byte[] key = ByteUtils.readBytes(blob1, 4, 16);
+            System.out.println("key = " + new String(key));
+
+            // Open orders account
+            PublicKey owner = PublicKey.readPubkey(blob1, 20);
+            System.out.println("owner = " + owner.toBase58());
+
+
         } else {
             System.out.println("unknown tag = " + tag);
         }
+
+        System.out.println();
 
         return slabNode;
     }

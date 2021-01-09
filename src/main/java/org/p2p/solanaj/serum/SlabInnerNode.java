@@ -7,6 +7,12 @@ public class SlabInnerNode extends SlabNode {
     int child1;
     int child2;
 
+    public SlabInnerNode(int prefixLen, byte[] key, int child1, int child2) {
+        this.prefixLen = prefixLen;
+        this.key = key;
+        this.child1 = child1;
+        this.child2 = child2;
+    }
 
     public int getPrefixLen() {
         return prefixLen;
