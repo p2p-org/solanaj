@@ -123,25 +123,11 @@ public class Slab {
         // read rest of the binary into slabnodebytes
 
         System.out.println("reading slabnode at offset 45");
-        byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, 72);
+        byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, 1000);
 
         // TODO - pass in the start of the slabNodes binary instead of start of entire binary
         slabNodes = slab.readSlabNodes(slabNodeBytes);
 
-        System.out.println("reading slabnode at offset 117");
-        slab.readSlabNodes(ByteUtils.readBytes(data, 117, 72));
-
-        System.out.println("reading slabnode at offset 189");
-        slab.readSlabNodes(ByteUtils.readBytes(data, 189, 72));
-
-        System.out.println("reading slabnode at offset 261");
-        slab.readSlabNodes(ByteUtils.readBytes(data, 261, 72));
-
-        System.out.println("reading slabnode at offset 333");
-        slab.readSlabNodes(ByteUtils.readBytes(data, 333, 72));
-
-        System.out.println("reading slabnode at offset 405");
-        slab.readSlabNodes(ByteUtils.readBytes(data, 405, 72));
 
         // calculate number of leafs or whatever to iterate through and use a for loop to create the arraylist
         // slabNodes is backed by an array, which is all we want.
@@ -172,10 +158,23 @@ public class Slab {
         int TAG_LENGTH = 4;
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
 
-        int tag1 = readInt32(ByteUtils.readBytes(data, 0, INT32_SIZE));
-        byte[] blob1 = ByteUtils.readBytes(data, TAG_LENGTH, 68);
+        System.out.println("reading slabnode at offset 0");
+        readSlabNode(ByteUtils.readBytes(data, 0, 72));
 
-        System.out.println("tag = " + tag1 + ", type = " + getTagType(tag1));
+        System.out.println("reading slabnode at offset 72");
+        readSlabNode(ByteUtils.readBytes(data, 72, 72));
+
+        System.out.println("reading slabnode at offset 144");
+        readSlabNode(ByteUtils.readBytes(data, 144, 72));
+
+        System.out.println("reading slabnode at offset 216");
+        readSlabNode(ByteUtils.readBytes(data, 216, 72));
+
+        System.out.println("reading slabnode at offset 288");
+        readSlabNode(ByteUtils.readBytes(data, 288, 72));
+
+        System.out.println("reading slabnode at offset 360");
+        readSlabNode(ByteUtils.readBytes(data, 360, 72));
 
         // parse blob 1
         // parse innerNode
@@ -186,7 +185,19 @@ public class Slab {
         // *     seq(u32(), 2, 'children'),
         // *   ]),
         // Blob1 = blob data of slabNode
-        if (tag1 == 1) {
+
+
+        System.out.println();
+
+        return slabNodes;
+    }
+
+    public SlabNode readSlabNode(byte[] data) {
+        int tag = readInt32(ByteUtils.readBytes(data, 0, INT32_SIZE));
+        byte[] blob1 = ByteUtils.readBytes(data, 4, 68);
+        SlabNode slabNode = null;
+
+        if (tag == 1) {
             int prefixLen = readInt32(ByteUtils.readBytes(blob1, 0, INT32_SIZE));
             System.out.println("prefixLen = " + prefixLen);
 
@@ -203,11 +214,18 @@ public class Slab {
             int child2 = readInt32(ByteUtils.readBytes(blob1, 24, 4));
             System.out.println("child2 = " + child2);
 
+            SlabInnerNode slabInnerNode = new SlabInnerNode();
+            slabInnerNode.setKey(key);
+            slabInnerNode.setChild1(child1);
+            slabInnerNode.setChild2(child2);
+            slabInnerNode.setPrefixLen(prefixLen);
+
+            slabNode = slabInnerNode;
+        } else {
+            System.out.println("unknown tag = " + tag);
         }
 
-        System.out.println();
-
-        return slabNodes;
+        return slabNode;
     }
 
     private String getTagType(int tag) {
