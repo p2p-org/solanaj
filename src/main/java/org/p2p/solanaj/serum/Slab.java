@@ -12,75 +12,75 @@ import java.util.ArrayList;
 import static org.bitcoinj.core.Utils.reverseBytes;
 
 /**
- *export const ORDERBOOK_LAYOUT = struct([
- *   blob(5), 0-4
- *   accountFlagsLayout('accountFlags'), 5-12
- *   SLAB_LAYOUT.replicate('slab'), 13 - ...
- *   blob(7),
+ * export const ORDERBOOK_LAYOUT = struct([
+ * blob(5), 0-4
+ * accountFlagsLayout('accountFlags'), 5-12
+ * SLAB_LAYOUT.replicate('slab'), 13 - ...
+ * blob(7),
  * ]);
- *
+ * <p>
  * first 5 bytes = "serum", start at position 5
- *
+ * <p>
  * note: zero(4) = blob(4) = 4 bytes
- *
+ * <p>
  * export const SLAB_LAYOUT = struct([
- *   SLAB_HEADER_LAYOUT,
- *   seq(
- *     SLAB_NODE_LAYOUT,
- *     offset(
- *       SLAB_HEADER_LAYOUT.layoutFor('bumpIndex'),
- *       SLAB_HEADER_LAYOUT.offsetOf('bumpIndex') - SLAB_HEADER_LAYOUT.span,
- *     ),
- *     'nodes',
- *   ),
+ * SLAB_HEADER_LAYOUT,
+ * seq(
+ * SLAB_NODE_LAYOUT,
+ * offset(
+ * SLAB_HEADER_LAYOUT.layoutFor('bumpIndex'),
+ * SLAB_HEADER_LAYOUT.offsetOf('bumpIndex') - SLAB_HEADER_LAYOUT.span,
+ * ),
+ * 'nodes',
+ * ),
  * ]);
- *
- *
+ * <p>
+ * <p>
  * slab header layout:
  * const SLAB_HEADER_LAYOUT = struct(
- *   [
- *     // Number of modified slab nodes
- *     u32('bumpIndex'), 13-16
- *     zeros(4), // Consider slabs with more than 2^32 nodes to be invalid 17-20
- *
- *     // Linked list of unused nodes
- *     u32('freeListLen'), 21-24
- *     zeros(4), //25-28
- *     u32('freeListHead'), 29-32
- *
- *     u32('root'), 33-36
- *
- *     u32('leafCount'), 37-40
- *     zeros(4), 41-44.
- *   ],
- *   'header',
+ * [
+ * // Number of modified slab nodes
+ * u32('bumpIndex'), 13-16
+ * zeros(4), // Consider slabs with more than 2^32 nodes to be invalid 17-20
+ * <p>
+ * // Linked list of unused nodes
+ * u32('freeListLen'), 21-24
+ * zeros(4), //25-28
+ * u32('freeListHead'), 29-32
+ * <p>
+ * u32('root'), 33-36
+ * <p>
+ * u32('leafCount'), 37-40
+ * zeros(4), 41-44.
+ * ],
+ * 'header',
  * );
- *
+ * <p>
  * 45 - 48 = ??? = tag and then 68 bytes of data, for N number of times, where N = offset(
- *  *       SLAB_HEADER_LAYOUT.layoutFor('bumpIndex'),
- *  *       SLAB_HEADER_LAYOUT.offsetOf('bumpIndex') - SLAB_HEADER_LAYOUT.span,
- *  *     );
- *
- *  45-48 = tag 1,
- *  49-116 = blob 1
- *  117-120 = tag 2
- *  121-188 = blob 2
- *  189-192 = tag 3
- *  ...
- *
+ * *       SLAB_HEADER_LAYOUT.layoutFor('bumpIndex'),
+ * *       SLAB_HEADER_LAYOUT.offsetOf('bumpIndex') - SLAB_HEADER_LAYOUT.span,
+ * *     );
+ * <p>
+ * 45-48 = tag 1,
+ * 49-116 = blob 1
+ * 117-120 = tag 2
+ * 121-188 = blob 2
+ * 189-192 = tag 3
+ * ...
+ * <p>
  * const SLAB_NODE_LAYOUT = union(u32('tag'), blob(68), 'node');
  * SLAB_NODE_LAYOUT.addVariant(0, struct([]), 'uninitialized');
  * SLAB_NODE_LAYOUT.addVariant(
- *   1,
- *   struct([
- *     // Only the first prefixLen high-order bits of key are meaningful
- *     u32('prefixLen'),
- *     u128('key'),
- *     seq(u32(), 2, 'children'),
- *   ]),
- *   'innerNode',
+ * 1,
+ * struct([
+ * // Only the first prefixLen high-order bits of key are meaningful
+ * u32('prefixLen'),
+ * u128('key'),
+ * seq(u32(), 2, 'children'),
+ * ]),
+ * 'innerNode',
  * );
- *
+ * <p>
  * ....
  */
 // Takes in bytes following an AccountFlag object.
@@ -128,7 +128,7 @@ public class Slab {
         // read rest of the binary into slabnodebytes
 
         System.out.println("reading slabnode at offset 45");
-        byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, data.length-45);
+        byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, data.length - 45);
 
         // TODO - pass in the start of the slabNodes binary instead of start of entire binary
         slabNodes = slab.readSlabNodes(slabNodeBytes, bumpIndex);
@@ -149,7 +149,6 @@ public class Slab {
         System.out.println("leafCount = " + leafCount);
 
 
-
         return slab;
     }
 
@@ -157,6 +156,7 @@ public class Slab {
      * [tag 4 bytes][blob 68 bytes]
      * repeated for N times
      * todo- add parameter N to this call
+     *
      * @param data
      * @return
      */
@@ -164,7 +164,7 @@ public class Slab {
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
 
         for (int i = 0; i < bumpIndex; i++) {
-            System.out.println("Reading slabNode at offset = " + ((72 * i)+45));
+            System.out.println("Reading slabNode at offset = " + ((72 * i) + 45));
             slabNodes.add(readSlabNode(ByteUtils.readBytes(data, (72 * i), 72)));
         }
 
@@ -207,7 +207,11 @@ public class Slab {
         byte[] blob1 = ByteUtils.readBytes(data, 4, 68);
         SlabNode slabNode;
 
-        if (tag == 1) {
+        if (tag == 0) {
+            System.out.println("tag 0 detected: uninitialized");
+            slabNode = null;
+        } else if (tag == 1) {
+            System.out.println("tag 1 detected: innernode");
             int prefixLen = readInt32(ByteUtils.readBytes(blob1, 0, INT32_SIZE));
             System.out.println("prefixLen = " + prefixLen);
 
@@ -256,9 +260,17 @@ public class Slab {
             System.out.println("clientOrderId = " + clientOrderId);
 
             slabNode = new SlabLeafNode(ownerSlot, feeTier, key, owner, quantity, clientOrderId);
-        } else {
+        } else if (tag == 3) {
+            System.out.println("tag 3 detected: freenode");
+            int next = readInt32(ByteUtils.readBytes(blob1, 0, 4));
+            System.out.println("next = " + next);
+
             slabNode = new SlabInnerNode();
-            System.out.println("unknown tag = " + tag);
+        } else if (tag == 4) {
+            System.out.println("tag 4 detected: lastfreenode");
+            slabNode = null;
+        } else {
+            throw new RuntimeException("unknown tag detected during slab deserialization = " + tag);
         }
 
         System.out.println();
@@ -267,7 +279,7 @@ public class Slab {
     }
 
     private String getTagType(int tag) {
-        if (tag == 1){
+        if (tag == 1) {
             return "innerNode";
         } else {
             return "unknown";
@@ -340,10 +352,10 @@ public class Slab {
 
     private int readBumpIndex(byte[] data) {
         final byte[] bumpIndexBytes = ByteUtils.readBytes(data, BUMP_INDEX_OFFSET, INT32_SIZE);
-        
+
         return readInt32(bumpIndexBytes);
     }
-    
+
     public int readInt32(byte[] data) {
         // convert 4 bytes into an int.
 
