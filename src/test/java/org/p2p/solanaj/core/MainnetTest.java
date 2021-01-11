@@ -1,16 +1,15 @@
 package org.p2p.solanaj.core;
 
+import org.bitcoinj.core.Utils;
 import org.junit.Test;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
-import org.p2p.solanaj.serum.AccountFlags;
-import org.p2p.solanaj.serum.Market;
-import org.p2p.solanaj.serum.OrderBook;
-import org.p2p.solanaj.serum.Slab;
+import org.p2p.solanaj.serum.*;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -89,7 +88,8 @@ public class MainnetTest {
     public void marketAccountTest() {
         try {
             // Pubkey of BTC/USDC market
-            final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F");
+            //final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F");
+            final PublicKey publicKey = new PublicKey("FrDavxi4QawYnQY259PVfYUjUvuyPNfqSXbLBqMnbfWJ"); //FIDA/USDC
 
             // Get account Info
             final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey);
@@ -102,25 +102,25 @@ public class MainnetTest {
                 Market market = Market.readMarket(bytes);
                 System.out.println(market.toString());
 
-//                // Deserialize the bid order book. This is just proof of concept - will be moved into classes.
-//                // If orderbook.dat exists, use it.
-//                byte[] data = new byte[0];
-//
-//                try {
-//                    data = Files.readAllBytes(Paths.get("orderbook.dat"));
-//                } catch (IOException e) {
-//                    // e.printStackTrace();
-//                }
-//
-//                if (data.length == 0) {
-//                    AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
-//                    data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
-//                }
-//
-//                OrderBook bidOrderBook = OrderBook.readOrderBook(data);
-//                market.setBidOrderBook(bidOrderBook);
-//
-//                System.out.println(bidOrderBook.getAccountFlags().toString());
+                // Deserialize the bid order book. This is just proof of concept - will be moved into classes.
+                // If orderbook.dat exists, use it.
+                byte[] data = new byte[0];
+
+                try {
+                    data = Files.readAllBytes(Paths.get("orderbook2.dat"));
+                } catch (IOException e) {
+                    // e.printStackTrace();
+                }
+
+                if (data.length == 0) {
+                    AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
+                    data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
+                }
+
+                OrderBook bidOrderBook = OrderBook.readOrderBook(data);
+                market.setBidOrderBook(bidOrderBook);
+
+                System.out.println(bidOrderBook.getAccountFlags().toString());
 
             }
 
@@ -152,6 +152,57 @@ public class MainnetTest {
         assertEquals(78, slab.getFreeListLen());
         assertEquals(56, slab.getFreeListHead());
         assertEquals(32, slab.getLeafCount());
+    }
+
+    @Test
+    public void orderBook2Test() {
+        byte[] data = new byte[0];
+
+        try {
+            data = Files.readAllBytes(Paths.get("orderbook2.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        OrderBook bidOrderBook = OrderBook.readOrderBook(data);
+
+        System.out.println(bidOrderBook.getAccountFlags().toString());
+
+        Slab slab = bidOrderBook.getSlab();
+
+        assertNotNull(slab);
+//        assertEquals(67, slab.getBumpIndex());
+//        assertEquals(28, slab.getFreeListLen());
+//        assertEquals(22, slab.getFreeListHead());
+//        assertEquals(20, slab.getLeafCount());
+
+        slab.getSlabNodes().forEach(slabNode -> {
+            if (slabNode instanceof SlabLeafNode) {
+                //-6415612020026633454
+                if (((SlabLeafNode)slabNode).getClientOrderId() == -6415612020026633454L) {
+                    // found 3038.50      0.543320
+                    System.out.println("FOUND");
+
+                    SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
+                    long price = Utils.readInt64(slabLeafNode.getKey(), 0);
+
+                    BigInteger bigInteger = BigInteger.valueOf(Utils.readInt64(slabLeafNode.getKey(), 0));
+                    long lng = bigInteger.longValue();
+
+                    System.out.println(Long.toUnsignedString(lng));  // 9223372036854800000
+
+
+
+                    System.out.println("price = " + (price & 0x00000000ffffffffL));
+                    System.out.println(slabLeafNode.toString());
+                }
+                //System.out.println(slabNode.toString());
+            }
+        });
+    }
+
+    public static long getUnsignedInt(int x) {
+        return x & (-1L >>> 32);
     }
 
 }

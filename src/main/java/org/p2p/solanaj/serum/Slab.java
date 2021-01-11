@@ -4,9 +4,12 @@ import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.utils.ByteUtils;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+
+import static org.bitcoinj.core.Utils.reverseBytes;
 
 /**
  *export const ORDERBOOK_LAYOUT = struct([
@@ -129,6 +132,7 @@ public class Slab {
 
         // TODO - pass in the start of the slabNodes binary instead of start of entire binary
         slabNodes = slab.readSlabNodes(slabNodeBytes, bumpIndex);
+        slab.setSlabNodes(slabNodes);
 
 
         // calculate number of leafs or whatever to iterate through and use a for loop to create the arraylist
@@ -161,7 +165,7 @@ public class Slab {
 
         for (int i = 0; i < bumpIndex; i++) {
             System.out.println("Reading slabNode at offset = " + ((72 * i)+45));
-            readSlabNode(ByteUtils.readBytes(data, (72 * i), 72));
+            slabNodes.add(readSlabNode(ByteUtils.readBytes(data, (72 * i), 72)));
         }
 
 //        System.out.println("reading slabnode at offset 0+45");
@@ -201,7 +205,7 @@ public class Slab {
     public SlabNode readSlabNode(byte[] data) {
         int tag = readInt32(ByteUtils.readBytes(data, 0, INT32_SIZE));
         byte[] blob1 = ByteUtils.readBytes(data, 4, 68);
-        SlabNode slabNode = null;
+        SlabNode slabNode;
 
         if (tag == 1) {
             int prefixLen = readInt32(ByteUtils.readBytes(blob1, 0, INT32_SIZE));
@@ -233,6 +237,12 @@ public class Slab {
             // key starts at byte 4, u128. u128 = 128 bits = 16 * 8
             byte[] key = ByteUtils.readBytes(blob1, 4, 16);
             System.out.println("key = " + new String(key));
+            double price = ByteUtils.readUint64(key, 0).doubleValue();
+            long seqNum = Utils.readInt64(key, 8);
+
+            System.out.println("price = " + price);
+            System.out.println("seqNum = " + seqNum);
+
 
             // Open orders account
             PublicKey owner = PublicKey.readPubkey(blob1, 20);
@@ -245,8 +255,9 @@ public class Slab {
             long clientOrderId = Utils.readInt64(blob1, 60);
             System.out.println("clientOrderId = " + clientOrderId);
 
-
+            slabNode = new SlabLeafNode(ownerSlot, feeTier, key, owner, quantity, clientOrderId);
         } else {
+            slabNode = new SlabInnerNode();
             System.out.println("unknown tag = " + tag);
         }
 
