@@ -120,8 +120,6 @@ public class MainnetTest {
                 OrderBook bidOrderBook = OrderBook.readOrderBook(data);
                 market.setBidOrderBook(bidOrderBook);
 
-                //System.out.println(bidOrderBook.getAccountFlags().toString());
-
                 System.out.println("BTC/USDC Bids Orderbook");
                 bidOrderBook.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
                     if (value instanceof SlabLeafNode) {
@@ -134,14 +132,6 @@ public class MainnetTest {
                         System.out.println("Order: Bid " + slabLeafNode.getQuantity()/10000.0 + " BTC/USDC at $" + slabLeafNode.getPrice()/10);
                     }
                 });
-
-//                bidOrderBook.getSlab().getSlabNodes().forEach(slabNode -> {
-//                    if (slabNode instanceof SlabLeafNode) {
-//                        SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
-//                        System.out.println("Order: Bid " + slabLeafNode.getQuantity()/100000.0 + " BTC/USDC at $" + slabLeafNode.getPrice()/10);
-//                    }
-//                });
-
             }
 
             // Verify any balance
@@ -307,6 +297,7 @@ public class MainnetTest {
 
                 OrderBook bidOrderBook = OrderBook.readOrderBook(data);
                 market.setBidOrderBook(bidOrderBook);
+                System.out.println(market.toString());
 
 
                 System.out.println("SOL/USDC Bids Orderbook");
@@ -321,7 +312,7 @@ public class MainnetTest {
                         System.out.println("Order: Bid " + slabLeafNode.getQuantity()/10.0 + " SOL/USDC at $" + slabLeafNode.getPrice()/1000.0);
                     }
                 });
-                
+
             }
 
             // Verify any balance

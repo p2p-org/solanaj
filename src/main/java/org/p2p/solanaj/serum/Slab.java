@@ -4,12 +4,10 @@ import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.utils.ByteUtils;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 
-import static org.bitcoinj.core.Utils.reverseBytes;
 
 /**
  * export const ORDERBOOK_LAYOUT = struct([
@@ -123,31 +121,12 @@ public class Slab {
         int leafCount = slab.readLeafcount(data);
         slab.setLeafCount(leafCount);
 
-        // StabNode should be an interface
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
-        // read rest of the binary into slabnodebytes
-
-//        System.out.println("reading slabnode at offset 45");
         byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, data.length - 45);
 
         // TODO - pass in the start of the slabNodes binary instead of start of entire binary
         slabNodes = slab.readSlabNodes(slabNodeBytes, bumpIndex);
         slab.setSlabNodes(slabNodes);
-
-
-        // calculate number of leafs or whatever to iterate through and use a for loop to create the arraylist
-        // slabNodes is backed by an array, which is all we want.
-        // in this example, let's just get... 5 nodes for now. calculation on # of nodes to count tbd.
-        // could also do subtraction + division based on the size of the data field.
-        // probably better to use the hardcoded typescript algorithm (conversion TBD)
-//        System.out.println("");
-//
-//        System.out.println("bumpIndex = " + bumpIndex);
-//        System.out.println("freeListLen = " + freeListLen);
-//        System.out.println("freeListHead = " + freeListHead);
-//        System.out.println("root = " + root);
-//        System.out.println("leafCount = " + leafCount);
-
 
         return slab;
     }
@@ -164,40 +143,8 @@ public class Slab {
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
 
         for (int i = 0; i < bumpIndex; i++) {
-//            System.out.println("Reading slabNode at offset = " + ((72 * i) + 45));
             slabNodes.add(readSlabNode(ByteUtils.readBytes(data, (72 * i), 72)));
         }
-
-//        System.out.println("reading slabnode at offset 0+45");
-//        readSlabNode(ByteUtils.readBytes(data, 0, 72));
-//
-//        System.out.println("reading slabnode at offset 72+45");
-//        readSlabNode(ByteUtils.readBytes(data, 72, 72));
-//
-//        System.out.println("reading slabnode at offset 144+45");
-//        readSlabNode(ByteUtils.readBytes(data, 144, 72));
-//
-//        System.out.println("reading slabnode at offset 216+45");
-//        readSlabNode(ByteUtils.readBytes(data, 216, 72));
-//
-//        System.out.println("reading slabnode at offset 288+45");
-//        readSlabNode(ByteUtils.readBytes(data, 288, 72));
-//
-//        System.out.println("reading slabnode at offset 360+45");
-//        readSlabNode(ByteUtils.readBytes(data, 360, 72));
-
-        // parse blob 1
-        // parse innerNode
-        // struct([
-        // *     // Only the first prefixLen high-order bits of key are meaningful
-        // *     u32('prefixLen'),
-        // *     u128('key'),
-        // *     seq(u32(), 2, 'children'),
-        // *   ]),
-        // Blob1 = blob data of slabNode
-
-
-        System.out.println();
 
         return slabNodes;
     }
