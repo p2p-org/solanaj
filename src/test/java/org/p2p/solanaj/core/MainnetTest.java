@@ -247,13 +247,25 @@ public class MainnetTest {
 
         slab.getSlabNodes().forEach(slabNode -> {
             if (slabNode instanceof SlabLeafNode) {
-                if (Arrays.equals(rawData, ((SlabLeafNode) slabNode).getKey())) {
+                SlabLeafNode slabLeafNode = (SlabLeafNode) slabNode;
+                if (Arrays.equals(rawData, slabLeafNode.getKey())) {
                     System.out.println("Found the order");
                 }
                 System.out.println(slabNode);
+                System.out.println("Price = " + getPriceFromKey(slabLeafNode.getKey()));
 
             }
         });
+    }
+
+    /**
+     * Returns a price long from a (price, seqNum) 128-bit key
+     *
+     * @param data
+     * @return
+     */
+    private static long getPriceFromKey(byte[] data) {
+        return ByteUtils.readUint64(data, 0).longValue();
     }
 
 }
