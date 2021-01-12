@@ -244,6 +244,8 @@ public class Slab {
             long seqNum = Utils.readInt64(key, 0);
             long price = Utils.readInt64(key, 8);
 
+            System.out.println("price = " + price);
+
 
             // Open orders account
             PublicKey owner = PublicKey.readPubkey(blob1, 20);
@@ -256,7 +258,7 @@ public class Slab {
             long clientOrderId = Utils.readInt64(blob1, 60);
             System.out.println("clientOrderId = " + clientOrderId);
 
-            slabNode = new SlabLeafNode(ownerSlot, feeTier, key, owner, quantity, clientOrderId);
+            slabNode = new SlabLeafNode(ownerSlot, feeTier, key, owner, quantity, clientOrderId, price);
         } else if (tag == 3) {
             System.out.println("tag 3 detected: freenode");
             int next = readInt32(ByteUtils.readBytes(blob1, 0, 4));

@@ -12,14 +12,16 @@ public class SlabLeafNode extends SlabNode {
     private PublicKey owner;
     private long quantity;
     private long clientOrderId;
+    private long price;
 
-    public SlabLeafNode(byte ownerSlot, byte feeTier, byte[] key, PublicKey owner, long quantity, long clientOrderId) {
+    public SlabLeafNode(byte ownerSlot, byte feeTier, byte[] key, PublicKey owner, long quantity, long clientOrderId, long price) {
         this.ownerSlot = ownerSlot;
         this.feeTier = feeTier;
         this.key = key;
         this.owner = owner;
         this.quantity = quantity;
         this.clientOrderId = clientOrderId;
+        this.price = price;
     }
 
     public byte getOwnerSlot() {
@@ -70,6 +72,14 @@ public class SlabLeafNode extends SlabNode {
         this.clientOrderId = clientOrderId;
     }
 
+    public long getPrice() {
+        return price;
+    }
+
+    public void setPrice(long price) {
+        this.price = price;
+    }
+
     @Override
     public String toString() {
         return "SlabLeafNode{" +
@@ -79,6 +89,7 @@ public class SlabLeafNode extends SlabNode {
                 ", owner=" + owner +
                 ", quantity=" + quantity +
                 ", clientOrderId=" + clientOrderId +
+                ", price=" + price +
                 '}';
     }
 }

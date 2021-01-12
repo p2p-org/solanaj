@@ -15,10 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -89,9 +86,9 @@ public class MainnetTest {
     public void marketAccountTest() {
         try {
             // Pubkey of BTC/USDC market
-            //final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F");
+            final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F"); //BTC/USDC
             //final PublicKey publicKey = new PublicKey("FrDavxi4QawYnQY259PVfYUjUvuyPNfqSXbLBqMnbfWJ"); //FIDA/USDC
-            final PublicKey publicKey = new PublicKey("3HZWXFCx74xapSPV4rqBv2V7jUshauGS37vqxxoGp6qJ"); //LQID/USDC
+            //final PublicKey publicKey = new PublicKey("3HZWXFCx74xapSPV4rqBv2V7jUshauGS37vqxxoGp6qJ"); //LQID/USDC
 
 
             // Get account Info
@@ -109,11 +106,11 @@ public class MainnetTest {
                 // If orderbook.dat exists, use it.
                 byte[] data = new byte[0];
 
-                try {
-                    data = Files.readAllBytes(Paths.get("orderbook3.dat"));
-                } catch (IOException e) {
-                    // e.printStackTrace();
-                }
+//                try {
+//                    data = Files.readAllBytes(Paths.get("orderbook.dat"));
+//                } catch (IOException e) {
+//                    // e.printStackTrace();
+//                }
 
                 if (data.length == 0) {
                     AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
@@ -124,6 +121,26 @@ public class MainnetTest {
                 market.setBidOrderBook(bidOrderBook);
 
                 System.out.println(bidOrderBook.getAccountFlags().toString());
+
+                System.out.println("BTC/USDC Bids Orderbook");
+                bidOrderBook.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
+                    if (value instanceof SlabLeafNode) {
+                        return ((SlabLeafNode) value).getPrice();
+                    }
+                    return 0;
+                }).reversed()).forEach(slabNode -> {
+                    if (slabNode instanceof SlabLeafNode) {
+                        SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
+                        System.out.println("Order: Bid " + slabLeafNode.getQuantity()/10000.0 + " BTC/USDC at $" + slabLeafNode.getPrice()/10);
+                    }
+                });
+
+//                bidOrderBook.getSlab().getSlabNodes().forEach(slabNode -> {
+//                    if (slabNode instanceof SlabLeafNode) {
+//                        SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
+//                        System.out.println("Order: Bid " + slabLeafNode.getQuantity()/100000.0 + " BTC/USDC at $" + slabLeafNode.getPrice()/10);
+//                    }
+//                });
 
             }
 
@@ -252,7 +269,7 @@ public class MainnetTest {
                     System.out.println("Found the order");
                 }
                 System.out.println(slabNode);
-                System.out.println("Price = " + getPriceFromKey(slabLeafNode.getKey()));
+                //System.out.println("Price = " + getPriceFromKey(slabLeafNode.getKey()));
 
             }
         });
