@@ -1,5 +1,7 @@
 package org.p2p.solanaj.serum;
 
+import java.util.Arrays;
+
 public class SlabInnerNode extends SlabNode {
 
     int prefixLen;
@@ -47,5 +49,15 @@ public class SlabInnerNode extends SlabNode {
 
     public void setChild2(int child2) {
         this.child2 = child2;
+    }
+
+    @Override
+    public String toString() {
+        return "SlabInnerNode{" +
+                "prefixLen=" + prefixLen +
+                ", key=" + Arrays.toString(key) +
+                ", child1=" + child1 +
+                ", child2=" + child2 +
+                '}';
     }
 }

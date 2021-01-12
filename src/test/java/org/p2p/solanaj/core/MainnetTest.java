@@ -7,6 +7,7 @@ import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.serum.*;
+import org.p2p.solanaj.utils.ByteUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -89,7 +90,9 @@ public class MainnetTest {
         try {
             // Pubkey of BTC/USDC market
             //final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F");
-            final PublicKey publicKey = new PublicKey("FrDavxi4QawYnQY259PVfYUjUvuyPNfqSXbLBqMnbfWJ"); //FIDA/USDC
+            //final PublicKey publicKey = new PublicKey("FrDavxi4QawYnQY259PVfYUjUvuyPNfqSXbLBqMnbfWJ"); //FIDA/USDC
+            final PublicKey publicKey = new PublicKey("3HZWXFCx74xapSPV4rqBv2V7jUshauGS37vqxxoGp6qJ"); //LQID/USDC
+
 
             // Get account Info
             final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey);
@@ -107,7 +110,7 @@ public class MainnetTest {
                 byte[] data = new byte[0];
 
                 try {
-                    data = Files.readAllBytes(Paths.get("orderbook2.dat"));
+                    data = Files.readAllBytes(Paths.get("orderbook3.dat"));
                 } catch (IOException e) {
                     // e.printStackTrace();
                 }
@@ -186,23 +189,49 @@ public class MainnetTest {
                     SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
                     long price = Utils.readInt64(slabLeafNode.getKey(), 0);
 
-                    BigInteger bigInteger = BigInteger.valueOf(Utils.readInt64(slabLeafNode.getKey(), 0));
-                    long lng = bigInteger.longValue();
-
-                    System.out.println(Long.toUnsignedString(lng));  // 9223372036854800000
-
-
-
-                    System.out.println("price = " + (price & 0x00000000ffffffffL));
-                    System.out.println(slabLeafNode.toString());
+                    System.out.println("price = " + price);
                 }
-                //System.out.println(slabNode.toString());
             }
         });
     }
 
-    public static long getUnsignedInt(int x) {
-        return x & (-1L >>> 32);
+    @Test
+    public void testPriceDeserialization() {
+        /* C:\apps\solanaj\orderbook3.dat (1/12/2021 8:55:59 AM)
+   StartOffset(d): 00001277, EndOffset(d): 00001292, Length(d): 00000016 */
+
+        byte[] rawData = {
+                (byte)0xDB, (byte)0xFE, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
+                (byte)0xFF, (byte)0xFF, (byte)0x01, (byte)0x00, (byte)0x00, (byte)0x00,
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
+        };
+
+        long price = Utils.readInt64(rawData, 0);
+        BigInteger price2 = ByteUtils.readUint64(rawData, 0);
+        BigInteger price3 = ByteUtils.readUint64Price(rawData, 0);
+        long seqNum = Utils.readInt64(rawData, 8);
+
+        System.out.println("Price = " + price + ", Price2 = " + price2 + ", Price3 = " + price3);
+        System.out.println("seqNum = " + seqNum);
+
+
+    }
+
+    @Test
+    public void orderBook3Test() {
+        byte[] data = new byte[0];
+
+        try {
+            data = Files.readAllBytes(Paths.get("orderbook3.dat"));  // LQID/USDC
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        OrderBook bidOrderBook = OrderBook.readOrderBook(data);
+        System.out.println(bidOrderBook.getAccountFlags().toString());
+        Slab slab = bidOrderBook.getSlab();
+
+        assertNotNull(slab);
     }
 
 }

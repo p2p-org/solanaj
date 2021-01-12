@@ -20,6 +20,10 @@ public class ByteUtils {
         return new BigInteger(reverseBytes(readBytes(buf, offset, UINT_64_LENGTH)));
     }
 
+    public static BigInteger readUint64Price(byte[] buf, int offset) {
+        return new BigInteger(readBytes(buf, offset, UINT_64_LENGTH));
+    }
+
     public static void uint64ToByteStreamLE(BigInteger val, OutputStream stream) throws IOException {
         byte[] bytes = val.toByteArray();
         if (bytes.length > 8) {
