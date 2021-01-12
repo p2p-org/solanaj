@@ -232,6 +232,28 @@ public class MainnetTest {
         Slab slab = bidOrderBook.getSlab();
 
         assertNotNull(slab);
+
+        /* C:\apps\solanaj\orderbook3.dat (1/12/2021 8:55:59 AM)
+   StartOffset(d): 00001709, EndOffset(d): 00001724, Length(d): 00000016 */
+
+        // this rawData = key bytes for a 477.080 quantity bid at 0.0510 cents
+
+        byte[] rawData = {
+                (byte)0xFC, (byte)0xFD, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
+                (byte)0xFF, (byte)0xFF, (byte)0x33, (byte)0x00, (byte)0x00, (byte)0x00,
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
+        };
+
+
+        slab.getSlabNodes().forEach(slabNode -> {
+            if (slabNode instanceof SlabLeafNode) {
+                if (Arrays.equals(rawData, ((SlabLeafNode) slabNode).getKey())) {
+                    System.out.println("Found the order");
+                }
+                System.out.println(slabNode);
+
+            }
+        });
     }
 
 }
