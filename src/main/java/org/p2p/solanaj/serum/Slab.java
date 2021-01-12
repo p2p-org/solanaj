@@ -127,7 +127,7 @@ public class Slab {
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
         // read rest of the binary into slabnodebytes
 
-        System.out.println("reading slabnode at offset 45");
+//        System.out.println("reading slabnode at offset 45");
         byte[] slabNodeBytes = ByteUtils.readBytes(data, SLAB_NODE_OFFSET, data.length - 45);
 
         // TODO - pass in the start of the slabNodes binary instead of start of entire binary
@@ -164,7 +164,7 @@ public class Slab {
         ArrayList<SlabNode> slabNodes = new ArrayList<>();
 
         for (int i = 0; i < bumpIndex; i++) {
-            System.out.println("Reading slabNode at offset = " + ((72 * i) + 45));
+//            System.out.println("Reading slabNode at offset = " + ((72 * i) + 45));
             slabNodes.add(readSlabNode(ByteUtils.readBytes(data, (72 * i), 72)));
         }
 

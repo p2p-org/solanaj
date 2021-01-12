@@ -285,4 +285,50 @@ public class MainnetTest {
         return ByteUtils.readUint64(data, 8).longValue();
     }
 
+    @Test
+    public void solUsdcMarketTest() {
+        try {
+            // Pubkey of BTC/USDC market
+            final PublicKey publicKey = new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ"); // SOL/USDC
+
+            // Get account Info
+            final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey);
+            final List<String> accountData = accountInfo.getValue().getData();
+            final String base64Data = accountData.get(0);
+
+            // Deserialize market from the binary data
+            if (base64Data != null) {
+                byte[] bytes = Base64.getDecoder().decode(accountData.get(0));
+                Market market = Market.readMarket(bytes);
+
+                byte[] data;
+                AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
+                data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
+
+                OrderBook bidOrderBook = OrderBook.readOrderBook(data);
+                market.setBidOrderBook(bidOrderBook);
+
+
+                System.out.println("SOL/USDC Bids Orderbook");
+                bidOrderBook.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
+                    if (value instanceof SlabLeafNode) {
+                        return ((SlabLeafNode) value).getPrice();
+                    }
+                    return 0;
+                }).reversed()).forEach(slabNode -> {
+                    if (slabNode instanceof SlabLeafNode) {
+                        SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
+                        System.out.println("Order: Bid " + slabLeafNode.getQuantity()/10.0 + " SOL/USDC at $" + slabLeafNode.getPrice()/1000.0);
+                    }
+                });
+                
+            }
+
+            // Verify any balance
+            assertTrue(true);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
