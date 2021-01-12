@@ -265,7 +265,7 @@ public class MainnetTest {
      * @return
      */
     private static long getPriceFromKey(byte[] data) {
-        return ByteUtils.readUint64(data, 0).longValue();
+        return ByteUtils.readUint64(data, 8).longValue();
     }
 
 }

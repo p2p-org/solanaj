@@ -241,11 +241,8 @@ public class Slab {
             // key starts at byte 4, u128. u128 = 128 bits = 16 * 8
             byte[] key = ByteUtils.readBytes(blob1, 4, 16);
             System.out.println("key = " + new String(key));
-            long price = Utils.readInt64(key, 0);
-            long seqNum = Utils.readInt64(key, 8);
-
-            System.out.println("price = " + (price & 0x00000000ffffffffL));
-            System.out.println("seqNum = " + (seqNum & 0x00000000ffffffffL));
+            long seqNum = Utils.readInt64(key, 0);
+            long price = Utils.readInt64(key, 8);
 
 
             // Open orders account
