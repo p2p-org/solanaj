@@ -140,13 +140,13 @@ public class Slab {
         // in this example, let's just get... 5 nodes for now. calculation on # of nodes to count tbd.
         // could also do subtraction + division based on the size of the data field.
         // probably better to use the hardcoded typescript algorithm (conversion TBD)
-        System.out.println("");
-
-        System.out.println("bumpIndex = " + bumpIndex);
-        System.out.println("freeListLen = " + freeListLen);
-        System.out.println("freeListHead = " + freeListHead);
-        System.out.println("root = " + root);
-        System.out.println("leafCount = " + leafCount);
+//        System.out.println("");
+//
+//        System.out.println("bumpIndex = " + bumpIndex);
+//        System.out.println("freeListLen = " + freeListLen);
+//        System.out.println("freeListHead = " + freeListHead);
+//        System.out.println("root = " + root);
+//        System.out.println("leafCount = " + leafCount);
 
 
         return slab;
@@ -208,71 +208,71 @@ public class Slab {
         SlabNode slabNode;
 
         if (tag == 0) {
-            System.out.println("tag 0 detected: uninitialized");
+//            System.out.println("tag 0 detected: uninitialized");
             slabNode = null;
         } else if (tag == 1) {
-            System.out.println("tag 1 detected: innernode");
+//            System.out.println("tag 1 detected: innernode");
             int prefixLen = readInt32(ByteUtils.readBytes(blob1, 0, INT32_SIZE));
-            System.out.println("prefixLen = " + prefixLen);
+//            System.out.println("prefixLen = " + prefixLen);
 
             // Only the first prefixLen high-order bits of key are meaningful\
             int numBytesToRead = (int) Math.ceil(prefixLen / 4.00);
-            System.out.println("size of key (in bytes) = " + numBytesToRead);
+//            System.out.println("size of key (in bytes) = " + numBytesToRead);
 
             byte[] key = ByteUtils.readBytes(blob1, 4, numBytesToRead);
-            System.out.println("key = " + new String(key));
+//            System.out.println("key = " + new String(key));
 
             int child1 = readInt32(ByteUtils.readBytes(blob1, 20, 4));
-            System.out.println("child1 = " + child1);
+//            System.out.println("child1 = " + child1);
 
             int child2 = readInt32(ByteUtils.readBytes(blob1, 24, 4));
-            System.out.println("child2 = " + child2);
+//            System.out.println("child2 = " + child2);
 
             slabNode = new SlabInnerNode(prefixLen, key, child1, child2);
         } else if (tag == 2) {
-            System.out.println("tag 2 detected: leafnode");
+//            System.out.println("tag 2 detected: leafnode");
             byte ownerSlot = ByteUtils.readBytes(blob1, 0, 1)[0];
-            System.out.println("ownerSlot = " + ownerSlot);
+//            System.out.println("ownerSlot = " + ownerSlot);
             byte feeTier = ByteUtils.readBytes(blob1, 1, 1)[0];
-            System.out.println("feeTier = " + feeTier);
+//            System.out.println("feeTier = " + feeTier);
             // 2 empty bytes
 
             // "(price, seqNum)"
             // key starts at byte 4, u128. u128 = 128 bits = 16 * 8
             byte[] key = ByteUtils.readBytes(blob1, 4, 16);
-            System.out.println("key = " + new String(key));
+//            System.out.println("key = " + new String(key));
             long seqNum = Utils.readInt64(key, 0);
             long price = Utils.readInt64(key, 8);
 
-            System.out.println("price = " + price);
+//            System.out.println("price = " + price);
 
 
             // Open orders account
             PublicKey owner = PublicKey.readPubkey(blob1, 20);
-            System.out.println("owner = " + owner.toBase58());
+//            System.out.println("owner = " + owner.toBase58());
 
             // In units of lot size
             long quantity = Utils.readInt64(blob1, 52);
-            System.out.println("quantity = " + quantity);
+//            System.out.println("quantity = " + quantity);
 
             long clientOrderId = Utils.readInt64(blob1, 60);
-            System.out.println("clientOrderId = " + clientOrderId);
+//            System.out.println("clientOrderId = " + clientOrderId);
 
             slabNode = new SlabLeafNode(ownerSlot, feeTier, key, owner, quantity, clientOrderId, price);
         } else if (tag == 3) {
-            System.out.println("tag 3 detected: freenode");
+//            System.out.println("tag 3 detected: freenode");
             int next = readInt32(ByteUtils.readBytes(blob1, 0, 4));
-            System.out.println("next = " + next);
+//            System.out.println("next = " + next);
 
             slabNode = new SlabInnerNode();
         } else if (tag == 4) {
-            System.out.println("tag 4 detected: lastfreenode");
+//            System.out.println("tag 4 detected: lastfreenode");
             slabNode = null;
         } else {
             throw new RuntimeException("unknown tag detected during slab deserialization = " + tag);
         }
 
-        System.out.println();
+//        System.out.println();
 
         return slabNode;
     }

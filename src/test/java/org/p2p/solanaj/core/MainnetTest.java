@@ -120,7 +120,7 @@ public class MainnetTest {
                 OrderBook bidOrderBook = OrderBook.readOrderBook(data);
                 market.setBidOrderBook(bidOrderBook);
 
-                System.out.println(bidOrderBook.getAccountFlags().toString());
+                //System.out.println(bidOrderBook.getAccountFlags().toString());
 
                 System.out.println("BTC/USDC Bids Orderbook");
                 bidOrderBook.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
