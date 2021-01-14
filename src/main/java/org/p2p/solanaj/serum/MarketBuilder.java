@@ -7,7 +7,6 @@ import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 
 import java.util.Base64;
-import java.util.Comparator;
 import java.util.List;
 
 public class MarketBuilder {
@@ -63,7 +62,6 @@ public class MarketBuilder {
     }
 
     private byte[] getOrderbookData(PublicKey publicKey) {
-        byte[] data;
         AccountInfo orderBook = null;
 
         try {

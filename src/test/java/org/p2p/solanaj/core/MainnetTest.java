@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -292,8 +293,7 @@ public class MainnetTest {
                 .build();
 
         System.out.println("Market = " + solUsdcMarket.toString());
-
-
+        System.out.println("Bids = " + solUsdcMarket.getBidOrderBook());
     }
 
 }
