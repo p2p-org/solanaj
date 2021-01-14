@@ -224,47 +224,6 @@ public class MainnetTest {
 
     }
 
-    @Test
-    public void orderBook3Test() {
-        byte[] data = new byte[0];
-
-        try {
-            data = Files.readAllBytes(Paths.get("orderbook3.dat"));  // LQID/USDC
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        OrderBook bidOrderBook = OrderBook.readOrderBook(data);
-        System.out.println(bidOrderBook.getAccountFlags().toString());
-        Slab slab = bidOrderBook.getSlab();
-
-        assertNotNull(slab);
-
-        /* C:\apps\solanaj\orderbook3.dat (1/12/2021 8:55:59 AM)
-   StartOffset(d): 00001709, EndOffset(d): 00001724, Length(d): 00000016 */
-
-        // this rawData = key bytes for a 477.080 quantity bid at 0.0510 cents
-
-        byte[] rawData = {
-                (byte)0xFC, (byte)0xFD, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
-                (byte)0xFF, (byte)0xFF, (byte)0x33, (byte)0x00, (byte)0x00, (byte)0x00,
-                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
-        };
-
-
-        slab.getSlabNodes().forEach(slabNode -> {
-            if (slabNode instanceof SlabLeafNode) {
-                SlabLeafNode slabLeafNode = (SlabLeafNode) slabNode;
-                if (Arrays.equals(rawData, slabLeafNode.getKey())) {
-                    System.out.println("Found the order");
-                }
-                System.out.println(slabNode);
-                //System.out.println("Price = " + getPriceFromKey(slabLeafNode.getKey()));
-
-            }
-        });
-    }
-
     /**
      * Returns a price long from a (price, seqNum) 128-bit key
      *
@@ -312,6 +271,7 @@ public class MainnetTest {
                         System.out.println("Order: Bid " + slabLeafNode.getQuantity()/10.0 + " SOL/USDC at $" + slabLeafNode.getPrice()/1000.0);
                     }
                 });
+
 
             }
 
