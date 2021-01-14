@@ -25,47 +25,31 @@ public class MarketBuilder {
         return retrieveOrderbooks;
     }
 
-    public void setRetrieveOrderbooks(boolean retrieveOrderbooks) {
-        this.retrieveOrderbooks = retrieveOrderbooks;
-    }
-
     public Market build() {
         Market market = new Market();
-        //market.setOwnAddress(publicKey);
-
-        // Get Data + read order books
 
         // Get account Info
-        String base64AccountInfo = getAccountData();
+        byte[] base64AccountInfo = getAccountData();
 
         // Read market
         if (base64AccountInfo == null) {
             throw new RuntimeException("Unable to read account data");
         }
 
-        market = Market.readMarket(base64AccountInfo.getBytes());
+        market = Market.readMarket(base64AccountInfo);
 
         // Get Order books
         if (retrieveOrderbooks) {
-            byte[] data;
-            AccountInfo bidAccount = null;
+            byte[] base64BidOrderbook = getOrderbookData(market.getBids());
 
-            try {
-                bidAccount = client.getApi().getAccountInfo(market.getBids());
-            } catch (RpcException e) {
-                e.printStackTrace();
-            }
-
-            data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
-
-            OrderBook bidOrderBook = OrderBook.readOrderBook(data);
+            OrderBook bidOrderBook = OrderBook.readOrderBook(base64BidOrderbook);
             market.setBidOrderBook(bidOrderBook);
         }
 
         return market;
     }
 
-    private String getAccountData() {
+    private byte[] getAccountData() {
         AccountInfo accountInfo = null;
         try {
             accountInfo = client.getApi().getAccountInfo(publicKey);
@@ -74,9 +58,23 @@ public class MarketBuilder {
         }
 
         final List<String> accountData = accountInfo.getValue().getData();
-        final String base64Data = accountData.get(0);
 
-        return base64Data;
+        return Base64.getDecoder().decode(accountData.get(0));
+    }
+
+    private byte[] getOrderbookData(PublicKey publicKey) {
+        byte[] data;
+        AccountInfo orderBook = null;
+
+        try {
+            orderBook = client.getApi().getAccountInfo(publicKey);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        final List<String> accountData = orderBook.getValue().getData();
+
+        return Base64.getDecoder().decode(accountData.get(0));
     }
 
     public PublicKey getPublicKey() {
