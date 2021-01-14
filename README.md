@@ -38,6 +38,17 @@ RpcClient client = new RpcClient(Cluster.TESTNET);
 long balance = client.getApi().getBalance(new PublicKey("QqCCvshxtqMAL2CVALqiJB7uEeE5mjSPsseQdDzsRUo"));
 ```
 
+##### Get Serum market + orderbooks
+```java
+final PublicKey solUsdcPublicKey = new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ");
+final Market solUsdcMarket = new MarketBuilder()
+        .setPublicKey(solUsdcPublicKey)
+        .setRetrieveOrderBooks(true)
+        .build();
+
+final OrderBook bids = solUsdcMarket.getBidOrderBook();
+```
+
 ## Contribution
 
 Welcome to contribute, feel free to change and open a PR.

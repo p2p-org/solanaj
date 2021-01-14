@@ -88,9 +88,6 @@ public class MainnetTest {
         try {
             // Pubkey of BTC/USDC market
             final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F"); //BTC/USDC
-            //final PublicKey publicKey = new PublicKey("FrDavxi4QawYnQY259PVfYUjUvuyPNfqSXbLBqMnbfWJ"); //FIDA/USDC
-            //final PublicKey publicKey = new PublicKey("3HZWXFCx74xapSPV4rqBv2V7jUshauGS37vqxxoGp6qJ"); //LQID/USDC
-
 
             // Get account Info
             final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey);
@@ -291,6 +288,8 @@ public class MainnetTest {
                 .setPublicKey(solUsdcPublicKey)
                 .setRetrieveOrderBooks(true)
                 .build();
+
+        final OrderBook bids = solUsdcMarket.getBidOrderBook();
 
         System.out.println("Market = " + solUsdcMarket.toString());
         System.out.println("Bids = " + solUsdcMarket.getBidOrderBook());
