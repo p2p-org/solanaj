@@ -13,6 +13,8 @@ import org.p2p.solanaj.rpc.types.RecentBlockhash;
 import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig;
 import org.p2p.solanaj.rpc.types.SignatureInformation;
 import org.p2p.solanaj.rpc.types.RpcResultTypes.ValueLong;
+import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
+import org.p2p.solanaj.ws.listeners.NotificationEventListener;
 
 public class RpcApi {
     private RpcClient client;
@@ -43,6 +45,14 @@ public class RpcApi {
         params.add(new RpcSendTransactionConfig());
 
         return client.call("sendTransaction", params, String.class);
+    }
+
+    public void sendAndConfirmTransaction(Transaction transaction, List<Account> signers,
+            NotificationEventListener listener) throws RpcException {
+        String signature = sendTransaction(transaction, signers);
+
+        SubscriptionWebSocketClient subClient = SubscriptionWebSocketClient.getInstance(client.getEndpoint());
+        subClient.signatureSubscribe(signature, listener);
     }
 
     public long getBalance(PublicKey account) throws RpcException {

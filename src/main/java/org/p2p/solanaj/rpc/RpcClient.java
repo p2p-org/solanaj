@@ -61,4 +61,8 @@ public class RpcClient {
         return rpcApi;
     }
 
+    public String getEndpoint() {
+        return endpoint;
+    }
+
 }
