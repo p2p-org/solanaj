@@ -282,4 +282,18 @@ public class MainnetTest {
         }
     }
 
+    @Test
+    public void marketBuilderTest() {
+        final PublicKey solUsdcPublicKey = new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ");
+
+        final Market solUsdcMarket = new MarketBuilder()
+                .setPublicKey(solUsdcPublicKey)
+                .setRetrieveOrderBooks(true)
+                .build();
+
+        System.out.println("Market = " + solUsdcMarket.toString());
+
+
+    }
+
 }
