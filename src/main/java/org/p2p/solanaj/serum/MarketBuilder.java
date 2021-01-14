@@ -44,40 +44,25 @@ public class MarketBuilder {
         }
 
         market = Market.readMarket(base64AccountInfo.getBytes());
-        
-        // Deserialize the bid order book. This is just proof of concept - will be moved into classes.
-        // If orderbook.dat exists, use it.
-//        byte[] data = new byte[0];
-//
-////                try {
-////                    data = Files.readAllBytes(Paths.get("orderbook.dat"));
-////                } catch (IOException e) {
-////                    // e.printStackTrace();
-////                }
-//
-//        if (data.length == 0) {
-//            AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
-//            data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
-//        }
-//
-//        OrderBook bidOrderBook = OrderBook.readOrderBook(data);
-//        market.setBidOrderBook(bidOrderBook);
-//
-//        System.out.println("BTC/USDC Bids Orderbook");
-//        bidOrderBook.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
-//            if (value instanceof SlabLeafNode) {
-//                return ((SlabLeafNode) value).getPrice();
-//            }
-//            return 0;
-//        }).reversed()).forEach(slabNode -> {
-//            if (slabNode instanceof SlabLeafNode) {
-//                SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
-//                System.out.println("Order: Bid " + slabLeafNode.getQuantity()/10000.0 + " BTC/USDC at $" + slabLeafNode.getPrice()/10);
-//            }
-//        });
 
+        // Get Order books
+        if (retrieveOrderbooks) {
+            byte[] data;
+            AccountInfo bidAccount = null;
 
-        return new Market();
+            try {
+                bidAccount = client.getApi().getAccountInfo(market.getBids());
+            } catch (RpcException e) {
+                e.printStackTrace();
+            }
+
+            data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
+
+            OrderBook bidOrderBook = OrderBook.readOrderBook(data);
+            market.setBidOrderBook(bidOrderBook);
+        }
+
+        return market;
     }
 
     private String getAccountData() {
