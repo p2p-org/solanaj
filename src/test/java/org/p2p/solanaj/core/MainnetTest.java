@@ -89,17 +89,9 @@ public class MainnetTest {
 
         final OrderBook bids = solUsdcMarket.getBidOrderBook();
 
-        LOGGER.info("BTC/USDC Bids Orderbook");
-        bids.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
-            if (value instanceof SlabLeafNode) {
-                return ((SlabLeafNode) value).getPrice();
-            }
-            return 0;
-        }).reversed()).forEach(slabNode -> {
-            if (slabNode instanceof SlabLeafNode) {
-                SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
-                LOGGER.info("Order: Bid " + slabLeafNode.getQuantity()/10000.0 + " BTC/USDC at $" + slabLeafNode.getPrice()/10);
-            }
+        final ArrayList<Order> orders = bids.getOrders();
+        orders.forEach(order -> {
+            LOGGER.info(order.toString());
         });
 
         // Verify any balance
@@ -171,21 +163,11 @@ public class MainnetTest {
                 .build();
 
         final OrderBook bids = solUsdcMarket.getBidOrderBook();
-
         LOGGER.info("Market = " + solUsdcMarket.toString());
-        LOGGER.info("Bids = " + solUsdcMarket.getBidOrderBook());
 
-        LOGGER.info("SOL/USDC Bids Orderbook");
-        bids.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
-            if (value instanceof SlabLeafNode) {
-                return ((SlabLeafNode) value).getPrice();
-            }
-            return 0;
-        }).reversed()).forEach(slabNode -> {
-            if (slabNode instanceof SlabLeafNode) {
-                SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
-                LOGGER.info("Order: Bid " + slabLeafNode.getQuantity()/10.0 + " SOL/USDC at $" + slabLeafNode.getPrice()/1000.0);
-            }
+        final ArrayList<Order> orders = bids.getOrders();
+        orders.forEach(order -> {
+            LOGGER.info(order.toString());
         });
     }
 

@@ -1,5 +1,9 @@
 package org.p2p.solanaj.serum;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * Decodes an Orderbook object from bytes.
  *
@@ -36,6 +40,37 @@ public class OrderBook {
 
         return orderBook;
 
+    }
+
+    /**
+     * Build's an {@link Order} {@link ArrayList} from existing data.
+     *
+     * @return {@link List} containing {@link Order}s built from existing the {@link OrderBook} {@link Slab}.
+     */
+    public ArrayList<Order> getOrders() {
+        if (slab == null) {
+            return null;
+        }
+
+        final ArrayList<Order> orders = new ArrayList<>();
+
+        slab.getSlabNodes().forEach(slabNode -> {
+            if (slabNode instanceof SlabLeafNode) {
+                SlabLeafNode slabLeafNode = (SlabLeafNode) slabNode;
+                orders.add(
+                        new Order(
+                                slabLeafNode.getPrice(),
+                                slabLeafNode.getQuantity(),
+                                slabLeafNode.getClientOrderId()
+                        )
+                );
+            }
+        });
+
+        // Sort by price descending
+        orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
+
+        return orders;
     }
 
     public Slab getSlab() {
