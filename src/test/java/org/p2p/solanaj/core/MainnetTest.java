@@ -98,7 +98,7 @@ public class MainnetTest {
         LOGGER.info("Top bid = " + bids.getTopOrderFromBids().toString());
 
         // Verify any balance
-        assertTrue(true);
+        assertTrue(orders.size() > 0);
     }
 
     /**
@@ -142,15 +142,14 @@ public class MainnetTest {
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
         };
 
-        long price = Utils.readInt64(rawData, 0);
-        BigInteger price2 = ByteUtils.readUint64(rawData, 0);
-        BigInteger price3 = ByteUtils.readUint64Price(rawData, 0);
-        long seqNum = Utils.readInt64(rawData, 8);
+        long seqNum = Utils.readInt64(rawData, 0);
+        long price = Utils.readInt64(rawData, 8);
 
-        LOGGER.info("Price = " + price + ", Price2 = " + price2 + ", Price3 = " + price3);
+        LOGGER.info("Price = " + price);
         LOGGER.info("seqNum = " + seqNum);
 
-
+        assertEquals(1, price);
+        assertEquals(seqNum, -293L);
     }
 
     /**
@@ -173,6 +172,8 @@ public class MainnetTest {
         orders.forEach(order -> {
             LOGGER.info(order.toString());
         });
-    }
 
+        // Verify that an order exists
+        assertTrue(orders.size() > 0);
+    }
 }
