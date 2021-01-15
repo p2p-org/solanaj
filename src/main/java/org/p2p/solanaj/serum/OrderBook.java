@@ -12,8 +12,6 @@ import java.util.List;
  *     slab_1.SLAB_LAYOUT.replicate('slab'),
  *     buffer_layout_1.blob(7),
  *
- *
- *
  */
 public class OrderBook {
 
@@ -28,15 +26,6 @@ public class OrderBook {
 
         final Slab slab = Slab.readOrderBookSlab(data);
         orderBook.setSlab(slab);
-
-        // Uncomment to save orderbook data to binary.
-
-//        Path path = Paths.get("orderbook3.dat");
-//        try {
-//            Files.write(path, data);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         return orderBook;
 
@@ -67,10 +56,19 @@ public class OrderBook {
             }
         });
 
-        // Sort by price descending
-        orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
-
         return orders;
+
+
+    }
+
+    /**
+     * Retrieves the top {@link Order} for bids (sorted by price descending).
+     * @return
+     */
+    public Order getTopOrderFromBids() {
+        final ArrayList<Order> orders = getOrders();
+        orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
+        return orders.get(0);
     }
 
     public Slab getSlab() {

@@ -90,9 +90,12 @@ public class MainnetTest {
         final OrderBook bids = solUsdcMarket.getBidOrderBook();
 
         final ArrayList<Order> orders = bids.getOrders();
+        orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
         orders.forEach(order -> {
             LOGGER.info(order.toString());
         });
+
+        LOGGER.info("Top bid = " + bids.getTopOrderFromBids().toString());
 
         // Verify any balance
         assertTrue(true);
@@ -166,6 +169,7 @@ public class MainnetTest {
         LOGGER.info("Market = " + solUsdcMarket.toString());
 
         final ArrayList<Order> orders = bids.getOrders();
+        orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
         orders.forEach(order -> {
             LOGGER.info(order.toString());
         });

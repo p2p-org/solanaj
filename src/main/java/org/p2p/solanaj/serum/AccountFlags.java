@@ -7,44 +7,44 @@ public class AccountFlags {
     // Holds all 8 booleans (1 for each bit)
     private final byte bitMask;
 
-    private final int initialized = 1;  // Binary 00000001
-    private final int market = 2;  // Binary 00000010
-    private final int openOrders = 4;  // Binary 00000100
-    private final int requestQueue = 8;  // Binary 00001000
-    private final int eventQueue = 16;  // Binary 00010000
-    private final int bids = 32;  // Binary 00100000
-    private final int asks = 64;  // Binary 01000000
+    private static final int INITIALIZED = 1;  // Binary 00000001
+    private static final int MARKET = 2;  // Binary 00000010
+    private static final int OPEN_ORDERS = 4;  // Binary 00000100
+    private static final int REQUEST_QUEUE = 8;  // Binary 00001000
+    private static final int EVENT_QUEUE = 16;  // Binary 00010000
+    private static final int BIDS = 32;  // Binary 00100000
+    private static final int ASKS = 64;  // Binary 01000000
 
     public AccountFlags(byte bitMask) {
         this.bitMask = bitMask;
     }
 
     public boolean isInitialized() {
-        return ((bitMask & initialized) == initialized);
+        return ((bitMask & INITIALIZED) == INITIALIZED);
     }
 
     public boolean isMarket() {
-        return ((bitMask & market) == market);
+        return ((bitMask & MARKET) == MARKET);
     }
 
     public boolean isOpenOrders() {
-        return ((bitMask & openOrders) == openOrders);
+        return ((bitMask & OPEN_ORDERS) == OPEN_ORDERS);
     }
 
     public boolean isRequestQueue() {
-        return ((bitMask & requestQueue) == requestQueue);
+        return ((bitMask & REQUEST_QUEUE) == REQUEST_QUEUE);
     }
 
     public boolean isEventQueue() {
-        return ((bitMask & eventQueue) == eventQueue);
+        return ((bitMask & EVENT_QUEUE) == EVENT_QUEUE);
     }
 
     public boolean isBids() {
-        return ((bitMask & bids) == bids);
+        return ((bitMask & BIDS) == BIDS);
     }
 
     public boolean isAsks() {
-        return ((bitMask & asks) == asks);
+        return ((bitMask & ASKS) == ASKS);
     }
 
     public static AccountFlags readAccountFlags(byte[] data) {
