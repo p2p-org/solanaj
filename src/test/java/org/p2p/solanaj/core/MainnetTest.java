@@ -74,6 +74,9 @@ public class MainnetTest {
         }
     }
 
+    /**
+     * Uses a {@link MarketBuilder} class to retrieve data about the BTC/USDC Serum market.
+     */
     @Test
     public void marketBuilderBtcUsdcTest() {
         // Pubkey of BTC/USDC market
@@ -103,6 +106,9 @@ public class MainnetTest {
         assertTrue(true);
     }
 
+    /**
+     * Verifies that {@link OrderBook} headers are properly read by {@link OrderBook#readOrderBook(byte[])}
+     */
     @Test
     public void orderBookTest() {
         byte[] data = new byte[0];
@@ -126,6 +132,10 @@ public class MainnetTest {
         assertEquals(32, slab.getLeafCount());
     }
 
+    /**
+     * Will verify {@link ByteUtils} or {@link SerumUtils} can read seqNum and price.
+     * Currently just reads price and logs it.
+     */
     @Test
     public void testPriceDeserialization() {
         /* C:\apps\solanaj\orderbook3.dat (1/12/2021 8:55:59 AM)
@@ -148,6 +158,9 @@ public class MainnetTest {
 
     }
 
+    /**
+     * Uses a {@link MarketBuilder} class to retrieve data about the SOL/USDC Serum market.
+     */
     @Test
     public void marketBuilderSolUsdcTest() {
         final PublicKey solUsdcPublicKey = new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ");

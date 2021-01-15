@@ -25,7 +25,7 @@ public class OrderBook {
         final Slab slab = Slab.readOrderBookSlab(data);
         orderBook.setSlab(slab);
 
-        //System.out.println("bumpIndex = " + slab.getBumpIndex());
+        // Uncomment to save orderbook data to binary.
 
 //        Path path = Paths.get("orderbook3.dat");
 //        try {
