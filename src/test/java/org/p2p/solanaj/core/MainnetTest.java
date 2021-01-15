@@ -11,27 +11,18 @@ import org.p2p.solanaj.utils.ByteUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
 public class MainnetTest {
 
+    private static final Logger LOGGER = Logger.getLogger(MainnetTest.class.getName());
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
     private final PublicKey publicKey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
-
-    public static final int initialized = 1;  // Binary 00000001
-    public static final int market = 2;  // Binary 00000010
-    public static final int openOrders = 4;  // Binary 00000100
-    public static final int requestQueue = 8;  // Binary 00001000
-    public static final int eventQueue = 16;  // Binary 00010000
-    public static final int bids = 32;  // Binary 00100000
-    public static final int asks = 64;  // Binary 01000000
 
     @Test
     public void getAccountInfoBase64() {
@@ -84,59 +75,32 @@ public class MainnetTest {
     }
 
     @Test
-    public void marketAccountTest() {
-        try {
-            // Pubkey of BTC/USDC market
-            final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F"); //BTC/USDC
+    public void marketBuilderBtcUsdcTest() {
+        // Pubkey of BTC/USDC market
+        final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F"); //BTC/USDC
 
-            // Get account Info
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey);
-            final List<String> accountData = accountInfo.getValue().getData();
-            final String base64Data = accountData.get(0);
+        final Market solUsdcMarket = new MarketBuilder()
+                .setPublicKey(publicKey)
+                .setRetrieveOrderBooks(true)
+                .build();
 
-            // Deserialize market from the binary data
-            if (base64Data != null) {
-                byte[] bytes = Base64.getDecoder().decode(accountData.get(0));
-                Market market = Market.readMarket(bytes);
-                System.out.println(market.toString());
+        final OrderBook bids = solUsdcMarket.getBidOrderBook();
 
-                // Deserialize the bid order book. This is just proof of concept - will be moved into classes.
-                // If orderbook.dat exists, use it.
-                byte[] data = new byte[0];
-
-//                try {
-//                    data = Files.readAllBytes(Paths.get("orderbook.dat"));
-//                } catch (IOException e) {
-//                    // e.printStackTrace();
-//                }
-
-                if (data.length == 0) {
-                    AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
-                    data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
-                }
-
-                OrderBook bidOrderBook = OrderBook.readOrderBook(data);
-                market.setBidOrderBook(bidOrderBook);
-
-                System.out.println("BTC/USDC Bids Orderbook");
-                bidOrderBook.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
-                    if (value instanceof SlabLeafNode) {
-                        return ((SlabLeafNode) value).getPrice();
-                    }
-                    return 0;
-                }).reversed()).forEach(slabNode -> {
-                    if (slabNode instanceof SlabLeafNode) {
-                        SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
-                        System.out.println("Order: Bid " + slabLeafNode.getQuantity()/10000.0 + " BTC/USDC at $" + slabLeafNode.getPrice()/10);
-                    }
-                });
+        LOGGER.info("BTC/USDC Bids Orderbook");
+        bids.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
+            if (value instanceof SlabLeafNode) {
+                return ((SlabLeafNode) value).getPrice();
             }
+            return 0;
+        }).reversed()).forEach(slabNode -> {
+            if (slabNode instanceof SlabLeafNode) {
+                SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
+                LOGGER.info("Order: Bid " + slabLeafNode.getQuantity()/10000.0 + " BTC/USDC at $" + slabLeafNode.getPrice()/10);
+            }
+        });
 
-            // Verify any balance
-            assertTrue(true);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
+        // Verify any balance
+        assertTrue(true);
     }
 
     @Test
@@ -151,7 +115,7 @@ public class MainnetTest {
 
         OrderBook bidOrderBook = OrderBook.readOrderBook(data);
 
-        System.out.println(bidOrderBook.getAccountFlags().toString());
+        LOGGER.info(bidOrderBook.getAccountFlags().toString());
 
         Slab slab = bidOrderBook.getSlab();
 
@@ -160,44 +124,6 @@ public class MainnetTest {
         assertEquals(78, slab.getFreeListLen());
         assertEquals(56, slab.getFreeListHead());
         assertEquals(32, slab.getLeafCount());
-    }
-
-    @Test
-    public void orderBook2Test() {
-        byte[] data = new byte[0];
-
-        try {
-            data = Files.readAllBytes(Paths.get("orderbook2.dat"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        OrderBook bidOrderBook = OrderBook.readOrderBook(data);
-
-        System.out.println(bidOrderBook.getAccountFlags().toString());
-
-        Slab slab = bidOrderBook.getSlab();
-
-        assertNotNull(slab);
-//        assertEquals(67, slab.getBumpIndex());
-//        assertEquals(28, slab.getFreeListLen());
-//        assertEquals(22, slab.getFreeListHead());
-//        assertEquals(20, slab.getLeafCount());
-
-        slab.getSlabNodes().forEach(slabNode -> {
-            if (slabNode instanceof SlabLeafNode) {
-                //-6415612020026633454
-                if (((SlabLeafNode)slabNode).getClientOrderId() == -6415612020026633454L) {
-                    // found 3038.50      0.543320
-                    System.out.println("FOUND");
-
-                    SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
-                    long price = Utils.readInt64(slabLeafNode.getKey(), 0);
-
-                    System.out.println("price = " + price);
-                }
-            }
-        });
     }
 
     @Test
@@ -216,72 +142,14 @@ public class MainnetTest {
         BigInteger price3 = ByteUtils.readUint64Price(rawData, 0);
         long seqNum = Utils.readInt64(rawData, 8);
 
-        System.out.println("Price = " + price + ", Price2 = " + price2 + ", Price3 = " + price3);
-        System.out.println("seqNum = " + seqNum);
+        LOGGER.info("Price = " + price + ", Price2 = " + price2 + ", Price3 = " + price3);
+        LOGGER.info("seqNum = " + seqNum);
 
 
-    }
-
-    /**
-     * Returns a price long from a (price, seqNum) 128-bit key
-     *
-     * @param data
-     * @return
-     */
-    private static long getPriceFromKey(byte[] data) {
-        return ByteUtils.readUint64(data, 8).longValue();
     }
 
     @Test
-    public void solUsdcMarketTest() {
-        try {
-            // Pubkey of BTC/USDC market
-            final PublicKey publicKey = new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ"); // SOL/USDC
-
-            // Get account Info
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey);
-            final List<String> accountData = accountInfo.getValue().getData();
-            final String base64Data = accountData.get(0);
-
-            // Deserialize market from the binary data
-            if (base64Data != null) {
-                byte[] bytes = Base64.getDecoder().decode(accountData.get(0));
-                Market market = Market.readMarket(bytes);
-
-                byte[] data;
-                AccountInfo bidAccount = client.getApi().getAccountInfo(market.getBids());
-                data = Base64.getDecoder().decode(bidAccount.getValue().getData().get(0));
-
-                OrderBook bidOrderBook = OrderBook.readOrderBook(data);
-                market.setBidOrderBook(bidOrderBook);
-                System.out.println(market.toString());
-
-
-                System.out.println("SOL/USDC Bids Orderbook");
-                bidOrderBook.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
-                    if (value instanceof SlabLeafNode) {
-                        return ((SlabLeafNode) value).getPrice();
-                    }
-                    return 0;
-                }).reversed()).forEach(slabNode -> {
-                    if (slabNode instanceof SlabLeafNode) {
-                        SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
-                        System.out.println("Order: Bid " + slabLeafNode.getQuantity()/10.0 + " SOL/USDC at $" + slabLeafNode.getPrice()/1000.0);
-                    }
-                });
-
-
-            }
-
-            // Verify any balance
-            assertTrue(true);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void marketBuilderTest() {
+    public void marketBuilderSolUsdcTest() {
         final PublicKey solUsdcPublicKey = new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ");
 
         final Market solUsdcMarket = new MarketBuilder()
@@ -291,8 +159,21 @@ public class MainnetTest {
 
         final OrderBook bids = solUsdcMarket.getBidOrderBook();
 
-        System.out.println("Market = " + solUsdcMarket.toString());
-        System.out.println("Bids = " + solUsdcMarket.getBidOrderBook());
+        LOGGER.info("Market = " + solUsdcMarket.toString());
+        LOGGER.info("Bids = " + solUsdcMarket.getBidOrderBook());
+
+        LOGGER.info("SOL/USDC Bids Orderbook");
+        bids.getSlab().getSlabNodes().stream().sorted(Comparator.comparingLong(value -> {
+            if (value instanceof SlabLeafNode) {
+                return ((SlabLeafNode) value).getPrice();
+            }
+            return 0;
+        }).reversed()).forEach(slabNode -> {
+            if (slabNode instanceof SlabLeafNode) {
+                SlabLeafNode slabLeafNode = (SlabLeafNode)slabNode;
+                LOGGER.info("Order: Bid " + slabLeafNode.getQuantity()/10.0 + " SOL/USDC at $" + slabLeafNode.getPrice()/1000.0);
+            }
+        });
     }
 
 }
