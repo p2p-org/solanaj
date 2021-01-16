@@ -10,7 +10,6 @@ import org.p2p.solanaj.serum.*;
 import org.p2p.solanaj.utils.ByteUtils;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -89,13 +88,30 @@ public class MainnetTest {
 
         final OrderBook bids = solUsdcMarket.getBidOrderBook();
 
-        final ArrayList<Order> orders = bids.getOrders();
+        ArrayList<Order> orders = bids.getOrders();
         orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
+        orders.forEach(order -> {
+            //LOGGER.info(order.toString());
+        });
+
+        //LOGGER.info("Top bid = " + bids.getTopOrderFromBids().toString());
+
+        LOGGER.info("Asks");
+
+        // Test asks
+        final OrderBook asks = solUsdcMarket.getAskOrderBook();
+
+        orders = asks.getOrders();
+
+        // Sort asks ascending (cheapest first)
+        // Leave the sorting to the client for top performance, e.g. don't sort the orderbook unless explicity told to.
+
+        orders.sort(Comparator.comparingLong(Order::getPrice));
         orders.forEach(order -> {
             LOGGER.info(order.toString());
         });
 
-        LOGGER.info("Top bid = " + bids.getTopOrderFromBids().toString());
+        LOGGER.info("Top ask = " + asks.getLowestAskOrder());
 
         // Verify any balance
         assertTrue(orders.size() > 0);

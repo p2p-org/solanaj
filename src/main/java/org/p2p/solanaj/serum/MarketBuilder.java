@@ -40,9 +40,13 @@ public class MarketBuilder {
         // Get Order books
         if (retrieveOrderbooks) {
             byte[] base64BidOrderbook = getOrderbookData(market.getBids());
+            byte[] base64AskOrderbook = getOrderbookData(market.getAsks());
 
             OrderBook bidOrderBook = OrderBook.readOrderBook(base64BidOrderbook);
+            OrderBook askOrderBook = OrderBook.readOrderBook(base64AskOrderbook);
+
             market.setBidOrderBook(bidOrderBook);
+            market.setAskOrderBook(askOrderBook);
         }
 
         return market;

@@ -65,9 +65,15 @@ public class OrderBook {
      * Retrieves the top {@link Order} for bids (sorted by price descending).
      * @return
      */
-    public Order getTopOrderFromBids() {
+    public Order getTopBidOrder() {
         final ArrayList<Order> orders = getOrders();
         orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
+        return orders.get(0);
+    }
+
+    public Order getLowestAskOrder() {
+        final ArrayList<Order> orders = getOrders();
+        orders.sort(Comparator.comparingLong(Order::getPrice));
         return orders.get(0);
     }
 

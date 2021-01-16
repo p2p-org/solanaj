@@ -29,6 +29,7 @@ public class Market {
     private long referrerRebatesAccrued;
 
     private OrderBook bidOrderBook;
+    private OrderBook askOrderBook;
 
     public OrderBook getBidOrderBook() {
         return bidOrderBook;
@@ -36,6 +37,14 @@ public class Market {
 
     public void setBidOrderBook(OrderBook bidOrderBook) {
         this.bidOrderBook = bidOrderBook;
+    }
+
+    public OrderBook getAskOrderBook() {
+        return askOrderBook;
+    }
+
+    public void setAskOrderBook(OrderBook askOrderBook) {
+        this.askOrderBook = askOrderBook;
     }
 
     public static Market readMarket(byte[] data) {
