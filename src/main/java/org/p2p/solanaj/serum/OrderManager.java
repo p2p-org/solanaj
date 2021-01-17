@@ -22,8 +22,8 @@ public class OrderManager {
      * @return true if the order succeeded
      */
     public boolean placeOrder(Account account, Market market, Order order) {
-
-        Transaction transaction = new Transaction();
+        
+        Transaction transaction = new TransactionBuilder().build();
 
 
         //client.getApi().sendTransaction()
