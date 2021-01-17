@@ -1,6 +1,5 @@
 package org.p2p.solanaj.serum;
 
-import org.bitcoinj.core.Base58;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
@@ -17,12 +16,15 @@ public class OrderManager {
 
     /**
      * Places order at the specified {@link Market} with the given {@link Order}
+     * @param account Solana account to pay for the order
      * @param market Market to trade on
      * @param order Buy or sell order with quantity and price
      * @return true if the order succeeded
      */
     public boolean placeOrder(Account account, Market market, Order order) {
-        
+
+
+
         Transaction transaction = new TransactionBuilder().build();
 
 

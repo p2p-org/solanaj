@@ -1,5 +1,8 @@
 package org.p2p.solanaj.serum;
 
+/**
+ * Class that represents a Serum order.
+ */
 public class Order {
 
     private long price;

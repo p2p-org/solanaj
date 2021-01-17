@@ -2,6 +2,9 @@ package org.p2p.solanaj.serum;
 
 import java.util.Arrays;
 
+/**
+ * Class to represent a Serum account's flags
+ */
 public class AccountFlags {
 
     // Holds all 8 booleans (1 for each bit)

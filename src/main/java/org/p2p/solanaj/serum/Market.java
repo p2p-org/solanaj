@@ -2,6 +2,9 @@ package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.core.PublicKey;
 
+/**
+ * Class to represent a Serum market. Should be instantiated using a {@link MarketBuilder}.
+ */
 public class Market {
 
     private AccountFlags accountFlags;

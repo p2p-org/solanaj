@@ -9,6 +9,9 @@ import org.p2p.solanaj.rpc.types.AccountInfo;
 import java.util.Base64;
 import java.util.List;
 
+/**
+ * Builds a {@link Market} object, which can have polled data including bid/ask {@link OrderBook}s
+ */
 public class MarketBuilder {
 
     private final RpcClient client = new RpcClient(Cluster.MAINNET);

@@ -5,12 +5,14 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Decodes an Orderbook object from bytes.
+ * This class represents a Serum orderbook, that get deserialized from bytes.
+ *
+ * Note:
  *
  * buffer_layout_1.blob(5),
- *     layout_1.accountFlagsLayout('accountFlags'),
- *     slab_1.SLAB_LAYOUT.replicate('slab'),
- *     buffer_layout_1.blob(7),
+ * layout_1.accountFlagsLayout('accountFlags'),
+ * slab_1.SLAB_LAYOUT.replicate('slab'),
+ * buffer_layout_1.blob(7),
  *
  */
 public class OrderBook {
