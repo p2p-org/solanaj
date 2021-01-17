@@ -1,6 +1,9 @@
 package org.p2p.solanaj.serum;
 
+import org.bitcoinj.core.Base58;
+import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
+import org.p2p.solanaj.core.Transaction;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 
@@ -18,9 +21,12 @@ public class OrderManager {
      * @param order Buy or sell order with quantity and price
      * @return true if the order succeeded
      */
-    public boolean placeOrder(Market market, Order order) {
+    public boolean placeOrder(Account account, Market market, Order order) {
+
+        Transaction transaction = new Transaction();
 
 
+        //client.getApi().sendTransaction()
 
 
         // client.getApi().sendTransaction(...)
