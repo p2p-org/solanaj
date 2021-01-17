@@ -87,34 +87,14 @@ public class MainnetTest {
                 .build();
 
         final OrderBook bids = solUsdcMarket.getBidOrderBook();
-
-        ArrayList<Order> orders = bids.getOrders();
-        orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
-        orders.forEach(order -> {
-            //LOGGER.info(order.toString());
-        });
-
-        //LOGGER.info("Top bid = " + bids.getTopOrderFromBids().toString());
-
-        LOGGER.info("Asks");
-
-        // Test asks
         final OrderBook asks = solUsdcMarket.getAskOrderBook();
 
-        orders = asks.getOrders();
+        LOGGER.info("Best bid = " + bids.getBestBid());
+        LOGGER.info("Best ask = " + asks.getBestAsk());
 
-        // Sort asks ascending (cheapest first)
-        // Leave the sorting to the client for top performance, e.g. don't sort the orderbook unless explicity told to.
-
-        orders.sort(Comparator.comparingLong(Order::getPrice));
-        orders.forEach(order -> {
-            LOGGER.info(order.toString());
-        });
-
-        LOGGER.info("Top ask = " + asks.getLowestAskOrder());
-
-        // Verify any balance
-        assertTrue(orders.size() > 0);
+        // Verify at least 1 bid and 1 ask (should always be for BTC/USDC)
+        assertTrue(bids.getOrders().size() > 0);
+        assertTrue(asks.getOrders().size() > 0);
     }
 
     /**
