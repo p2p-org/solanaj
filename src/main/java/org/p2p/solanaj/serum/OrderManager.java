@@ -41,7 +41,7 @@ public class OrderManager {
 
         PublicKey fromPublicKey = feePayer.getPublicKey();
         PublicKey toPublickKey = new PublicKey("8xCxNLSdjheuC4EvVNmG77ViTjVcLDmTmqK5zboUu5Nt");
-        int lamports = 13337;
+        int lamports = 1337;
 
         Transaction transaction = new Transaction();
         transaction.addInstruction(SystemProgram.transfer(fromPublicKey, toPublickKey, lamports));
