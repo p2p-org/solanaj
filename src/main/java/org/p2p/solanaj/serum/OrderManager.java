@@ -1,11 +1,17 @@
 package org.p2p.solanaj.serum;
 
+import org.bitcoinj.core.Base58;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
+import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
+import org.p2p.solanaj.rpc.RpcException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 public class OrderManager {
@@ -21,19 +27,39 @@ public class OrderManager {
      * @param order Buy or sell order with quantity and price
      * @return true if the order succeeded
      */
-    public boolean placeOrder(Account account, Market market, Order order) {
+    public String placeOrder(Account account, Market market, Order order) {
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        // Create account from private key
+        final Account feePayer = new Account(Base58.decode(new String(data)));
 
+        PublicKey fromPublicKey = feePayer.getPublicKey();
+        PublicKey toPublickKey = new PublicKey("8xCxNLSdjheuC4EvVNmG77ViTjVcLDmTmqK5zboUu5Nt");
+        int lamports = 30;
 
-        Transaction transaction = new TransactionBuilder().build();
+        Transaction transaction = new Transaction();
+        transaction.addInstruction(SystemProgram.transfer(fromPublicKey, toPublickKey, lamports));
+        try {
+            transaction.setRecentBlockHash(client.getApi().getRecentBlockhash());
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
 
+        String result = null;
+        try {
+            result = client.getApi().sendTransaction(transaction, feePayer);
+            LOGGER.info("Result = " + result);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
 
-        //client.getApi().sendTransaction()
-
-
-        // client.getApi().sendTransaction(...)
-
-        return true;
+        return result;
     }
 
 

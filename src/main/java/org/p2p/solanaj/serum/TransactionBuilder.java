@@ -6,7 +6,7 @@ import org.p2p.solanaj.rpc.RpcClient;
 
 /**
  * Builds Serum market {@link Transaction}s which are used by {@link OrderManager} to create Serum order transactions.
- * 
+ *
  */
 public class TransactionBuilder {
 

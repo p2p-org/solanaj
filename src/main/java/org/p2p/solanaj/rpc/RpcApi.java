@@ -24,11 +24,16 @@ public class RpcApi {
     }
 
     public String getRecentBlockhash() throws RpcException {
-        return client.call("getRecentBlockhash", null, RecentBlockhash.class).getRecentBlockhash();
+        List<Object> params = new ArrayList<>();
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("commitment", "max");
+        params.add(parameterMap);
+
+        return client.call("getRecentBlockhash", params, RecentBlockhash.class).getRecentBlockhash();
     }
 
     public String sendTransaction(Transaction transaction, Account signer) throws RpcException {
-        return sendTransaction(transaction, Arrays.asList(signer));
+        return sendTransaction(transaction, Collections.singletonList(signer));
     }
 
     public String sendTransaction(Transaction transaction, List<Account> signers) throws RpcException {

@@ -15,8 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class OrderTest {
 
@@ -42,8 +41,9 @@ public class OrderTest {
         final Account account = new Account(Base58.decode(new String(data)));
 
         // Place order
-        boolean isOrderSucceeded = orderManager.placeOrder(account, new Market(), new Order(1, 1, 1));
+        String transactionId = orderManager.placeOrder(account, new Market(), new Order(1, 1, 1));
 
-        assertTrue(isOrderSucceeded);
+        // Verify we got a txId
+        assertNotNull(transactionId);
     }
 }
