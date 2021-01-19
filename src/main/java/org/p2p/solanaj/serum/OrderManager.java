@@ -28,10 +28,8 @@ public class OrderManager {
      * @return true if the order succeeded
      */
     public String placeOrder(Account account, Market market, Order order) {
-        // Create account from private key
 
-        PublicKey fromPublicKey = account.getPublicKey();
-        Transaction transaction = new Transaction();
+        final Transaction transaction = new Transaction();
         try {
             transaction.setRecentBlockHash(client.getApi().getRecentBlockhash());
         } catch (RpcException e) {
