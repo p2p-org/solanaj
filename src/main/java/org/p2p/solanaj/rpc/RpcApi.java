@@ -32,13 +32,19 @@ public class RpcApi {
         return client.call("getRecentBlockhash", params, RecentBlockhash.class).getRecentBlockhash();
     }
 
-    public String sendTransaction(Transaction transaction, Account signer) throws RpcException {
-        return sendTransaction(transaction, Collections.singletonList(signer));
+    public String sendTransaction(Transaction transaction, Account signer, String recentBlockHash) throws RpcException {
+        return sendTransaction(transaction, Collections.singletonList(signer), recentBlockHash);
     }
 
-    public String sendTransaction(Transaction transaction, List<Account> signers) throws RpcException {
-        String recentBlockhash = getRecentBlockhash();
-        transaction.setRecentBlockHash(recentBlockhash);
+    public String sendTransaction(Transaction transaction, Account signer) throws RpcException {
+        return sendTransaction(transaction, Collections.singletonList(signer), null);
+    }
+
+    public String sendTransaction(Transaction transaction, List<Account> signers, String recentBlockHash) throws RpcException {
+        if (recentBlockHash == null) {
+            recentBlockHash = getRecentBlockhash();
+        }
+        transaction.setRecentBlockHash(recentBlockHash);
         transaction.sign(signers);
         byte[] serializedTransaction = transaction.serialize();
 
@@ -54,7 +60,7 @@ public class RpcApi {
 
     public void sendAndConfirmTransaction(Transaction transaction, List<Account> signers,
             NotificationEventListener listener) throws RpcException {
-        String signature = sendTransaction(transaction, signers);
+        String signature = sendTransaction(transaction, signers, null);
 
         SubscriptionWebSocketClient subClient = SubscriptionWebSocketClient.getInstance(client.getEndpoint());
         subClient.signatureSubscribe(signature, listener);

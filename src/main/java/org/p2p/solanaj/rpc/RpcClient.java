@@ -47,6 +47,8 @@ public class RpcClient {
             Response response = httpClient.newCall(request).execute();
             RpcResponse<T> rpcResult = resultAdapter.fromJson(response.body().string());
 
+            System.out.println("Request = " + request.url().url().toString());
+
             if (rpcResult.getError() != null) {
                 throw new RpcException(rpcResult.getError().getMessage());
             }

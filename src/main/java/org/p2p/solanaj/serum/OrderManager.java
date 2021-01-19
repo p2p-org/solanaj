@@ -28,23 +28,10 @@ public class OrderManager {
      * @return true if the order succeeded
      */
     public String placeOrder(Account account, Market market, Order order) {
-        // Build account from secretkey.dat
-        byte[] data = new byte[0];
-        try {
-            data = Files.readAllBytes(Paths.get("secretkey.dat"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         // Create account from private key
-        final Account feePayer = new Account(Base58.decode(new String(data)));
 
-        PublicKey fromPublicKey = feePayer.getPublicKey();
-        PublicKey toPublickKey = new PublicKey("8xCxNLSdjheuC4EvVNmG77ViTjVcLDmTmqK5zboUu5Nt");
-        int lamports = 1337;
-
+        PublicKey fromPublicKey = account.getPublicKey();
         Transaction transaction = new Transaction();
-        transaction.addInstruction(SystemProgram.transfer(fromPublicKey, toPublickKey, lamports));
         try {
             transaction.setRecentBlockHash(client.getApi().getRecentBlockhash());
         } catch (RpcException e) {
@@ -57,7 +44,7 @@ public class OrderManager {
 
         String result = null;
         try {
-            result = client.getApi().sendTransaction(transaction, feePayer);
+            result = client.getApi().sendTransaction(transaction, account);
             LOGGER.info("Result = " + result);
         } catch (RpcException e) {
             e.printStackTrace();
