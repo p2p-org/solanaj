@@ -1,7 +1,10 @@
 package org.p2p.solanaj.core;
 
+import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.Utils;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -10,6 +13,7 @@ import org.p2p.solanaj.serum.*;
 import org.p2p.solanaj.utils.ByteUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -171,5 +175,61 @@ public class MainnetTest {
 
         // Verify that an order exists
         assertTrue(orders.size() > 0);
+    }
+
+    /**
+     * Calls sendTransaction with a call to the Memo program included.
+     */
+    @Test
+    @Ignore
+    public void transactionMemoTest() {
+        final int lamports = 1337;
+        final PublicKey memoProgram = new PublicKey("Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo");
+        final PublicKey destination = new PublicKey("8xCxNLSdjheuC4EvVNmG77ViTjVcLDmTmqK5zboUu5Nt");
+
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create account from private key
+        final Account feePayer = new Account(Base58.decode(new String(data)));
+
+        final Transaction transaction = new Transaction();
+        transaction.addInstruction(
+                SystemProgram.transfer(
+                        feePayer.getPublicKey(),
+                        destination,
+                        lamports
+                )
+        );
+
+        try {
+            transaction.setRecentBlockHash(client.getApi().getRecentBlockhash());
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        // Add memo instruction
+        final String memoMessage = "Hello from SolanaJ :)";
+        final TransactionInstruction memoInstruction = new TransactionInstruction(
+                memoProgram,
+                new ArrayList<AccountMeta>(),
+                memoMessage.getBytes(StandardCharsets.UTF_8)
+        );
+        transaction.addInstruction(memoInstruction);
+
+        String result = null;
+        try {
+            result = client.getApi().sendTransaction(transaction, feePayer);
+            LOGGER.info("Result = " + result);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        assertNotNull(result);
     }
 }
