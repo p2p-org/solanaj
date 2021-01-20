@@ -1,17 +1,11 @@
 package org.p2p.solanaj.serum;
 
-import org.bitcoinj.core.Base58;
 import org.p2p.solanaj.core.*;
-import org.p2p.solanaj.programs.SystemProgram;
+import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class OrderManager {
@@ -36,9 +30,7 @@ public class OrderManager {
             e.printStackTrace();
         }
 
-        String memoMessage = "Hello from SolanaJ :)";
-        TransactionInstruction memoInstruction = new TransactionInstruction(new PublicKey("Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo"), new ArrayList<AccountMeta>(), memoMessage.getBytes(StandardCharsets.UTF_8));
-        transaction.addInstruction(memoInstruction);
+        transaction.addInstruction(MemoProgram.writeUtf8("Hello from SolanaJ :)"));
 
         String result = null;
         try {

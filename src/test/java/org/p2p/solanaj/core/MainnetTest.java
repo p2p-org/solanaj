@@ -4,6 +4,7 @@ import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.Utils;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
@@ -13,7 +14,6 @@ import org.p2p.solanaj.serum.*;
 import org.p2p.solanaj.utils.ByteUtils;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -184,7 +184,6 @@ public class MainnetTest {
     @Ignore
     public void transactionMemoTest() {
         final int lamports = 1337;
-        final PublicKey memoProgram = new PublicKey("Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo");
         final PublicKey destination = new PublicKey("8xCxNLSdjheuC4EvVNmG77ViTjVcLDmTmqK5zboUu5Nt");
 
         // Build account from secretkey.dat
@@ -216,14 +215,10 @@ public class MainnetTest {
         }
         transaction.setRecentBlockHash(recentBlockHash);
 
-        // Add memo instruction
-        final String memoMessage = "Hello from SolanaJ :)";
-        final TransactionInstruction memoInstruction = new TransactionInstruction(
-                memoProgram,
-                new ArrayList<AccountMeta>(),
-                memoMessage.getBytes(StandardCharsets.UTF_8)
+        // Add instruction to write memo
+        transaction.addInstruction(
+                MemoProgram.writeUtf8("Hello from SolanaJ :)")
         );
-        transaction.addInstruction(memoInstruction);
 
         // Call sendTransaction
         String result = null;
