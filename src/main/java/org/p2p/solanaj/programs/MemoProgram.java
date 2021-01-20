@@ -7,11 +7,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 public class MemoProgram {
-    public static final PublicKey memoProgram = new PublicKey("Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo");
+    public static final PublicKey PROGRAM_ID = new PublicKey("Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo");
 
     public static TransactionInstruction writeUtf8(String memo) {
         final TransactionInstruction memoInstruction = new TransactionInstruction(
-                memoProgram,
+                PROGRAM_ID,
                 Collections.emptyList(),
                 memo.getBytes(StandardCharsets.UTF_8)
         );
