@@ -1,16 +1,18 @@
 package org.p2p.solanaj.programs;
 
+import org.p2p.solanaj.core.AccountMeta;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Interface for the Memo program, used for writing UTF-8 data into Solana transactions.
  */
-public class MemoProgram {
-    
+public class MemoProgram extends Program {
+
     public static final PublicKey PROGRAM_ID = new PublicKey("Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo");
 
     /**
@@ -20,12 +22,13 @@ public class MemoProgram {
      * @return {@link TransactionInstruction} object with memo instruction
      */
     public static TransactionInstruction writeUtf8(String memo) {
-        final TransactionInstruction memoInstruction = new TransactionInstruction(
+        final List<AccountMeta> keys = Collections.emptyList();
+        final byte[] memoBytes = memo.getBytes(StandardCharsets.UTF_8);
+        
+        return createTransactionInstruction(
                 PROGRAM_ID,
-                Collections.emptyList(),
-                memo.getBytes(StandardCharsets.UTF_8)
+                keys,
+                memoBytes
         );
-
-        return memoInstruction;
     }
 }
