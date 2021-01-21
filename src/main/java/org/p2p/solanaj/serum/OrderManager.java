@@ -22,6 +22,30 @@ public class OrderManager {
      * @return true if the order succeeded
      */
     public String placeOrder(Account account, Market market, Order order) {
+        /*
+          Placing orders: A user funds an intermediary account (their OpenOrders account) from their SPL token
+          account (wallet) and adds an order placement request to the Request Queue
+
+          See: https://github.com/project-serum/serum-ts/blob/master/packages/serum/src/market.ts#L637
+
+          return DexInstructions.newOrder({
+          market: this.address,
+          requestQueue: this._decoded.requestQueue,
+          baseVault: this._decoded.baseVault,
+          quoteVault: this._decoded.quoteVault,
+          openOrders: openOrdersAddressKey,
+          owner: ownerAddress,
+          payer,
+          side,
+          limitPrice: this.priceNumberToLots(price),
+          maxQuantity: this.baseSizeNumberToLots(size),
+          orderType,
+          clientId,
+          programId: this._programId,
+          feeDiscountPubkey,
+        });
+
+         */
 
         final Transaction transaction = new Transaction();
         transaction.addInstruction(MemoProgram.writeUtf8(account, "Hello from SolanaJ :)"));
