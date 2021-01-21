@@ -16,7 +16,7 @@ public abstract class Program {
      * @param programId Solana program we are calling
      * @param keys AccountMeta keys
      * @param data byte array sent to Solana
-     * @return
+     * @return {@link TransactionInstruction} object containing specified values
      */
     public static TransactionInstruction createTransactionInstruction(
             PublicKey programId,

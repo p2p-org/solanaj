@@ -217,7 +217,7 @@ public class MainnetTest {
 
         // Add instruction to write memo
         transaction.addInstruction(
-                MemoProgram.writeUtf8("Hello from SolanaJ :)")
+                MemoProgram.writeUtf8(feePayer,"Hello from SolanaJ :)")
         );
 
         // Call sendTransaction

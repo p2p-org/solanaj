@@ -1,5 +1,6 @@
 package org.p2p.solanaj.programs;
 
+import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.AccountMeta;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
@@ -18,13 +19,24 @@ public class MemoProgram extends Program {
     /**
      * Returns a {@link TransactionInstruction} object containing instructions to call the Memo program with the
      * specified memo.
+     * @param account signer account
      * @param memo utf-8 string to be written into Solana transaction
      * @return {@link TransactionInstruction} object with memo instruction
      */
-    public static TransactionInstruction writeUtf8(String memo) {
-        final List<AccountMeta> keys = Collections.emptyList();
+    public static TransactionInstruction writeUtf8(Account account, String memo) {
+        // Add signer to AccountMeta keys
+        final List<AccountMeta> keys = Collections.singletonList(
+                new AccountMeta(
+                        account.getPublicKey(),
+                        true,
+                        false
+                )
+
+        );
+
+        // Convert memo string to UTF-8 byte array
         final byte[] memoBytes = memo.getBytes(StandardCharsets.UTF_8);
-        
+
         return createTransactionInstruction(
                 PROGRAM_ID,
                 keys,

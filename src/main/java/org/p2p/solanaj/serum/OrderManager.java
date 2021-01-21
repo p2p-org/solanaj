@@ -24,13 +24,7 @@ public class OrderManager {
     public String placeOrder(Account account, Market market, Order order) {
 
         final Transaction transaction = new Transaction();
-        try {
-            transaction.setRecentBlockHash(client.getApi().getRecentBlockhash());
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-
-        transaction.addInstruction(MemoProgram.writeUtf8("Hello from SolanaJ :)"));
+        transaction.addInstruction(MemoProgram.writeUtf8(account, "Hello from SolanaJ :)"));
 
         String result = null;
         try {
