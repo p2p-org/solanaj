@@ -206,15 +206,6 @@ public class MainnetTest {
                 )
         );
 
-        // Get recent block hash
-        String recentBlockHash = null;
-        try {
-            recentBlockHash = client.getApi().getRecentBlockhash();
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-        transaction.setRecentBlockHash(recentBlockHash);
-
         // Add instruction to write memo
         transaction.addInstruction(
                 MemoProgram.writeUtf8(feePayer,"Hello from SolanaJ :)")
@@ -223,7 +214,7 @@ public class MainnetTest {
         // Call sendTransaction
         String result = null;
         try {
-            result = client.getApi().sendTransaction(transaction, feePayer, recentBlockHash);
+            result = client.getApi().sendTransaction(transaction, feePayer);
             LOGGER.info("Result = " + result);
         } catch (RpcException e) {
             e.printStackTrace();

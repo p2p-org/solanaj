@@ -49,6 +49,20 @@ final Market solUsdcMarket = new MarketBuilder()
 final OrderBook bids = solUsdcMarket.getBidOrderBook();
 ```
 
+##### Send a transaction with call to the "Memo" program
+```java
+// Create account from private key
+final Account feePayer = new Account(Base58.decode(new String(data)));
+final Transaction transaction = new Transaction();
+
+// Add instruction to write memo
+transaction.addInstruction(
+        MemoProgram.writeUtf8(feePayer,"Hello from SolanaJ :)")
+);
+
+String response = result = client.getApi().sendTransaction(transaction, feePayer);
+```
+
 ## Contribution
 
 Welcome to contribute, feel free to change and open a PR.

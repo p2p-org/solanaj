@@ -20,9 +20,7 @@ import static org.junit.Assert.*;
 public class OrderTest {
 
     private static final Logger LOGGER = Logger.getLogger(OrderTest.class.getName());
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
     private final OrderManager orderManager = new OrderManager();
-    private final PublicKey publicKey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
 
     @Test
     @Ignore
