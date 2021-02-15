@@ -9,6 +9,9 @@ import org.p2p.solanaj.serum.Order;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class for creating Serum v2 {@link TransactionInstruction}s
+ */
 public class SerumProgram extends Program {
 
     public static TransactionInstruction placeOrder(Account account, Market market, Order order) {
