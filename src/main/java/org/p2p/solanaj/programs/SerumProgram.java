@@ -2,6 +2,7 @@ package org.p2p.solanaj.programs;
 
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.AccountMeta;
+import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
 import org.p2p.solanaj.serum.Market;
 import org.p2p.solanaj.serum.Order;
@@ -31,6 +32,12 @@ public class SerumProgram extends Program {
           { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
         ];
         */
+        final PublicKey ownerAddress = account.getPublicKey();
+
+        // findOpenOrdersAccountForOwner
+        final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(ownerAddress);
+
+
         final AccountMeta marketKey = new AccountMeta(market.getOwnAddress(), false, true);
         //final AccountMeta openOrders = new AccountMeta(null, false, true)
         final AccountMeta requestQueue = new AccountMeta(market.getRequestQueue(), false, true);
@@ -45,6 +52,22 @@ public class SerumProgram extends Program {
         keys.add(owner);
 
         return createTransactionInstruction(null, keys, null);
+    }
+
+    private static PublicKey findOpenOrdersAccountForOwner(PublicKey ownerAddress) {
+        /*
+        const accounts = await getFilteredProgramAccounts(
+          connection,
+          programId,
+          filters,
+        );
+        return accounts.map(({ publicKey, accountInfo }) =>
+          OpenOrders.fromAccountInfo(publicKey, accountInfo, programId),
+        );
+         */
+
+
+        return null;
     }
 
 }

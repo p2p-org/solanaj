@@ -2,6 +2,7 @@ package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.core.*;
 import org.p2p.solanaj.programs.MemoProgram;
+import org.p2p.solanaj.programs.SerumProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -47,8 +48,27 @@ public class OrderManager {
 
          */
 
+        /*
+        // Placing orders
+            let owner = new Account('...');
+            let payer = new PublicKey('...'); // spl-token account
+            await market.placeOrder(connection, {
+              owner,
+              payer,
+              side: 'buy', // 'buy' or 'sell'
+              price: 123.45,
+              size: 17.0,
+              orderType: 'limit', // 'limit', 'ioc', 'postOnly'
+            });
+         */
+
         final Transaction transaction = new Transaction();
-        transaction.addInstruction(MemoProgram.writeUtf8(account, "Hello from SolanaJ :)"));
+
+        // PlaceOrder instruction
+        transaction.addInstruction(SerumProgram.placeOrder(account, market, order));
+
+        // Memo instruction (just for testing)
+        transaction.addInstruction(MemoProgram.writeUtf8(account, "Hopefully that order worked!"));
 
         String result = null;
         try {
