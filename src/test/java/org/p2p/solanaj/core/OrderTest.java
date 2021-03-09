@@ -5,10 +5,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.serum.Market;
-import org.p2p.solanaj.serum.Order;
-import org.p2p.solanaj.serum.OrderManager;
-import org.p2p.solanaj.serum.TransactionBuilder;
+import org.p2p.solanaj.serum.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,8 +35,13 @@ public class OrderTest {
         // Create account from private key
         final Account account = new Account(Base58.decode(new String(data)));
 
+        // Get SOL/USDC market
+        final Market solUsdcMarket = new MarketBuilder()
+                .setPublicKey(new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ"))
+                .build();
+
         // Place order
-        String transactionId = orderManager.placeOrder(account, new Market(), new Order(1, 1, 1));
+        String transactionId = orderManager.placeOrder(account, solUsdcMarket, new Order(1, 1, 1));
 
         // Verify we got a txId
         assertNotNull(transactionId);
