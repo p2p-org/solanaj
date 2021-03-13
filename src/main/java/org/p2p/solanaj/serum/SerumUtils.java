@@ -39,7 +39,7 @@ import org.p2p.solanaj.core.PublicKey;
  */
 public class SerumUtils {
 
-    private static final int OWN_ADDRESS_OFFSET = 13;
+    public static final int OWN_ADDRESS_OFFSET = 13;
     private static final int VAULT_SIGNER_NONCE_OFFSET = 28;
     private static final int BASE_MINT_OFFSET = 53;
     private static final int QUOTE_MINT_OFFSET = 85;
