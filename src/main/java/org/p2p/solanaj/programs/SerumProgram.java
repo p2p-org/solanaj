@@ -11,81 +11,107 @@ import org.p2p.solanaj.rpc.types.ProgramAccount;
 import org.p2p.solanaj.serum.Market;
 import org.p2p.solanaj.serum.Order;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.p2p.solanaj.serum.SerumUtils.OWN_ADDRESS_OFFSET;
 
 /**
- * Class for creating Serum v2 {@link TransactionInstruction}s
+ * Class for creating Serum v3v {@link TransactionInstruction}s
  */
 public class SerumProgram extends Program {
 
+    private static final PublicKey TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+    private static final PublicKey SYSVAR_RENT_PUBKEY = new PublicKey("SysvarRent111111111111111111111111111111111");
+    private static final PublicKey SERUM_PROGRAM_ID_V3 = new PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
+
     public static TransactionInstruction placeOrder(RpcClient client, Account account, Market market, Order order) {
-         /*
-            See: https://github.com/project-serum/serum-ts/blob/e51e3d9af0ab7026155b76a1824cea6507fc7ef7/packages/serum/src/instructions.js#L118
-          */
         /*
-        const keys = [
-          { pubkey: market, isSigner: false, isWritable: true },
-          { pubkey: openOrders, isSigner: false, isWritable: true },
-          { pubkey: requestQueue, isSigner: false, isWritable: true },
-          { pubkey: eventQueue, isSigner: false, isWritable: true },
-          { pubkey: bids, isSigner: false, isWritable: true },
-          { pubkey: asks, isSigner: false, isWritable: true },
-          { pubkey: payer, isSigner: false, isWritable: true },
-          { pubkey: owner, isSigner: true, isWritable: false },
-          { pubkey: baseVault, isSigner: false, isWritable: true },
-          { pubkey: quoteVault, isSigner: false, isWritable: true },
-          { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-          { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
-        ];
-        if (feeDiscountPubkey) {
-          keys.push({
-            pubkey: feeDiscountPubkey,
-            isSigner: false,
-            isWritable: false,
-          });
-        }
-        return new TransactionInstruction({
-          keys,
-          programId,
-          data: encodeInstruction({
-            newOrderV3: {
-              side,
-              limitPrice,
-              maxBaseQuantity,
-              maxQuoteQuantity,
-              selfTradeBehavior,
-              orderType,
-              clientId,
-              limit: 65535,
-            },
-          }),
+        See: https://github.com/project-serum/serum-ts/blob/e51e3d9af0ab7026155b76a1824cea6507fc7ef7/packages/serum/src/instructions.js#L118
         */
-        final PublicKey ownerAddress = account.getPublicKey();
+
+        // TODO - handle feeDiscountPubkey
+        /* (if (feeDiscountPubkey) {
+            keys.push({
+                    pubkey: feeDiscountPubkey,
+                    isSigner: false,
+                    isWritable: false,
+            });
+        }
+        */
+
+        // pubkey: market
         final AccountMeta marketKey = new AccountMeta(market.getOwnAddress(), false, true);
-        // final AccountMeta openOrders = new AccountMeta(market.get)
 
-        // findOpenOrdersAccountForOwner
-        final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(client, market.getOwnAddress(), ownerAddress, market.getBaseMint(), market);
+        // pubkey: openOrders (+ findOpenOrdersAccountForOwner)
+        //final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey(), market.getBaseMint(), market);
+        final AccountMeta openOrdersKey = new AccountMeta(account.getPublicKey(), false, true); // TODO
 
+        // pubkey: requestQueue
+        final AccountMeta requestQueueKey = new AccountMeta(market.getRequestQueue(), false, true);
 
-        //final AccountMeta openOrders = new AccountMeta(null, false, true)
-        final AccountMeta requestQueue = new AccountMeta(market.getRequestQueue(), false, true);
-        //final AccountMeta payer = new AccountMeta(market.(), false, true);
-        final AccountMeta owner = new AccountMeta(market.getRequestQueue(), true, false);
+        // pubkey: eventQueue
+        final AccountMeta eventQueueKey = new AccountMeta(market.getEventQueue(), false, true);
 
+        // pubkey: bids
+        final AccountMeta bidsKey = new AccountMeta(market.getBids(), false, true);
 
-        final List<AccountMeta> keys = new ArrayList<>();
-        keys.add(marketKey);
-        keys.add(requestQueue);
-        //keys.add(payer);
-        keys.add(owner);
+        // pubkey: asks
+        final AccountMeta asksKey = new AccountMeta(market.getAsks(), false, true);
 
-        return createTransactionInstruction(market.getOwnAddress(), keys, new byte[]{});
+        // pubkey: payer
+        final AccountMeta payerKey = new AccountMeta(account.getPublicKey(), false, true);
+
+        // pubkey: owner
+        final AccountMeta ownerKey = new AccountMeta(account.getPublicKey(), true, false);
+
+        // pubkey: baseVault
+        final AccountMeta baseVaultKey = new AccountMeta(market.getBaseVault(), false, true);
+
+        // pubkey: quoteVault
+        final AccountMeta quoteVaultKey = new AccountMeta(market.getQuoteVault(), false, true);
+
+        // pubkey: TOKEN_PROGRAM_ID
+        final AccountMeta tokenProgramIdKey = new AccountMeta(TOKEN_PROGRAM_ID, false, false);
+
+        // pubkey: SYSVAR_RENT_PUBKEY
+        final AccountMeta sysvarRentKey = new AccountMeta(SYSVAR_RENT_PUBKEY, false, false);
+
+        final List<AccountMeta> keys = List.of(
+                marketKey,
+                openOrdersKey,
+                requestQueueKey,
+                eventQueueKey,
+                bidsKey,
+                asksKey,
+                payerKey,
+                ownerKey,
+                baseVaultKey,
+                quoteVaultKey,
+                tokenProgramIdKey,
+                sysvarRentKey
+        );
+
+        byte[] transactionData = {}; // TODO
+
+        /*
+        return new TransactionInstruction({
+        keys,
+        programId,
+        data: encodeInstruction({
+        newOrderV3: {
+        side,
+            limitPrice,
+            maxBaseQuantity,
+            maxQuoteQuantity,
+            selfTradeBehavior,
+            orderType,
+            clientId,
+            limit: 65535,
+        },
+        }),
+        */
+
+        return createTransactionInstruction(SERUM_PROGRAM_ID_V3, keys, transactionData);
     }
 
     private static PublicKey findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress, PublicKey programId, Market market) {

@@ -3,8 +3,6 @@ package org.p2p.solanaj.core;
 import org.bitcoinj.core.Base58;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.p2p.solanaj.rpc.Cluster;
-import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.serum.*;
 
 import java.io.IOException;
@@ -18,6 +16,7 @@ public class OrderTest {
 
     private static final Logger LOGGER = Logger.getLogger(OrderTest.class.getName());
     private final OrderManager orderManager = new OrderManager();
+    private static final PublicKey SOL_USDC_MARKET_V3 = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
 
     @Test
     @Ignore
@@ -37,7 +36,7 @@ public class OrderTest {
 
         // Get SOL/USDC market
         final Market solUsdcMarket = new MarketBuilder()
-                .setPublicKey(new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ"))
+                .setPublicKey(SOL_USDC_MARKET_V3)
                 .build();
 
         // Place order

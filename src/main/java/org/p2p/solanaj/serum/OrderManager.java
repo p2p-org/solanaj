@@ -65,10 +65,17 @@ public class OrderManager {
         final Transaction transaction = new Transaction();
 
         // PlaceOrder instruction
-        transaction.addInstruction(SerumProgram.placeOrder(client, account, market, order));
+        transaction.addInstruction(
+                SerumProgram.placeOrder(
+                        client,
+                        account,
+                        market,
+                        order
+                )
+        );
 
         // Memo instruction (just for testing)
-        //transaction.addInstruction(MemoProgram.writeUtf8(account, "Hopefully that order worked!"));
+        // transaction.addInstruction(MemoProgram.writeUtf8(account, "Hopefully that order worked!"));
 
         String result = null;
         try {
