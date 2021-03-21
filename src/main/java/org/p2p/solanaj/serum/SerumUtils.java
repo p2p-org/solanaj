@@ -146,6 +146,6 @@ public class SerumUtils {
     }
 
     public static void writeSideLayout(ByteBuffer result, SideLayout sideLayout) {
-        result.put(6, (byte) sideLayout.getValue());
+        result.put(5, (byte) sideLayout.getValue());
     }
 }
