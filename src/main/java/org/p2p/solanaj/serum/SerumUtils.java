@@ -3,6 +3,8 @@ package org.p2p.solanaj.serum;
 import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
 
+import java.nio.ByteBuffer;
+
 /**
  * version 2 market offsets.
  *
@@ -136,5 +138,14 @@ public class SerumUtils {
 
     public static long readReferrerRebatesAccrued(byte[] bytes) {
         return Utils.readInt64(bytes, REFERRER_REBATES_ACCRUED_OFFSET);
+    }
+
+    public static void writeNewOrderStructLayout(ByteBuffer result) {
+        int NEW_ORDER_STRUCT_LAYOUT = 10;
+        result.put(1, (byte) NEW_ORDER_STRUCT_LAYOUT);
+    }
+
+    public static void writeSideLayout(ByteBuffer result, SideLayout sideLayout) {
+        result.put(6, (byte) sideLayout.getValue());
     }
 }

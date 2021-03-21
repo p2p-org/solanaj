@@ -10,7 +10,10 @@ import org.p2p.solanaj.rpc.types.ConfigObjects;
 import org.p2p.solanaj.rpc.types.ProgramAccount;
 import org.p2p.solanaj.serum.Market;
 import org.p2p.solanaj.serum.Order;
+import org.p2p.solanaj.serum.SerumUtils;
+import org.p2p.solanaj.serum.SideLayout;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import static org.p2p.solanaj.serum.SerumUtils.OWN_ADDRESS_OFFSET;
@@ -91,27 +94,56 @@ public class SerumProgram extends Program {
                 sysvarRentKey
         );
 
-        byte[] transactionData = {}; // TODO
+        byte[] transactionData =  buildNewOrderv3InstructionData(
+                null
+        ); // TODO
 
         /*
         return new TransactionInstruction({
         keys,
         programId,
         data: encodeInstruction({
-        newOrderV3: {
-        side,
-            limitPrice,
-            maxBaseQuantity,
-            maxQuoteQuantity,
-            selfTradeBehavior,
-            orderType,
-            clientId,
-            limit: 65535,
-        },
+            newOrderV3: {
+            side,
+                limitPrice,
+                maxBaseQuantity,
+                maxQuoteQuantity,
+                selfTradeBehavior,
+                orderType,
+                clientId,
+                limit: 65535,
+            },
         }),
         */
 
         return createTransactionInstruction(SERUM_PROGRAM_ID_V3, keys, transactionData);
+    }
+
+    /*
+    INSTRUCTION_LAYOUT.inner.addVariant(
+      10,
+      struct([
+        sideLayout('side'),
+        u64('limitPrice'),
+        u64('maxBaseQuantity'),
+        u64('maxQuoteQuantity'),
+        selfTradeBehaviorLayout('selfTradeBehavior'),
+        orderTypeLayout('orderType'),
+        u64('clientId'),
+        u16('limit'),
+      ]),
+      'newOrderV3',
+    );
+     */
+
+    public static byte[] buildNewOrderv3InstructionData(byte[] instruction) {
+        ByteBuffer result = ByteBuffer.allocate(100);
+
+        SerumUtils.writeNewOrderStructLayout(result);
+        SerumUtils.writeSideLayout(result, SideLayout.BUY);
+
+
+        return result.array();
     }
 
     private static PublicKey findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress, PublicKey programId, Market market) {
