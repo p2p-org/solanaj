@@ -175,4 +175,12 @@ public class SerumUtils {
     public static void writeOrderType(ByteBuffer result, OrderTypeLayout orderTypeLayout) {
         result.put(37, (byte) orderTypeLayout.getValue());
     }
+
+    public static void writeClientId(ByteBuffer result, long clientId) {
+        result.putLong(41, clientId);
+    }
+
+    public static void writeLimit(ByteBuffer result) {
+        result.putShort(49, (short) 65535);
+    }
 }

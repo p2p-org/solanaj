@@ -25,6 +25,8 @@ public class SerumProgram extends Program {
     private static final PublicKey SYSVAR_RENT_PUBKEY = new PublicKey("SysvarRent111111111111111111111111111111111");
     private static final PublicKey SERUM_PROGRAM_ID_V3 = new PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
 
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
     public static TransactionInstruction placeOrder(RpcClient client, Account account, Market market, Order order) {
         /*
         See: https://github.com/project-serum/serum-ts/blob/e51e3d9af0ab7026155b76a1824cea6507fc7ef7/packages/serum/src/instructions.js#L118
@@ -44,8 +46,12 @@ public class SerumProgram extends Program {
         final AccountMeta marketKey = new AccountMeta(market.getOwnAddress(), false, true);
 
         // pubkey: openOrders (+ findOpenOrdersAccountForOwner)
-        //final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey(), market.getBaseMint(), market);
-        final AccountMeta openOrdersKey = new AccountMeta(account.getPublicKey(), false, true); // TODO
+        // TODO
+        // Check for openOrders account. If none exist, create one.
+
+
+        final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey(), market.getBaseMint(), market);
+        final AccountMeta openOrdersKey = new AccountMeta(openOrdersAccount, false, true);
 
         // pubkey: requestQueue
         final AccountMeta requestQueueKey = new AccountMeta(market.getRequestQueue(), false, true);
@@ -117,39 +123,26 @@ public class SerumProgram extends Program {
         return createTransactionInstruction(SERUM_PROGRAM_ID_V3, keys, transactionData);
     }
 
-    /*
-    INSTRUCTION_LAYOUT.inner.addVariant(
-      10,
-      struct([
-        sideLayout('side'),
-        u64('limitPrice'),
-        u64('maxBaseQuantity'),
-        u64('maxQuoteQuantity'),
-        selfTradeBehaviorLayout('selfTradeBehavior'),
-        orderTypeLayout('orderType'),
-        u64('clientId'),
-        u16('limit'),
-      ]),
-      'newOrderV3',
-    );
-     */
-
     // Using some constant data for testing at the moment
+    // Going to be testing a Post-Only sell order of 1 MAPS at the MAPS/USDC market
     public static byte[] buildNewOrderv3InstructionData(byte[] instruction) {
-        ByteBuffer result = ByteBuffer.allocate(100);
+        ByteBuffer result = ByteBuffer.allocate(51);
         result.order(ByteOrder.LITTLE_ENDIAN);
 
+        // Constant used to indicate newOrderv3
         SerumUtils.writeNewOrderStructLayout(result);
+
+        // Order side (buy/sell) - enum
         SerumUtils.writeSideLayout(result, SideLayout.SELL);
 
         // Limit price - uint64
-        SerumUtils.writeLimitPrice(result, 1100000000L);
+        SerumUtils.writeLimitPrice(result, 13370000L);
 
         // maxBaseQuantity - uint64
         SerumUtils.writeMaxBaseQuantity(result, 1L);
 
         // maxQuoteQuantity - uint64
-        SerumUtils.writeMaxQuoteQuantity(result, 1L);
+        SerumUtils.writeMaxQuoteQuantity(result, 1337000000L);
 
         // selfTradeBehaviorLayout - selfTradeBehaviorLayout (serum-ts) - 4 bytes for a 1 byte enum
         SerumUtils.writeSelfTradeBehavior(result, SelfTradeBehaviorLayout.DECREMENT_TAKE);
@@ -157,11 +150,16 @@ public class SerumProgram extends Program {
         // orderType - orderTypeLayout (enum)
         SerumUtils.writeOrderType(result, OrderTypeLayout.POST_ONLY);
 
+        // clientId - uint64
+        SerumUtils.writeClientId(result, 0L);
 
+        // "limit" - uint16 - might always be static equal to 65535
+        SerumUtils.writeLimit(result);
 
+        byte[] arrayResult = result.array();
+        System.out.println("newOrderv3 instruction hex = " + bytesToHex(arrayResult));
 
-
-        return result.array();
+        return arrayResult;
     }
 
     private static PublicKey findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress, PublicKey programId, Market market) {
@@ -215,6 +213,16 @@ public class SerumProgram extends Program {
         }
 
         return null;
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
 }
