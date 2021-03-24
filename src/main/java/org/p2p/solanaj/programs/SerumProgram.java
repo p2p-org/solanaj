@@ -8,12 +8,10 @@ import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.ConfigObjects;
 import org.p2p.solanaj.rpc.types.ProgramAccount;
-import org.p2p.solanaj.serum.Market;
-import org.p2p.solanaj.serum.Order;
-import org.p2p.solanaj.serum.SerumUtils;
-import org.p2p.solanaj.serum.SideLayout;
+import org.p2p.solanaj.serum.*;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 
 import static org.p2p.solanaj.serum.SerumUtils.OWN_ADDRESS_OFFSET;
@@ -136,11 +134,31 @@ public class SerumProgram extends Program {
     );
      */
 
+    // Using some constant data for testing at the moment
     public static byte[] buildNewOrderv3InstructionData(byte[] instruction) {
         ByteBuffer result = ByteBuffer.allocate(100);
+        result.order(ByteOrder.LITTLE_ENDIAN);
 
         SerumUtils.writeNewOrderStructLayout(result);
-        SerumUtils.writeSideLayout(result, SideLayout.BUY);
+        SerumUtils.writeSideLayout(result, SideLayout.SELL);
+
+        // Limit price - uint64
+        SerumUtils.writeLimitPrice(result, 1100000000L);
+
+        // maxBaseQuantity - uint64
+        SerumUtils.writeMaxBaseQuantity(result, 1L);
+
+        // maxQuoteQuantity - uint64
+        SerumUtils.writeMaxQuoteQuantity(result, 1L);
+
+        // selfTradeBehaviorLayout - selfTradeBehaviorLayout (serum-ts) - 4 bytes for a 1 byte enum
+        SerumUtils.writeSelfTradeBehavior(result, SelfTradeBehaviorLayout.DECREMENT_TAKE);
+
+        // orderType - orderTypeLayout (enum)
+        SerumUtils.writeOrderType(result, OrderTypeLayout.POST_ONLY);
+
+
+
 
 
         return result.array();

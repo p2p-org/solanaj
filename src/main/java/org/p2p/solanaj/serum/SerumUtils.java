@@ -148,4 +148,31 @@ public class SerumUtils {
     public static void writeSideLayout(ByteBuffer result, SideLayout sideLayout) {
         result.put(5, (byte) sideLayout.getValue());
     }
+
+    public static void writeLimitPrice(ByteBuffer result, long price) {
+        result.putLong(9, price);
+    }
+
+    public static void writeMaxBaseQuantity(ByteBuffer result, long maxBaseQuantity) {
+        // 9 + 8 bytes for the 64bit limit price = index 17 (or 16 indexed maybe)
+        // lets verify with some real requests
+        // looks good, used a quantity of 1, showing as 1
+        result.putLong(17, maxBaseQuantity);
+    }
+
+    public static void writeMaxQuoteQuantity(ByteBuffer result, long maxQuoteQuantity) {
+        // TODO - name these magic numbers with constants
+        // TODO - figure out what this is, for now just write it
+        result.putLong(25, maxQuoteQuantity);
+    }
+
+
+    // Only need to write the first byte since the enum is small
+    public static void writeSelfTradeBehavior(ByteBuffer result, SelfTradeBehaviorLayout selfTradeBehavior) {
+        result.put(33, (byte) selfTradeBehavior.getValue());
+    }
+
+    public static void writeOrderType(ByteBuffer result, OrderTypeLayout orderTypeLayout) {
+        result.put(37, (byte) orderTypeLayout.getValue());
+    }
 }
