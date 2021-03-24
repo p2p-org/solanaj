@@ -126,7 +126,7 @@ public class RpcApi {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public List<ProgramAccount> getProgramAccounts(PublicKey account, List<Memcmp> memcmpList) throws RpcException {
+    public List<ProgramAccount> getProgramAccounts(PublicKey account, List<Memcmp> memcmpList, int dataSize) throws RpcException {
         List<Object> params = new ArrayList<>();
 
         params.add(account.toString());
@@ -135,6 +135,8 @@ public class RpcApi {
         memcmpList.forEach(memcmp -> {
             filters.add(new Filter(memcmp));
         });
+
+        filters.add(new DataSize(dataSize));
 
         ProgramAccountConfig programAccountConfig = new ProgramAccountConfig(filters);
         params.add(programAccountConfig);

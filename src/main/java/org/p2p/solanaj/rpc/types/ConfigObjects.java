@@ -48,6 +48,19 @@ public class ConfigObjects {
 
     }
 
+    public static class DataSize {
+        @Json(name = "dataSize")
+        private int dataSize;
+
+        public DataSize() {
+        }
+
+        public DataSize(int dataSize) {
+            this.dataSize = dataSize;
+        }
+
+    }
+
     public static class ProgramAccountConfig {
         @Json(name = "filters")
         private List<Object> filters = null;

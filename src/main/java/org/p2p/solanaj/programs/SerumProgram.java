@@ -50,7 +50,9 @@ public class SerumProgram extends Program {
         // Check for openOrders account. If none exist, create one.
 
 
-        final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey(), market.getBaseMint(), market);
+        final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
+
+        // NPE if openOrdersAccount not found
         final AccountMeta openOrdersKey = new AccountMeta(openOrdersAccount, false, true);
 
         // pubkey: requestQueue
@@ -162,7 +164,7 @@ public class SerumProgram extends Program {
         return arrayResult;
     }
 
-    private static PublicKey findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress, PublicKey programId, Market market) {
+    private static PublicKey findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress) {
         /*
         const filters = [
           {
@@ -191,21 +193,23 @@ public class SerumProgram extends Program {
         );
          */
 
-        // TODO - handle dataSize filter - can ignore for now as it is super negligible.
+        // TODO - handle dataSize filter - can ignore for now as it is super negligible. actually it's not
+        int dataSize = 3228;
 
         List<ProgramAccount> programAccounts = null;
 
         ConfigObjects.Memcmp marketFilter = new ConfigObjects.Memcmp(OWN_ADDRESS_OFFSET, marketAddress.toBase58());
-        ConfigObjects.Memcmp ownerFilter = new ConfigObjects.Memcmp(OWN_ADDRESS_OFFSET, ownerAddress.toBase58());
+        ConfigObjects.Memcmp ownerFilter = new ConfigObjects.Memcmp(45, ownerAddress.toBase58()); // TODO remove magic number
 
         List<ConfigObjects.Memcmp> memcmpList = List.of(marketFilter, ownerFilter);
 
         try {
-            programAccounts = client.getApi().getProgramAccounts(ownerAddress, memcmpList);
+            programAccounts = client.getApi().getProgramAccounts(ownerAddress, memcmpList, dataSize);
         } catch (RpcException e) {
             e.printStackTrace();
         }
 
+        System.out.println("findOpenOrdersAccountForOwner:");
         if (programAccounts != null) {
             programAccounts.forEach(programAccount -> {
                 System.out.println("Account = " + programAccount.getAccount().getData());

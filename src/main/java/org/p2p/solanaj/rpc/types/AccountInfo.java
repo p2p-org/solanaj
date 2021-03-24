@@ -22,6 +22,10 @@ public class AccountInfo extends RpcResultObject {
             return data;
         }
 
+        public void setData(List<String> data) {
+            this.data = data;
+        }
+
         public boolean isExecutable() {
             return executable;
         }
