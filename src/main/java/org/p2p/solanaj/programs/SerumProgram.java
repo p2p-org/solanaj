@@ -48,8 +48,6 @@ public class SerumProgram extends Program {
         // pubkey: openOrders (+ findOpenOrdersAccountForOwner)
         // TODO
         // Check for openOrders account. If none exist, create one.
-
-
         final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
 
         // NPE if openOrdersAccount not found
@@ -204,7 +202,7 @@ public class SerumProgram extends Program {
         List<ConfigObjects.Memcmp> memcmpList = List.of(marketFilter, ownerFilter);
 
         try {
-            programAccounts = client.getApi().getProgramAccounts(ownerAddress, memcmpList, dataSize);
+            programAccounts = client.getApi().getProgramAccounts(SERUM_PROGRAM_ID_V3, memcmpList, dataSize);
         } catch (RpcException e) {
             e.printStackTrace();
         }
@@ -213,10 +211,18 @@ public class SerumProgram extends Program {
         if (programAccounts != null) {
             programAccounts.forEach(programAccount -> {
                 System.out.println("Account = " + programAccount.getAccount().getData());
+                System.out.println("Pubkey = " + programAccount.getPubkey());
             });
         }
 
-        return null;
+        // TODO - handle failed lookup more cleaner than null
+        String base58Pubkey = programAccounts.stream().map(ProgramAccount::getPubkey).findFirst().orElse(null);
+
+        if (base58Pubkey == null) {
+            throw new RuntimeException("Unable to find openOrdersAccount from getProgramAccounts");
+        }
+
+        return new PublicKey(base58Pubkey);
     }
 
     public static String bytesToHex(byte[] bytes) {

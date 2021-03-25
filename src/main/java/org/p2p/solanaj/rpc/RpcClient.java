@@ -21,7 +21,11 @@ public class RpcClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     private String endpoint;
-    private OkHttpClient httpClient = new OkHttpClient();
+
+    private OkHttpClient httpClient = new OkHttpClient.Builder()
+            .addInterceptor(new LoggingInterceptor())
+            .build();
+
     private RpcApi rpcApi;
 
     public RpcClient(Cluster endpoint) {
