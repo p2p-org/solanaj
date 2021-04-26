@@ -27,7 +27,7 @@ public class SerumProgram extends Program {
 
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
-    public static TransactionInstruction placeOrder(RpcClient client, Account account, Market market, Order order) {
+    public static TransactionInstruction placeOrder(RpcClient client, Account account, Account payer, Account openOrders, Market market, Order order) {
         /*
         See: https://github.com/project-serum/serum-ts/blob/e51e3d9af0ab7026155b76a1824cea6507fc7ef7/packages/serum/src/instructions.js#L118
         */
@@ -41,47 +41,83 @@ public class SerumProgram extends Program {
             });
         }
         */
+        /*
+        open_order_accounts = self.find_open_orders_accounts_for_owner(owner.public_key())
+        if not open_order_accounts:
+        new_open_orders_account = Account()
+        place_order_open_order_account = new_open_orders_account.public_key()
+        mbfre_resp = self._conn.get_minimum_balance_for_rent_exemption(OPEN_ORDERS_LAYOUT.sizeof())
+        balanced_needed = mbfre_resp["result"]
+        transaction.add(
+            make_create_account_instruction(
+                owner_address=owner.public_key(),
+                new_account_address=new_open_orders_account.public_key(),
+                lamports=balanced_needed,
+                program_id=self.state.program_id(),
+            )
+        )
+        signers.append(new_open_orders_account)
+         */
 
         // pubkey: market
         final AccountMeta marketKey = new AccountMeta(market.getOwnAddress(), false, true);
+        System.out.println("marketKey = " + marketKey.getPublicKey().toBase58());
 
         // pubkey: openOrders (+ findOpenOrdersAccountForOwner)
-        // TODO
-        // Check for openOrders account. If none exist, create one.
         final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
 
-        // NPE if openOrdersAccount not found
-        final AccountMeta openOrdersKey = new AccountMeta(openOrdersAccount, false, true);
+        // if null, create open orders account
+        if (openOrdersAccount == null) {
+            // TODO - create openOrders account
+            final Account newOpenOrders = new Account();
+        }
+
+
+        final AccountMeta openOrdersKey = new AccountMeta(openOrders.getPublicKey(), false, true);
+
+        // temp: use passed-in open orders account instead of trying to find it (for now, proof of concept stage)
+        System.out.println("openOrdersKey = " + openOrdersKey.getPublicKey().toBase58());
 
         // pubkey: requestQueue
         final AccountMeta requestQueueKey = new AccountMeta(market.getRequestQueue(), false, true);
+        System.out.println("requestQueueKey = " + requestQueueKey.getPublicKey().toBase58());
 
         // pubkey: eventQueue
         final AccountMeta eventQueueKey = new AccountMeta(market.getEventQueue(), false, true);
+        System.out.println("eventQueueKey = " + eventQueueKey.getPublicKey().toBase58());
 
         // pubkey: bids
         final AccountMeta bidsKey = new AccountMeta(market.getBids(), false, true);
+        System.out.println("bidsKey = " + bidsKey.getPublicKey().toBase58());
 
         // pubkey: asks
         final AccountMeta asksKey = new AccountMeta(market.getAsks(), false, true);
+        System.out.println("asksKey = " + asksKey.getPublicKey().toBase58());
 
         // pubkey: payer
-        final AccountMeta payerKey = new AccountMeta(account.getPublicKey(), false, true);
+        // TODO - fix this to create a new account each time - and has an initialize instruction after the createaccount instruction
+        final AccountMeta payerKey = new AccountMeta(payer.getPublicKey(), true, true);
+        System.out.println("payerKey = " + payer.getPublicKey().toBase58());
 
         // pubkey: owner
         final AccountMeta ownerKey = new AccountMeta(account.getPublicKey(), true, false);
+        System.out.println("ownerKey = " + ownerKey.getPublicKey().toBase58());
 
         // pubkey: baseVault
         final AccountMeta baseVaultKey = new AccountMeta(market.getBaseVault(), false, true);
+        System.out.println("baseVaultKey = " + baseVaultKey.getPublicKey().toBase58());
 
         // pubkey: quoteVault
         final AccountMeta quoteVaultKey = new AccountMeta(market.getQuoteVault(), false, true);
+        System.out.println("quoteVaultKey = " + quoteVaultKey.getPublicKey().toBase58());
 
         // pubkey: TOKEN_PROGRAM_ID
         final AccountMeta tokenProgramIdKey = new AccountMeta(TOKEN_PROGRAM_ID, false, false);
+        System.out.println("tokenProgramIdKey = " + tokenProgramIdKey.getPublicKey().toBase58());
 
         // pubkey: SYSVAR_RENT_PUBKEY
         final AccountMeta sysvarRentKey = new AccountMeta(SYSVAR_RENT_PUBKEY, false, false);
+        System.out.println("sysvarRentKey = " + sysvarRentKey.getPublicKey().toBase58());
 
         final List<AccountMeta> keys = List.of(
                 marketKey,
@@ -216,10 +252,13 @@ public class SerumProgram extends Program {
         }
 
         // TODO - handle failed lookup more cleaner than null
-        String base58Pubkey = programAccounts.stream().map(ProgramAccount::getPubkey).findFirst().orElse(null);
+        String base58Pubkey = null;
+        if (programAccounts != null) {
+            base58Pubkey = programAccounts.stream().map(ProgramAccount::getPubkey).findFirst().orElse(null);
+        }
 
         if (base58Pubkey == null) {
-            throw new RuntimeException("Unable to find openOrdersAccount from getProgramAccounts");
+            return null;
         }
 
         return new PublicKey(base58Pubkey);

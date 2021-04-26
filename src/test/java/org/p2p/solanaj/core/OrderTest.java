@@ -44,8 +44,11 @@ public class OrderTest {
                 .setPublicKey(SOL_USDC_MARKET_V3)
                 .build();
 
+        // Get Open Orders account for market - Hardcode this for the test's account - take from explorer
+        final Account openOrders = new Account();
+
         // Place order
-        String transactionId = orderManager.placeOrder(account, solUsdcMarket, new Order(1, 1, 1));
+        String transactionId = orderManager.placeOrder(account, openOrders, solUsdcMarket, new Order(1, 1, 1));
 
         // Verify we got a txId
         assertNotNull(transactionId);

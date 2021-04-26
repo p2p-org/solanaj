@@ -7,6 +7,7 @@ import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 public class OrderManager {
@@ -22,64 +23,41 @@ public class OrderManager {
      * @param order Buy or sell order with quantity and price
      * @return true if the order succeeded
      */
-    public String placeOrder(Account account, Market market, Order order) {
+    public String placeOrder(Account account, Account openOrders, Market market, Order order) {
         /*
           Placing orders: A user funds an intermediary account (their OpenOrders account) from their SPL token
           account (wallet) and adds an order placement request to the Request Queue
-
           See: https://github.com/project-serum/serum-ts/blob/master/packages/serum/src/market.ts#L637
-
-          return DexInstructions.newOrder({
-          market: this.address,
-          requestQueue: this._decoded.requestQueue,
-          baseVault: this._decoded.baseVault,
-          quoteVault: this._decoded.quoteVault,
-          openOrders: openOrdersAddressKey,
-          owner: ownerAddress,
-          payer,
-          side,
-          limitPrice: this.priceNumberToLots(price),
-          maxQuantity: this.baseSizeNumberToLots(size),
-          orderType,
-          clientId,
-          programId: this._programId,
-          feeDiscountPubkey,
-        });
-
-         */
-
-        /*
-        // Placing orders
-            let owner = new Account('...');
-            let payer = new PublicKey('...'); // spl-token account
-            await market.placeOrder(connection, {
-              owner,
-              payer,
-              side: 'buy', // 'buy' or 'sell'
-              price: 123.45,
-              size: 17.0,
-              orderType: 'limit', // 'limit', 'ioc', 'postOnly'
-            });
          */
 
         final Transaction transaction = new Transaction();
+
+        // Create payer account
+        final Account payerAccount = new Account();
+
+        // TODO - OpenOrders account
+
+        // TODO - createAccount Serum instruction
+        // TODO - initializeAccount Serum instruction
 
         // PlaceOrder instruction
         transaction.addInstruction(
                 SerumProgram.placeOrder(
                         client,
                         account,
+                        payerAccount,
+                        openOrders,
                         market,
                         order
                 )
         );
 
-        // Memo instruction (just for testing)
-        // transaction.addInstruction(MemoProgram.writeUtf8(account, "Hopefully that order worked!"));
+        final List<Account> signers = List.of(account, payerAccount);
 
         String result = null;
         try {
-            result = client.getApi().sendTransaction(transaction, account);
+            //result = client.getApi().sendTransaction(transaction, account);
+            result = client.getApi().sendTransaction(transaction, signers, null);
             LOGGER.info("Result = " + result);
         } catch (RpcException e) {
             e.printStackTrace();
