@@ -5,13 +5,8 @@ import java.util.*;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
+import org.p2p.solanaj.rpc.types.*;
 import org.p2p.solanaj.rpc.types.ConfigObjects.*;
-import org.p2p.solanaj.rpc.types.AccountInfo;
-import org.p2p.solanaj.rpc.types.ConfirmedTransaction;
-import org.p2p.solanaj.rpc.types.ProgramAccount;
-import org.p2p.solanaj.rpc.types.RecentBlockhash;
-import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig;
-import org.p2p.solanaj.rpc.types.SignatureInformation;
 import org.p2p.solanaj.rpc.types.RpcResultTypes.ValueLong;
 import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
 import org.p2p.solanaj.ws.listeners.NotificationEventListener;
@@ -198,5 +193,15 @@ public class RpcApi {
 
         return client.call("requestAirdrop", params, String.class);
     }
+
+    public BlockCommitment getBlockCommitment(long block) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(block);
+
+        return client.call("getBlockCommitment", params, BlockCommitment.class);
+    }
+
+
 
 }

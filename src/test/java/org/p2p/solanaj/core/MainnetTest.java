@@ -10,6 +10,7 @@ import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
+import org.p2p.solanaj.rpc.types.BlockCommitment;
 import org.p2p.solanaj.serum.*;
 import org.p2p.solanaj.utils.ByteUtils;
 
@@ -221,5 +222,22 @@ public class MainnetTest {
         }
 
         assertNotNull(result);
+    }
+
+    @Test
+    public void getBlockCommitmentTest() {
+        // Block 5 used for testing - matches docs
+        long block = 5;
+
+        try {
+            final BlockCommitment blockCommitment = client.getApi().getBlockCommitment(block);
+
+            LOGGER.info(String.format("block = %d, totalStake = %d", block, blockCommitment.getTotalStake()));
+
+            assertNotNull(blockCommitment);
+            assertTrue(blockCommitment.getTotalStake() > 0);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
     }
 }

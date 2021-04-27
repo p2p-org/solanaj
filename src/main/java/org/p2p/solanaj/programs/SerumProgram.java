@@ -72,8 +72,7 @@ public class SerumProgram extends Program {
             final Account newOpenOrders = new Account();
         }
 
-
-        final AccountMeta openOrdersKey = new AccountMeta(openOrders.getPublicKey(), false, true);
+        final AccountMeta openOrdersKey = new AccountMeta(openOrdersAccount, false, true);
 
         // temp: use passed-in open orders account instead of trying to find it (for now, proof of concept stage)
         System.out.println("openOrdersKey = " + openOrdersKey.getPublicKey().toBase58());
@@ -160,7 +159,7 @@ public class SerumProgram extends Program {
     }
 
     // Using some constant data for testing at the moment
-    // Going to be testing a Post-Only sell order of 1 MAPS at the MAPS/USDC market
+    // Going to be testing a Post-Only sell order of 1 SOL at the SOL/USDC market
     public static byte[] buildNewOrderv3InstructionData(byte[] instruction) {
         ByteBuffer result = ByteBuffer.allocate(51);
         result.order(ByteOrder.LITTLE_ENDIAN);
