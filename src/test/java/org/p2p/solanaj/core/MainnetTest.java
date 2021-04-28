@@ -9,10 +9,7 @@ import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
-import org.p2p.solanaj.rpc.types.AccountInfo;
-import org.p2p.solanaj.rpc.types.BlockCommitment;
-import org.p2p.solanaj.rpc.types.ClusterNode;
-import org.p2p.solanaj.rpc.types.EpochInfo;
+import org.p2p.solanaj.rpc.types.*;
 import org.p2p.solanaj.serum.*;
 import org.p2p.solanaj.utils.ByteUtils;
 
@@ -276,6 +273,22 @@ public class MainnetTest {
             assertTrue(epochInfo.getSlotsInEpoch() > 0);
             assertTrue(epochInfo.getBlockHeight() > 0);
             assertTrue(epochInfo.getSlotIndex() > 0);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getEpochScheduleTest() {
+        try {
+            final EpochSchedule epochSchedule = client.getApi().getEpochSchedule();
+            assertNotNull(epochSchedule);
+
+            LOGGER.info(epochSchedule.toString());
+
+            // Validate the returned data
+            assertTrue(epochSchedule.getSlotsPerEpoch() > 0);
+            assertTrue(epochSchedule.getLeaderScheduleSlotOffset() > 0);
         } catch (RpcException e) {
             e.printStackTrace();
         }

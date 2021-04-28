@@ -238,6 +238,12 @@ public class RpcApi {
         return client.call("getEpochInfo", params, EpochInfo.class);
     }
 
+    public EpochSchedule getEpochSchedule() throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        return client.call("getEpochSchedule", params, EpochSchedule.class);
+    }
+
 
 
 }
