@@ -11,6 +11,7 @@ import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.rpc.types.BlockCommitment;
+import org.p2p.solanaj.rpc.types.ClusterNode;
 import org.p2p.solanaj.serum.*;
 import org.p2p.solanaj.utils.ByteUtils;
 
@@ -236,6 +237,25 @@ public class MainnetTest {
 
             assertNotNull(blockCommitment);
             assertTrue(blockCommitment.getTotalStake() > 0);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getClusterNodesTest() {
+        try {
+            final List<ClusterNode> clusterNodes = client.getApi().getClusterNodes();
+
+            // Make sure we got some nodes
+            assertNotNull(clusterNodes);
+            assertTrue(clusterNodes.size() > 0);
+
+            // Output the nodes
+            LOGGER.info("Cluster Nodes:");
+            clusterNodes.forEach(clusterNode -> {
+                LOGGER.info(clusterNode.toString());
+            });
         } catch (RpcException e) {
             e.printStackTrace();
         }

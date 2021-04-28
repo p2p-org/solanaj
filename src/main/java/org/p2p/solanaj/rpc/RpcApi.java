@@ -202,6 +202,20 @@ public class RpcApi {
         return client.call("getBlockCommitment", params, BlockCommitment.class);
     }
 
+    public List<ClusterNode> getClusterNodes() throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        // TODO - fix uncasted type stuff
+        List<AbstractMap> rawResult = client.call("getClusterNodes", params, List.class);
+
+        List<ClusterNode> result = new ArrayList<>();
+        for (AbstractMap item : rawResult) {
+            result.add(new ClusterNode(item));
+        }
+
+        return result;
+    }
+
 
 
 }
