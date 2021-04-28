@@ -12,6 +12,7 @@ import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.rpc.types.BlockCommitment;
 import org.p2p.solanaj.rpc.types.ClusterNode;
+import org.p2p.solanaj.rpc.types.EpochInfo;
 import org.p2p.solanaj.serum.*;
 import org.p2p.solanaj.utils.ByteUtils;
 
@@ -256,6 +257,25 @@ public class MainnetTest {
             clusterNodes.forEach(clusterNode -> {
                 LOGGER.info(clusterNode.toString());
             });
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getEpochInfoTest() {
+        try {
+            final EpochInfo epochInfo = client.getApi().getEpochInfo();
+            assertNotNull(epochInfo);
+
+            LOGGER.info(epochInfo.toString());
+
+            // Validate the returned data
+            assertTrue(epochInfo.getAbsoluteSlot() > 0);
+            assertTrue(epochInfo.getEpoch() > 0);
+            assertTrue(epochInfo.getSlotsInEpoch() > 0);
+            assertTrue(epochInfo.getBlockHeight() > 0);
+            assertTrue(epochInfo.getSlotIndex() > 0);
         } catch (RpcException e) {
             e.printStackTrace();
         }
