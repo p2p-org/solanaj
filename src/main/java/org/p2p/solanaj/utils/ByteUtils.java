@@ -9,6 +9,7 @@ import java.math.BigInteger;
 public class ByteUtils {
     public static final int UINT_32_LENGTH = 4;
     public static final int UINT_64_LENGTH = 8;
+    public static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
     public static byte[] readBytes(byte[] buf, int offset, int length) {
         byte[] b = new byte[length];
@@ -39,6 +40,16 @@ public class ByteUtils {
             for (int i = 0; i < 8 - bytes.length; i++)
                 stream.write(0);
         }
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 
 }

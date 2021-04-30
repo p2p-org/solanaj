@@ -9,6 +9,7 @@ import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.ConfigObjects;
 import org.p2p.solanaj.rpc.types.ProgramAccount;
 import org.p2p.solanaj.serum.*;
+import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -24,8 +25,6 @@ public class SerumProgram extends Program {
     private static final PublicKey TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
     private static final PublicKey SYSVAR_RENT_PUBKEY = new PublicKey("SysvarRent111111111111111111111111111111111");
     private static final PublicKey SERUM_PROGRAM_ID_V3 = new PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
-
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
     public static TransactionInstruction placeOrder(RpcClient client, Account account, Account payer, Account openOrders, Market market, Order order) {
         /*
@@ -267,8 +266,8 @@ public class SerumProgram extends Program {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+            hexChars[j * 2] = ByteUtils.HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = ByteUtils.HEX_ARRAY[v & 0x0F];
         }
         return new String(hexChars);
     }

@@ -6,6 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.programs.SystemProgram;
+import org.p2p.solanaj.programs.TokenProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -292,5 +293,45 @@ public class MainnetTest {
         } catch (RpcException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void sendTokenTest() {
+        final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN"); // Private key's USDC token account
+        final PublicKey destination = new PublicKey("9A1anCYGg98tUB8LUhtmjq4STqfJ8Qc3vxCDB5TQhXAw"); // Test destination, skynet's USDC account
+        final int tokenAmount = 100;
+
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create account from private key
+        final Account owner = new Account(Base58.decode(new String(data)));
+
+        final Transaction transaction = new Transaction();
+        transaction.addInstruction(
+                TokenProgram.transfer(
+                        source,
+                        destination,
+                        tokenAmount,
+                        owner.getPublicKey()
+                )
+        );
+
+        // Call sendTransaction
+        String result = null;
+        try {
+            result = client.getApi().sendTransaction(transaction, owner);
+            LOGGER.info("Result = " + result);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        assertNotNull(result);
+
     }
 }
