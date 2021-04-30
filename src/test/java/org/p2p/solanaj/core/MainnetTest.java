@@ -299,7 +299,7 @@ public class MainnetTest {
     public void sendTokenTest() {
         final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN"); // Private key's USDC token account
         final PublicKey destination = new PublicKey("9A1anCYGg98tUB8LUhtmjq4STqfJ8Qc3vxCDB5TQhXAw"); // Test destination, skynet's USDC account
-        final int tokenAmount = 100;
+        final int tokenAmount = 100; // 0.000100 USDC
 
         // Build account from secretkey.dat
         byte[] data = new byte[0];
@@ -313,12 +313,22 @@ public class MainnetTest {
         final Account owner = new Account(Base58.decode(new String(data)));
 
         final Transaction transaction = new Transaction();
+
+        // SPL token instruction
         transaction.addInstruction(
                 TokenProgram.transfer(
                         source,
                         destination,
                         tokenAmount,
                         owner.getPublicKey()
+                )
+        );
+
+        // Memo
+        transaction.addInstruction(
+                MemoProgram.writeUtf8(
+                        owner,
+                        "Enjoy the airdrop!"
                 )
         );
 
