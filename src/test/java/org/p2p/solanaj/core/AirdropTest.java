@@ -30,7 +30,14 @@ public class AirdropTest extends AccountBasedTest {
     public void airdropTest() {
         // Send airdrop
         recipients.forEach(recipient -> {
-            tokenManager.transferCheckedToSolAddress(testAccount, source, publicKey, USDC_TOKEN_MINT, AIRDROP_AMOUNT, AIRDROP_DECIMALS);
+            tokenManager.transferCheckedToSolAddress(
+                    testAccount,
+                    source,
+                    publicKey,
+                    USDC_TOKEN_MINT,
+                    AIRDROP_AMOUNT,
+                    AIRDROP_DECIMALS
+            );
             LOGGER.info("Airdropped tokens to " + recipient.toBase58());
         });
 
