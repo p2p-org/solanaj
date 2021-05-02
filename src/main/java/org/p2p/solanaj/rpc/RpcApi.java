@@ -244,6 +244,29 @@ public class RpcApi {
         return client.call("getEpochSchedule", params, EpochSchedule.class);
     }
 
+    public PublicKey getTokenAccountsByOwner(PublicKey owner, PublicKey tokenMint) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(owner.toBase58());
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("mint", tokenMint.toBase58());
+        params.add(parameterMap);
+
+        Map<String, Object> rawResult = client.call("getTokenAccountsByOwner", params, Map.class);
+
+        PublicKey tokenAccountKey;
+
+        try {
+            String base58 = (String) ((Map) ((List) rawResult.get("value")).get(0)).get("pubkey");
+            tokenAccountKey = new PublicKey(base58);
+
+        } catch (Exception ex) {
+            throw new RpcException("unable to get token account by owner");
+        }
+
+        return tokenAccountKey;
+    }
+
 
 
 }

@@ -12,7 +12,9 @@ import java.util.List;
 public class TokenProgram extends Program {
 
     public static final PublicKey PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+
     private static final int TRANSFER_METHOD_ID = 3;
+    private static final int TRANSFER_CHECKED_METHOD_ID = 12;
 
     /**
      * Transfers an SPL token from the owner's source account to destination account.
@@ -41,12 +43,44 @@ public class TokenProgram extends Program {
         );
     }
 
+    public static TransactionInstruction transferChecked(PublicKey source, PublicKey destination, long amount, byte decimals, PublicKey owner, PublicKey tokenMint) {
+        final List<AccountMeta> keys = new ArrayList<>();
+
+        keys.add(new AccountMeta(source,false, true));
+        // index 1 = token mint (https://docs.rs/spl-token/3.1.0/spl_token/instruction/enum.TokenInstruction.html#variant.TransferChecked)
+        keys.add(new AccountMeta(tokenMint, false, false));
+        keys.add(new AccountMeta(destination,false, true));
+        keys.add(new AccountMeta(owner,true, false));
+
+        byte[] transactionData = encodeTransferCheckedTokenInstructionData(
+                amount,
+                decimals
+        );
+
+        return createTransactionInstruction(
+                PROGRAM_ID,
+                keys,
+                transactionData
+        );
+    }
+
     private static byte[] encodeTransferTokenInstructionData(long amount) {
         ByteBuffer result = ByteBuffer.allocate(9);
         result.order(ByteOrder.LITTLE_ENDIAN);
 
         result.put((byte) TRANSFER_METHOD_ID);
         result.putLong(amount);
+
+        return result.array();
+    }
+
+    private static byte[] encodeTransferCheckedTokenInstructionData(long amount, byte decimals) {
+        ByteBuffer result = ByteBuffer.allocate(10);
+        result.order(ByteOrder.LITTLE_ENDIAN);
+
+        result.put((byte) TRANSFER_CHECKED_METHOD_ID);
+        result.putLong(amount);
+        result.put(decimals);
 
         return result.array();
     }

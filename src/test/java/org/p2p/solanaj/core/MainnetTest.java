@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
+import static org.p2p.solanaj.serum.SerumUtils.OWN_ADDRESS_OFFSET;
 
 public class MainnetTest {
 
@@ -328,7 +329,77 @@ public class MainnetTest {
         transaction.addInstruction(
                 MemoProgram.writeUtf8(
                         owner,
-                        "Enjoy the airdrop!"
+                        "Hello from SolanaJ"
+                )
+        );
+
+        // Call sendTransaction
+        String result = null;
+        try {
+            result = client.getApi().sendTransaction(transaction, owner);
+            LOGGER.info("Result = " + result);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        assertNotNull(result);
+
+    }
+
+    @Test
+    public void transferCheckedTest() {
+        final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN"); // Private key's USDC token account
+        final PublicKey destination = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq"); // Test destination, skynet's USDC account
+        final PublicKey usdcTokenMint = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+
+        /*
+            amount = "0.0001" usdc
+            amount = 100
+            decimals = 6
+         */
+
+        final long tokenAmount = 100;
+        final byte decimals = 6;
+
+        // TODO - build util for building this private key in tests
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create account from private key
+        final Account owner = new Account(Base58.decode(new String(data)));
+
+        // getTokenAccountsByOwner
+        PublicKey tokenAccount = null;
+
+        try {
+            tokenAccount = client.getApi().getTokenAccountsByOwner(destination, usdcTokenMint);
+            System.out.println("Found account = " + tokenAccount.toBase58());
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        final Transaction transaction = new Transaction();
+        // SPL token instruction
+        transaction.addInstruction(
+                TokenProgram.transferChecked(
+                        source,
+                        tokenAccount,
+                        tokenAmount,
+                        decimals,
+                        owner.getPublicKey(),
+                        usdcTokenMint
+                )
+        );
+
+        // Memo
+        transaction.addInstruction(
+                MemoProgram.writeUtf8(
+                        owner,
+                        "Hello from SolanaJ"
                 )
         );
 
