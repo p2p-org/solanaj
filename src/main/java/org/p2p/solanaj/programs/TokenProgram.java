@@ -67,6 +67,7 @@ public class TokenProgram extends Program {
 
     public static TransactionInstruction initializeAccount(final PublicKey account, final PublicKey mint, final PublicKey owner) {
         final List<AccountMeta> keys = new ArrayList<>();
+        byte[] data = new byte[0];
 
         keys.add(new AccountMeta(account,false, true));
         keys.add(new AccountMeta(mint, false, false));
@@ -76,7 +77,7 @@ public class TokenProgram extends Program {
         return createTransactionInstruction(
                 PROGRAM_ID,
                 keys,
-                null
+                data
         );
     }
 

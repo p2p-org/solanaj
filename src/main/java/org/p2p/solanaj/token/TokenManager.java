@@ -86,4 +86,27 @@ public class TokenManager {
 
         return result;
     }
+
+    public String initializeAccount(Account newAccount, PublicKey usdcTokenMint, Account owner) {
+        final Transaction transaction = new Transaction();
+
+        // SPL token instruction
+        transaction.addInstruction(
+                TokenProgram.initializeAccount(
+                        newAccount.getPublicKey(),
+                        usdcTokenMint,
+                        owner.getPublicKey()
+                )
+        );
+
+        // Call sendTransaction
+        String result = null;
+        try {
+            result = client.getApi().sendTransaction(transaction, owner);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 }

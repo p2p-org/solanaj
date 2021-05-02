@@ -356,11 +356,20 @@ public class MainnetTest {
 
         // TODO - actually verify something
         assertNotNull(txId);
-
     }
 
     @Test
     public void initializeAccountTest() {
+        final Account owner = testAccount;
+        final Account newAccount = new Account();
+        final String txId = tokenManager.initializeAccount(
+                newAccount,
+                USDC_TOKEN_MINT,
+                owner
+        );
+
+        // TODO - actually verify something
+        assertNotNull(txId);
         System.out.println(testAccount.getPublicKey().toBase58());
     }
 }
