@@ -2,6 +2,7 @@ package org.p2p.solanaj.core;
 
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.Utils;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.programs.MemoProgram;
@@ -30,6 +31,21 @@ public class MainnetTest {
     public final TokenManager tokenManager = new TokenManager();
 
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+
+    private static Account testAccount;
+
+    @BeforeClass
+    public static void setup() {
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        testAccount = new Account(Base58.decode(new String(data)));
+    }
 
     @Test
     public void getAccountInfoBase64() {
@@ -190,16 +206,8 @@ public class MainnetTest {
         final int lamports = 1337;
         final PublicKey destination = new PublicKey("8xCxNLSdjheuC4EvVNmG77ViTjVcLDmTmqK5zboUu5Nt");
 
-        // Build account from secretkey.dat
-        byte[] data = new byte[0];
-        try {
-            data = Files.readAllBytes(Paths.get("secretkey.dat"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         // Create account from private key
-        final Account feePayer = new Account(Base58.decode(new String(data)));
+        final Account feePayer = testAccount;
 
         final Transaction transaction = new Transaction();
         transaction.addInstruction(
@@ -304,16 +312,8 @@ public class MainnetTest {
         final PublicKey destination = new PublicKey("9A1anCYGg98tUB8LUhtmjq4STqfJ8Qc3vxCDB5TQhXAw"); // Test destination, skynet's USDC account
         final int tokenAmount = 10; // 0.000100 USDC
 
-        // Build account from secretkey.dat
-        byte[] data = new byte[0];
-        try {
-            data = Files.readAllBytes(Paths.get("secretkey.dat"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         // Create account from private key
-        final Account owner = new Account(Base58.decode(new String(data)));
+        final Account owner = testAccount;
 
         // "10" = 0.0000001 (or similar)
         final String txId = tokenManager.transfer(
@@ -342,16 +342,8 @@ public class MainnetTest {
         final long tokenAmount = 100;
         final byte decimals = 6;
 
-        // TODO - build util for building this private key in tests
-        byte[] data = new byte[0];
-        try {
-            data = Files.readAllBytes(Paths.get("secretkey.dat"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         // Create account from private key
-        final Account owner = new Account(Base58.decode(new String(data)));
+        final Account owner = testAccount;
 
         final String txId = tokenManager.transferCheckedToSolAddress(
                 owner,
@@ -365,5 +357,10 @@ public class MainnetTest {
         // TODO - actually verify something
         assertNotNull(txId);
 
+    }
+
+    @Test
+    public void initializeAccountTest() {
+        System.out.println(testAccount.getPublicKey().toBase58());
     }
 }

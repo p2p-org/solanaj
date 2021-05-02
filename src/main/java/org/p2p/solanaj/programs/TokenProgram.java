@@ -12,6 +12,7 @@ import java.util.List;
 public class TokenProgram extends Program {
 
     public static final PublicKey PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+    private static final PublicKey SYSVAR_RENT_PUBKEY = new PublicKey("SysvarRent111111111111111111111111111111111");
 
     private static final int TRANSFER_METHOD_ID = 3;
     private static final int TRANSFER_CHECKED_METHOD_ID = 12;
@@ -61,6 +62,21 @@ public class TokenProgram extends Program {
                 PROGRAM_ID,
                 keys,
                 transactionData
+        );
+    }
+
+    public static TransactionInstruction initializeAccount(final PublicKey account, final PublicKey mint, final PublicKey owner) {
+        final List<AccountMeta> keys = new ArrayList<>();
+
+        keys.add(new AccountMeta(account,false, true));
+        keys.add(new AccountMeta(mint, false, false));
+        keys.add(new AccountMeta(owner,false, true));
+        keys.add(new AccountMeta(SYSVAR_RENT_PUBKEY,false, false));
+
+        return createTransactionInstruction(
+                PROGRAM_ID,
+                keys,
+                null
         );
     }
 
