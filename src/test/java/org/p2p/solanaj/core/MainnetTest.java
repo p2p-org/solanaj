@@ -6,7 +6,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.programs.SystemProgram;
-import org.p2p.solanaj.programs.TokenProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -22,7 +21,6 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
-import static org.p2p.solanaj.serum.SerumUtils.OWN_ADDRESS_OFFSET;
 
 public class MainnetTest {
 
@@ -318,7 +316,7 @@ public class MainnetTest {
         final Account owner = new Account(Base58.decode(new String(data)));
 
         // "10" = 0.0000001 (or similar)
-        final String txId = tokenManager.transferTokensToSolAddress(
+        final String txId = tokenManager.transfer(
                 owner,
                 source,
                 destination,
@@ -334,7 +332,6 @@ public class MainnetTest {
     public void transferCheckedTest() {
         final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN"); // Private key's USDC token account
         final PublicKey destination = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq"); // Test destination, skynet's USDC account
-        final PublicKey usdcTokenMint = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 
         /*
             amount = "0.0001" usdc
@@ -356,47 +353,17 @@ public class MainnetTest {
         // Create account from private key
         final Account owner = new Account(Base58.decode(new String(data)));
 
-        // getTokenAccountsByOwner
-        PublicKey tokenAccount = null;
-
-        try {
-            tokenAccount = client.getApi().getTokenAccountsByOwner(destination, usdcTokenMint);
-            System.out.println("Found account = " + tokenAccount.toBase58());
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-
-        final Transaction transaction = new Transaction();
-        // SPL token instruction
-        transaction.addInstruction(
-                TokenProgram.transferChecked(
-                        source,
-                        tokenAccount,
-                        tokenAmount,
-                        decimals,
-                        owner.getPublicKey(),
-                        usdcTokenMint
-                )
+        final String txId = tokenManager.transferCheckedToSolAddress(
+                owner,
+                source,
+                destination,
+                USDC_TOKEN_MINT,
+                tokenAmount,
+                decimals
         );
 
-        // Memo
-        transaction.addInstruction(
-                MemoProgram.writeUtf8(
-                        owner,
-                        "Hello from SolanaJ"
-                )
-        );
-
-        // Call sendTransaction
-        String result = null;
-        try {
-            result = client.getApi().sendTransaction(transaction, owner);
-            LOGGER.info("Result = " + result);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-
-        assertNotNull(result);
+        // TODO - actually verify something
+        assertNotNull(txId);
 
     }
 }
