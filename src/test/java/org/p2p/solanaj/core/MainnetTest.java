@@ -1,8 +1,6 @@
 package org.p2p.solanaj.core;
 
-import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.Utils;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.programs.MemoProgram;
@@ -23,7 +21,7 @@ import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
-public class MainnetTest {
+public class MainnetTest extends AccountBasedTest {
 
     private static final Logger LOGGER = Logger.getLogger(MainnetTest.class.getName());
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
@@ -31,21 +29,6 @@ public class MainnetTest {
     public final TokenManager tokenManager = new TokenManager();
 
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-
-    private static Account testAccount;
-
-    @BeforeClass
-    public static void setup() {
-        // Build account from secretkey.dat
-        byte[] data = new byte[0];
-        try {
-            data = Files.readAllBytes(Paths.get("secretkey.dat"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        testAccount = new Account(Base58.decode(new String(data)));
-    }
 
     @Test
     public void getAccountInfoBase64() {
@@ -325,7 +308,6 @@ public class MainnetTest {
         );
 
         assertNotNull(txId);
-
     }
 
     @Test
