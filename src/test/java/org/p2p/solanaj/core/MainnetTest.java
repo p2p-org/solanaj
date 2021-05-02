@@ -86,7 +86,7 @@ public class MainnetTest extends AccountBasedTest {
     @Test
     public void marketBuilderBtcUsdcTest() {
         // Pubkey of BTC/USDC market
-        final PublicKey publicKey = new PublicKey("CVfYa8RGXnuDBeGmniCcdkBwoLqVxh92xB1JqgRQx3F"); //BTC/USDC
+        final PublicKey publicKey = new PublicKey("A8YFbxQYFVqKZaoYJLLUVcQiWP7G2MeEgW5wsAQgMvFw"); //BTC/USDC
 
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(publicKey)
