@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -35,6 +36,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
     private Map<String, SubscriptionParams> subscriptions = new HashMap<>();
     private Map<String, Long> subscriptionIds = new HashMap<>();
     private Map<Long, NotificationEventListener> subscriptionLinsteners = new HashMap<>();
+    private static final Logger LOGGER = Logger.getLogger(SubscriptionWebSocketClient.class.getName());
 
     public static SubscriptionWebSocketClient getInstance(String endpoint) {
         URI endpointURI;
@@ -90,6 +92,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
+        LOGGER.info("Websocket connection opened");
         updateSubscriptions();
     }
 
@@ -118,10 +121,10 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
 
                 switch (result.getMethod()) {
                     case "signatureNotification":
-                        listener.onNotifiacationEvent(new SignatureNotification(value.get("err")));
+                        listener.onNotificationEvent(new SignatureNotification(value.get("err")));
                         break;
                     case "accountNotification":
-                        listener.onNotifiacationEvent(value);
+                        listener.onNotificationEvent(value);
                         break;
                 }
             }
