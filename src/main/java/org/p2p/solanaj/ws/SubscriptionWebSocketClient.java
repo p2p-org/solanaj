@@ -90,6 +90,19 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
         updateSubscriptions();
     }
 
+    public void logsSubscribe(String mention, NotificationEventListener listener) {
+        List<Object> params = new ArrayList<Object>();
+        params.add(Map.of("mentions", List.of(mention)));
+        params.add(Map.of("commitment", "finalized"));
+
+        RpcRequest rpcRequest = new RpcRequest("logsSubscribe", params);
+
+        subscriptions.put(rpcRequest.getId(), new SubscriptionParams(rpcRequest, listener));
+        subscriptionIds.put(rpcRequest.getId(), null);
+
+        updateSubscriptions();
+    }
+
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         LOGGER.info("Websocket connection opened");
@@ -124,6 +137,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
                         listener.onNotificationEvent(new SignatureNotification(value.get("err")));
                         break;
                     case "accountNotification":
+                    case "logsNotification":
                         listener.onNotificationEvent(value);
                         break;
                 }

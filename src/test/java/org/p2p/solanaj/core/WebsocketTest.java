@@ -8,6 +8,7 @@ import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
 import org.p2p.solanaj.ws.listeners.AccountNotificationEventListener;
+import org.p2p.solanaj.ws.listeners.LogNotificationEventListener;
 
 import java.util.logging.Logger;
 
@@ -26,6 +27,17 @@ public class WebsocketTest extends AccountBasedTest {
 
     private static final PublicKey BTC_USDC_BIDS = new PublicKey("6wLt7CX1zZdFpa6uGJJpZfzWvG6W9rxXjquJDYiFwf9K");
 
+
+
+    @Test
+    public void logsSubscribeWebsocketTest() throws InterruptedException {
+        //client.logsSubscribe("11111111111111111111111111111111", new AccountNotificationEventListener());
+        client.logsSubscribe("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq", new LogNotificationEventListener());
+        Thread.sleep(3000L);
+        sendLamports(AMOUNT_OF_LAMPORTS);
+        Thread.sleep(200000L);
+        assertTrue(true);
+    }
 
     @Test
     public void orderbookWebsocketTest() {
