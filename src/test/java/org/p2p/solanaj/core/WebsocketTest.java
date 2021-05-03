@@ -24,6 +24,22 @@ public class WebsocketTest extends AccountBasedTest {
     private final static int AMOUNT_OF_LAMPORTS = 100;
     private static final Logger LOGGER = Logger.getLogger(WebsocketTest.class.getName());
 
+    private static final PublicKey BTC_USDC_BIDS = new PublicKey("6wLt7CX1zZdFpa6uGJJpZfzWvG6W9rxXjquJDYiFwf9K");
+
+
+    @Test
+    public void orderbookWebsocketTest() {
+        client.accountSubscribe(BTC_USDC_BIDS.toBase58(), new AccountNotificationEventListener());
+
+        try {
+            Thread.sleep(100000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertTrue(true);
+    }
+
+
     @Test
     public void websocketTest() {
         client.accountSubscribe(myWallet.toBase58(), new AccountNotificationEventListener());

@@ -85,8 +85,8 @@ public class MainnetTest extends AccountBasedTest {
      */
     @Test
     public void marketBuilderBtcUsdcTest() {
-        // Pubkey of BTC/USDC market
-        final PublicKey publicKey = new PublicKey("A8YFbxQYFVqKZaoYJLLUVcQiWP7G2MeEgW5wsAQgMvFw"); //BTC/USDC
+        // Pubkey of SRM/USDC market
+        final PublicKey publicKey = new PublicKey("ByRys5tuUWDgL73G8JBAEfkdFf8JWBzPBDHsBVQ5vbQA"); //SRM/USDC
 
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(publicKey)
@@ -96,8 +96,8 @@ public class MainnetTest extends AccountBasedTest {
         final OrderBook bids = solUsdcMarket.getBidOrderBook();
         final OrderBook asks = solUsdcMarket.getAskOrderBook();
 
-        LOGGER.info("Best bid = " + bids.getBestBid());
-        LOGGER.info("Best ask = " + asks.getBestAsk());
+        LOGGER.info("Best bid = " + bids.getBestBid().getPrice() / 1000.0);
+        LOGGER.info("Best ask = " + asks.getBestAsk().getPrice() / 1000.0);
 
         // Verify at least 1 bid and 1 ask (should always be for BTC/USDC)
         assertTrue(bids.getOrders().size() > 0);
