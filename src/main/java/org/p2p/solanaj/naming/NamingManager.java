@@ -1,12 +1,7 @@
 package org.p2p.solanaj.naming;
 
-import com.google.common.hash.Hashing;
-import org.bitcoinj.core.Sha256Hash;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
-import org.p2p.solanaj.core.Transaction;
-import org.p2p.solanaj.programs.MemoProgram;
-import org.p2p.solanaj.programs.TokenProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -15,7 +10,6 @@ import org.p2p.solanaj.utils.ByteUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 @SuppressWarnings({"MalformedFormatString", "UnstableApiUsage"})
