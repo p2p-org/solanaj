@@ -17,6 +17,7 @@ Solanaj is an API for integrating with Solana blockchain using the [Solana RPC A
 Create a solanaj.properties file.
 
 test.solana.pubkey = Pubkey of destination SOL wallet for testing
+
 test.solana.pubkey.source.usdc = Pubkey of private key's USDC wallet
 
 ##### Transfer lamports
