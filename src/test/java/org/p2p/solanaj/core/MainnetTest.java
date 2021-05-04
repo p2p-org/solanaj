@@ -292,7 +292,7 @@ public class MainnetTest extends AccountBasedTest {
     @Test
     public void sendTokenTest() {
         final PublicKey source = usdcSource; // Private key's USDC token account
-        final PublicKey destination = solDestination; // Test destination, skynet's USDC account
+        final PublicKey destination = usdcDestination; // Destination's USDC account
         final int tokenAmount = 10; // 0.000100 USDC
 
         // Create account from private key
@@ -311,9 +311,10 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    @Ignore
     public void transferCheckedTest() {
         final PublicKey source = usdcSource; // Private key's USDC token account
-        final PublicKey destination = solDestination; // Test destination, skynet's USDC account
+        final PublicKey destination = solDestination;
 
         /*
             amount = "0.0001" usdc
@@ -341,6 +342,7 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    @Ignore
     public void initializeAccountTest() {
         final Account owner = testAccount;
         final Account newAccount = new Account();

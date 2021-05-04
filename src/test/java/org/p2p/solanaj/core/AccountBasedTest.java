@@ -15,6 +15,7 @@ public class AccountBasedTest {
     public static Account testAccount;
     public static PublicKey solDestination;
     public static PublicKey usdcSource;
+    public static PublicKey usdcDestination;
 
     @BeforeClass
     public static void setup() {
@@ -34,6 +35,7 @@ public class AccountBasedTest {
 
             solDestination = new PublicKey(properties.getProperty("test.solana.pubkey"));
             usdcSource = new PublicKey(properties.getProperty("test.solana.pubkey.source.usdc"));
+            usdcDestination = new PublicKey(properties.getProperty("test.solana.pubkey.destination.usdc"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
