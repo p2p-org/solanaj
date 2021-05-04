@@ -12,7 +12,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 
-@SuppressWarnings({"MalformedFormatString", "UnstableApiUsage"})
 public class NamingManager {
 
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
@@ -60,9 +59,8 @@ public class NamingManager {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        byte[] encodedHash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
 
-        return encodedHash;
+        return digest.digest(input.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
