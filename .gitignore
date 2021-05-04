@@ -7,4 +7,4 @@ build
 .idea
 *.iml
 secretkey.dat
-solanaj.properties
+*.properties
