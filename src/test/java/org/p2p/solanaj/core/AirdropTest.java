@@ -17,7 +17,6 @@ public class AirdropTest extends AccountBasedTest {
     private static final Logger LOGGER = Logger.getLogger(AirdropTest.class.getName());
 
     private final PublicKey publicKey = solDestination;
-    private final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
     public final TokenManager tokenManager = new TokenManager();
 
     // List of recipients - ETL a file into this
@@ -32,7 +31,7 @@ public class AirdropTest extends AccountBasedTest {
         recipients.forEach(recipient -> {
             tokenManager.transferCheckedToSolAddress(
                     testAccount,
-                    source,
+                    usdcSource,
                     publicKey,
                     USDC_TOKEN_MINT,
                     AIRDROP_AMOUNT,

@@ -14,6 +14,7 @@ public class AccountBasedTest {
 
     public static Account testAccount;
     public static PublicKey solDestination;
+    public static PublicKey usdcSource;
 
     public AccountBasedTest(){
         try (InputStream input = new FileInputStream("solanaj.properties")) {
@@ -21,6 +22,7 @@ public class AccountBasedTest {
             properties.load(input);
 
             solDestination = new PublicKey(properties.getProperty("test.solana.pubkey"));
+            usdcSource = new PublicKey(properties.getProperty("test.solana.pubkey.source.usdc"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }

@@ -160,7 +160,7 @@ public class MainnetTest extends AccountBasedTest {
      */
     @Test
     public void marketBuilderSolUsdcTest() {
-        final PublicKey solUsdcPublicKey = new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ");
+        final PublicKey solUsdcPublicKey = usdcSource;
 
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(solUsdcPublicKey)
@@ -187,7 +187,7 @@ public class MainnetTest extends AccountBasedTest {
     @Ignore
     public void transactionMemoTest() {
         final int lamports = 1337;
-        final PublicKey destination = new PublicKey("8xCxNLSdjheuC4EvVNmG77ViTjVcLDmTmqK5zboUu5Nt");
+        final PublicKey destination = solDestination;
 
         // Create account from private key
         final Account feePayer = testAccount;
@@ -291,7 +291,7 @@ public class MainnetTest extends AccountBasedTest {
 
     @Test
     public void sendTokenTest() {
-        final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN"); // Private key's USDC token account
+        final PublicKey source = usdcSource; // Private key's USDC token account
         final PublicKey destination = solDestination; // Test destination, skynet's USDC account
         final int tokenAmount = 10; // 0.000100 USDC
 
@@ -312,7 +312,7 @@ public class MainnetTest extends AccountBasedTest {
 
     @Test
     public void transferCheckedTest() {
-        final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN"); // Private key's USDC token account
+        final PublicKey source = usdcSource; // Private key's USDC token account
         final PublicKey destination = solDestination; // Test destination, skynet's USDC account
 
         /*
