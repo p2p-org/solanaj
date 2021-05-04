@@ -1,5 +1,6 @@
 package org.p2p.solanaj.core;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.token.TokenManager;
 
@@ -26,6 +27,7 @@ public class AirdropTest extends AccountBasedTest {
     private static final byte AIRDROP_DECIMALS = 6;
 
     @Test
+    @Ignore
     public void airdropTest() {
         // Send airdrop
         recipients.forEach(recipient -> {

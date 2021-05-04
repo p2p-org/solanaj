@@ -290,6 +290,7 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    @Ignore
     public void sendTokenTest() {
         final PublicKey source = usdcSource; // Private key's USDC token account
         final PublicKey destination = usdcDestination; // Destination's USDC account
