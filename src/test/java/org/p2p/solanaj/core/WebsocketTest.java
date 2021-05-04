@@ -1,9 +1,6 @@
 package org.p2p.solanaj.core;
 
 import org.junit.Test;
-import org.junitpioneer.jupiter.ReadsSystemProperty;
-import org.junitpioneer.jupiter.SetSystemProperty;
-import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
