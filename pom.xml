@@ -60,12 +60,5 @@
       <artifactId>Java-WebSocket</artifactId>
       <version>1.5.1</version>
     </dependency>
-    <dependency>
-      <groupId>org.junit-pioneer</groupId>
-      <artifactId>junit-pioneer</artifactId>
-      <version>1.4.0</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 </project>
