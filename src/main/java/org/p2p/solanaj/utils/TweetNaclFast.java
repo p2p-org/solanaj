@@ -3405,5 +3405,46 @@ public final class TweetNaclFast {
   }
 
 	// public static boolean java.util.Arrays.equals(array1, array2);
+
+  // Check that a pubkey is on the curve.
+  public static int is_on_curve(byte p[]) {
+		long[] r[] = { new long [16], new long [16], new long [16], new long [16] };
+
+		long []    t = new long [16];
+		long []  chk = new long [16];
+		long []  num = new long [16];
+		long []  den = new long [16];
+		long [] den2 = new long [16];
+		long [] den4 = new long [16];
+		long [] den6 = new long [16];
+
+		set25519(r[2], gf1);
+		unpack25519(r[1], p);
+		S(num, r[1]);
+		M(den, num, D);
+		Z(num, num, r[2]);
+		A(den, r[2], den);
+
+		S(den2, den);
+		S(den4, den2);
+		M(den6, den4, den2);
+		M(t, den6, num);
+		M(t, t, den);
+
+		pow2523(t, t);
+		M(t, t, num);
+		M(t, t, den);
+		M(t, t, den);
+		M(r[0], t, den);
+
+		S(chk, r[0]);
+		M(chk, chk, den);
+		if (neq25519(chk, num)!=0) M(r[0], r[0], I);
+
+		S(chk, r[0]);
+		M(chk, chk, den);
+		if (neq25519(chk, num)!=0) return 0;
+		return 1;
+   }
 		
 }
