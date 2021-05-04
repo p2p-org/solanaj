@@ -16,7 +16,18 @@ public class AccountBasedTest {
     public static PublicKey solDestination;
     public static PublicKey usdcSource;
 
-    public AccountBasedTest(){
+    @BeforeClass
+    public static void setup() {
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Read test.solana.pubkey and test.solana.pubkey.source.usdc
         try (InputStream input = new FileInputStream("solanaj.properties")) {
             Properties properties = new Properties();
             properties.load(input);
@@ -25,17 +36,6 @@ public class AccountBasedTest {
             usdcSource = new PublicKey(properties.getProperty("test.solana.pubkey.source.usdc"));
         } catch (IOException ex) {
             ex.printStackTrace();
-        }
-    }
-
-    @BeforeClass
-    public static void setup() {
-        // Build account from secretkey.dat
-        byte[] data = new byte[0];
-        try {
-            data = Files.readAllBytes(Paths.get("secretkey.dat"));
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         testAccount = new Account(Base58.decode(new String(data)));

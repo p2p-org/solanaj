@@ -25,11 +25,6 @@ public class WebsocketTest extends AccountBasedTest {
 
     private static final PublicKey BTC_USDC_BIDS = new PublicKey("6wLt7CX1zZdFpa6uGJJpZfzWvG6W9rxXjquJDYiFwf9K");
 
-    public WebsocketTest() {
-        super();
-    }
-
-
     @Test
     public void logsSubscribeWebsocketTest() throws InterruptedException {
         client.logsSubscribe(solDestination.toBase58(), new LogNotificationEventListener());
