@@ -1,5 +1,6 @@
 package org.p2p.solanaj.core;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.rpc.Cluster;
@@ -26,6 +27,7 @@ public class WebsocketTest extends AccountBasedTest {
     private static final PublicKey BTC_USDC_BIDS = new PublicKey("6wLt7CX1zZdFpa6uGJJpZfzWvG6W9rxXjquJDYiFwf9K");
 
     @Test
+    @Ignore
     public void logsSubscribeWebsocketTest() throws InterruptedException {
         client.logsSubscribe(solDestination.toBase58(), new LogNotificationEventListener());
         Thread.sleep(3000L);
@@ -35,11 +37,12 @@ public class WebsocketTest extends AccountBasedTest {
     }
 
     @Test
+    @Ignore
     public void orderbookWebsocketTest() {
         client.accountSubscribe(BTC_USDC_BIDS.toBase58(), new AccountNotificationEventListener());
 
         try {
-            Thread.sleep(100000L);
+            Thread.sleep(1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -48,6 +51,7 @@ public class WebsocketTest extends AccountBasedTest {
 
 
     @Test
+    @Ignore
     public void websocketTest() {
         client.accountSubscribe(solDestination.toBase58(), new AccountNotificationEventListener());
 
