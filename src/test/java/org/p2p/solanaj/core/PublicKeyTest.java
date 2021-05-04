@@ -1,9 +1,12 @@
 package org.p2p.solanaj.core;
 
 import org.junit.Test;
+import org.p2p.solanaj.core.PublicKey.ProgramDerivedAddress;
+
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 public class PublicKeyTest {
 
@@ -51,6 +54,57 @@ public class PublicKeyTest {
 
         byte[] bytes = bos.toByteArray();
         assertEquals(key.toString(), PublicKey.readPubkey(bytes, 1).toString());
+    }
+
+    @Test
+    public void createProgramAddress() throws Exception {
+        PublicKey programId = new PublicKey("BPFLoader1111111111111111111111111111111111");
+
+        PublicKey programAddress = PublicKey.createProgramAddress(
+                Arrays.asList(new PublicKey("SeedPubey1111111111111111111111111111111111").toByteArray()), programId);
+        assertTrue(programAddress.equals(new PublicKey("GUs5qLUfsEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K")));
+
+        programAddress = PublicKey.createProgramAddress(Arrays.asList("".getBytes(), new byte[] { 1 }), programId);
+        assertTrue(programAddress.equals(new PublicKey("3gF2KMe9KiC6FNVBmfg9i267aMPvK37FewCip4eGBFcT")));
+
+        programAddress = PublicKey.createProgramAddress(Arrays.asList("☉".getBytes()), programId);
+        assertTrue(programAddress.equals(new PublicKey("7ytmC1nT1xY4RfxCV2ZgyA7UakC93do5ZdyhdF3EtPj7")));
+
+        programAddress = PublicKey.createProgramAddress(Arrays.asList("Talking".getBytes(), "Squirrels".getBytes()),
+                programId);
+        assertTrue(programAddress.equals(new PublicKey("HwRVBufQ4haG5XSgpspwKtNd3PC9GM9m1196uJW36vds")));
+
+        PublicKey programAddress2 = PublicKey.createProgramAddress(Arrays.asList("Talking".getBytes()), programId);
+        assertFalse(programAddress.equals(programAddress2));
+    }
+
+    @Test
+    public void findProgramAddress() throws Exception {
+        PublicKey programId = new PublicKey("BPFLoader1111111111111111111111111111111111");
+
+        ProgramDerivedAddress programAddress = PublicKey.findProgramAddress(Arrays.asList("".getBytes()), programId);
+        assertTrue(programAddress.getAddress().equals(PublicKey.createProgramAddress(
+                Arrays.asList("".getBytes(), new byte[] { (byte) programAddress.getNonce() }), programId)));
+
+    }
+
+    @Test
+    public void findProgramAddress1() throws Exception {
+        PublicKey programId = new PublicKey("6Cust2JhvweKLh4CVo1dt21s2PJ86uNGkziudpkNPaCj");
+        PublicKey programId2 = new PublicKey("BPFLoader1111111111111111111111111111111111");
+
+        ProgramDerivedAddress programAddress = PublicKey.findProgramAddress(
+                Arrays.asList(new PublicKey("8VBafTNv1F8k5Bg7DTVwhitw3MGAMTmekHsgLuMJxLC8").toByteArray()), programId);
+        assertTrue(programAddress.getAddress().equals(new PublicKey("FGnnqkzkXUGKD7wtgJCqTemU3WZ6yYqkYJ8xoQoXVvUG")));
+
+        ProgramDerivedAddress programAddress2 = PublicKey
+                .findProgramAddress(
+                        Arrays.asList(new PublicKey("SeedPubey1111111111111111111111111111111111").toByteArray(),
+                                new PublicKey("3gF2KMe9KiC6FNVBmfg9i267aMPvK37FewCip4eGBFcT").toByteArray(),
+                                new PublicKey("HwRVBufQ4haG5XSgpspwKtNd3PC9GM9m1196uJW36vds").toByteArray()),
+                        programId2);
+        assertTrue(programAddress2.getAddress().equals(new PublicKey("GXLbx3CbJuTTtJDZeS1PGzwJJ5jGYVEqcXum7472kpUp")));
+        assertEquals(programAddress2.getNonce(), 254);
     }
 
 }
