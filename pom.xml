@@ -42,12 +42,12 @@
     <dependency>
         <groupId>com.squareup.moshi</groupId>
         <artifactId>moshi</artifactId>
-        <version>1.9.2</version>
+        <version>1.12.0</version>
     </dependency>
     <dependency>
         <groupId>com.squareup.moshi</groupId>
         <artifactId>moshi-adapters</artifactId>
-        <version>1.9.2</version>
+        <version>1.12.0</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -60,5 +60,12 @@
       <artifactId>Java-WebSocket</artifactId>
       <version>1.5.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.junit-pioneer</groupId>
+      <artifactId>junit-pioneer</artifactId>
+      <version>1.4.0</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 </project>

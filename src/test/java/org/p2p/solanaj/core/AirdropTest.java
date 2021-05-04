@@ -16,7 +16,7 @@ public class AirdropTest extends AccountBasedTest {
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
     private static final Logger LOGGER = Logger.getLogger(AirdropTest.class.getName());
 
-    private final PublicKey publicKey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
+    private final PublicKey publicKey = solDestination;
     private final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
     public final TokenManager tokenManager = new TokenManager();
 

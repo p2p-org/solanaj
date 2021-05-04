@@ -25,7 +25,7 @@ public class MainnetTest extends AccountBasedTest {
 
     private static final Logger LOGGER = Logger.getLogger(MainnetTest.class.getName());
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
-    private final PublicKey publicKey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
+    private final PublicKey publicKey = solDestination;
     public final TokenManager tokenManager = new TokenManager();
 
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
@@ -292,7 +292,7 @@ public class MainnetTest extends AccountBasedTest {
     @Test
     public void sendTokenTest() {
         final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN"); // Private key's USDC token account
-        final PublicKey destination = new PublicKey("9A1anCYGg98tUB8LUhtmjq4STqfJ8Qc3vxCDB5TQhXAw"); // Test destination, skynet's USDC account
+        final PublicKey destination = solDestination; // Test destination, skynet's USDC account
         final int tokenAmount = 10; // 0.000100 USDC
 
         // Create account from private key
@@ -313,7 +313,7 @@ public class MainnetTest extends AccountBasedTest {
     @Test
     public void transferCheckedTest() {
         final PublicKey source = new PublicKey("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN"); // Private key's USDC token account
-        final PublicKey destination = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq"); // Test destination, skynet's USDC account
+        final PublicKey destination = solDestination; // Test destination, skynet's USDC account
 
         /*
             amount = "0.0001" usdc

@@ -1,6 +1,8 @@
 package org.p2p.solanaj.core;
 
 import org.junit.Test;
+import org.junitpioneer.jupiter.ReadsSystemProperty;
+import org.junitpioneer.jupiter.SetSystemProperty;
 import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.rpc.Cluster;
@@ -19,7 +21,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class WebsocketTest extends AccountBasedTest {
 
-    private final PublicKey myWallet = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
     private final SubscriptionWebSocketClient client = SubscriptionWebSocketClient.getInstance(Cluster.MAINNET.getEndpoint());
     private final RpcClient rpcClient = new RpcClient(Cluster.MAINNET);
     private final static int AMOUNT_OF_LAMPORTS = 100;
@@ -27,12 +28,14 @@ public class WebsocketTest extends AccountBasedTest {
 
     private static final PublicKey BTC_USDC_BIDS = new PublicKey("6wLt7CX1zZdFpa6uGJJpZfzWvG6W9rxXjquJDYiFwf9K");
 
+    public WebsocketTest() {
+        super();
+    }
 
 
     @Test
     public void logsSubscribeWebsocketTest() throws InterruptedException {
-        //client.logsSubscribe("11111111111111111111111111111111", new AccountNotificationEventListener());
-        client.logsSubscribe("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq", new LogNotificationEventListener());
+        client.logsSubscribe(solDestination.toBase58(), new LogNotificationEventListener());
         Thread.sleep(3000L);
         sendLamports(AMOUNT_OF_LAMPORTS);
         Thread.sleep(200000L);
@@ -54,7 +57,7 @@ public class WebsocketTest extends AccountBasedTest {
 
     @Test
     public void websocketTest() {
-        client.accountSubscribe(myWallet.toBase58(), new AccountNotificationEventListener());
+        client.accountSubscribe(solDestination.toBase58(), new AccountNotificationEventListener());
 
         sendLamports(AMOUNT_OF_LAMPORTS);
 
@@ -74,7 +77,7 @@ public class WebsocketTest extends AccountBasedTest {
         transaction.addInstruction(
                 SystemProgram.transfer(
                         feePayer.getPublicKey(),
-                        myWallet,
+                        solDestination,
                         amount
                 )
         );
