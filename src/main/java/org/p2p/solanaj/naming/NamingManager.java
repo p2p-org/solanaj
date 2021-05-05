@@ -37,14 +37,19 @@ public class NamingManager {
                                      final PublicKey parentName) {
 
         String fullDomainName = HASH_PREFIX + name;
-
         byte[] hashedName = getHashedName(fullDomainName);
         LOGGER.info(String.format("Name = %s, Sha256 = %s", fullDomainName, ByteUtils.bytesToHex(hashedName)).toLowerCase());
+
+        PublicKey nameAccountKey = getNameAccountKey(hashedName, nameClass, parentName);
 
         long minimumBalanceForRentExemption = getMinimumBalanceForRentExemption();
         LOGGER.info(String.format("minimumBalanceForRentExemption = %d", minimumBalanceForRentExemption));
 
         return true;
+    }
+
+    private PublicKey getNameAccountKey(byte[] hashedName, PublicKey nameClass, PublicKey parentName) {
+        return null;
     }
 
     /**
