@@ -1,5 +1,6 @@
 package org.p2p.solanaj.naming;
 
+import org.jetbrains.annotations.Nullable;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.Cluster;
@@ -7,6 +8,8 @@ import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.utils.ByteUtils;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -48,8 +51,72 @@ public class NamingManager {
         return true;
     }
 
-    private PublicKey getNameAccountKey(byte[] hashedName, PublicKey nameClass, PublicKey parentName) {
+    private PublicKey getNameAccountKey(byte[] hashedName, @Nullable PublicKey nameClass, @Nullable PublicKey parentName) {
+        // Convert hashedName to a ByteBuffer.
+        ByteBuffer seeds = ByteBuffer.wrap(hashedName);
+        seeds.order(ByteOrder.LITTLE_ENDIAN);
+
+        if (nameClass != null) {
+            byte[] nameClassBytes = toBuffer(nameClass);
+            seeds.put(nameClassBytes);
+        } else {
+            allocateBytes(seeds, 32);
+        }
+
+        if (parentName != null) {
+            byte[] parentClassBytes = toBuffer(parentName);
+            seeds.put(parentClassBytes);
+        } else {
+           allocateBytes(seeds, 32);
+        }
+
+        /*
+          let [nameAccountKey, _] = await PublicKey.findProgramAddress(
+              seeds,
+              NAME_PROGRAM_ID
+            );
+            return nameAccountKey
+         */
+
         return null;
+    }
+
+    private void allocateBytes(ByteBuffer buffer, int amount) {
+        buffer.put(new byte[amount]);
+    }
+
+    private byte[] toBuffer(PublicKey nameClass) {
+        /*
+          toBuffer(): Buffer {
+              const a = super.toArray().reverse();
+              const b = Buffer.from(a);
+              if (b.length === 4) {
+                return b;
+              }
+              assert(b.length < 4, "Numberu32 too large");
+
+              const zeroPad = Buffer.alloc(4);
+              b.copy(zeroPad);
+              return zeroPad;
+            }
+         */
+        ByteBuffer buffer = ByteBuffer.wrap(nameClass.toByteArray());
+        reverseByteBuffer(buffer);
+
+        ByteBuffer resultBuffer = buffer.duplicate();
+
+        if (resultBuffer.array().length == 4) {
+            return resultBuffer.array();
+        }
+
+        if (resultBuffer.array().length < 4) {
+            throw new RuntimeException("Resulting buffer is too large");
+        }
+
+        ByteBuffer zeroPad = ByteBuffer.allocate(4);
+        zeroPad.put(resultBuffer.array());
+
+        return zeroPad.array();
     }
 
     /**
@@ -78,5 +145,18 @@ public class NamingManager {
             e.printStackTrace();
         }
         return DATA_LENGTH * 10;
+    }
+
+    /**
+     * Reverse a {@link ByteBuffer}
+     * @param buffer existing ByteBuffer to reverse
+     */
+    private void reverseByteBuffer(ByteBuffer buffer) {
+        for (int i = 0; i < buffer.array().length; i++) {
+            byte leftByte = buffer.get(i);
+            byte rightByte = buffer.get(buffer.array().length - i);
+            buffer.put(i, rightByte);
+            buffer.put(buffer.array().length - i, leftByte);
+        }
     }
 }
