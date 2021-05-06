@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 public class OrderTest {
 
     private static final Logger LOGGER = Logger.getLogger(OrderTest.class.getName());
-    private final OrderManager orderManager = new OrderManager();
+    private final SerumManager serumManager = new SerumManager();
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
     private static final PublicKey SOL_USDC_MARKET_V3 = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
 
@@ -48,7 +48,7 @@ public class OrderTest {
         final Account openOrders = new Account();
 
         // Place order
-        String transactionId = orderManager.placeOrder(account, openOrders, solUsdcMarket, new Order(1, 1, 1));
+        String transactionId = serumManager.placeOrder(account, openOrders, solUsdcMarket, new Order(1, 1, 1));
 
         // Verify we got a txId
         assertNotNull(transactionId);
@@ -64,5 +64,33 @@ public class OrderTest {
 
 
         System.out.println(accountInfo.toString());
+    }
+
+    @Test
+    @Ignore
+    public void consumeEventsTest() {
+        LOGGER.info("Consuming events");
+
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create account from private key
+        final Account account = new Account(Base58.decode(new String(data)));
+
+        // Get SOL/USDC market
+        final Market solUsdcMarket = new MarketBuilder()
+                .setPublicKey(SOL_USDC_MARKET_V3)
+                .setRetrieveOrderBooks(false)
+                .build();
+        // Place order
+        String transactionId = serumManager.consumeEvents(solUsdcMarket, account);
+
+        // Verify we got a txId
+        assertNotNull(transactionId);
     }
 }

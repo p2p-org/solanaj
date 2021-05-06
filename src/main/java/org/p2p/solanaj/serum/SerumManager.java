@@ -9,9 +9,9 @@ import org.p2p.solanaj.rpc.RpcException;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class OrderManager {
+public class SerumManager {
 
-    private static final Logger LOGGER = Logger.getLogger(OrderManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SerumManager.class.getName());
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
 
     /**
@@ -57,6 +57,34 @@ public class OrderManager {
             //result = client.getApi().sendTransaction(transaction, account);
             result = client.getApi().sendTransaction(transaction, signers, null);
             LOGGER.info("Result = " + result);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    /**
+     * Cranks a given market with the ConsumeEvents instruction.
+     *
+     * @param market market to run crank against
+     * @return transaction id of ConsumeEvents call
+     */
+    public String consumeEvents(Market market, Account payerAccount) {
+        // Get all open orders accounts TODO - fix this
+        final Transaction transaction = new Transaction();
+
+        transaction.addInstruction(
+                SerumProgram.consumeEvents(
+                        client,
+                        market
+                )
+        );
+
+        final List<Account> signers = List.of(payerAccount);
+        String result = null;
+        try {
+            result = client.getApi().sendTransaction(transaction, signers, null);
         } catch (RpcException e) {
             e.printStackTrace();
         }

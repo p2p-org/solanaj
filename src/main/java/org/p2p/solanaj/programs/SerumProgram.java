@@ -13,7 +13,10 @@ import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.p2p.solanaj.serum.SerumUtils.OWN_ADDRESS_OFFSET;
 
@@ -25,6 +28,42 @@ public class SerumProgram extends Program {
     private static final PublicKey TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
     private static final PublicKey SYSVAR_RENT_PUBKEY = new PublicKey("SysvarRent111111111111111111111111111111111");
     private static final PublicKey SERUM_PROGRAM_ID_V3 = new PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
+
+
+    public static TransactionInstruction consumeEvents(RpcClient client, Market market) {
+        // Add signer to AccountMeta keys
+
+        // openOrders Pubkeys
+        // market Pubkey
+        // eventQueue Pubkey
+        List<PublicKey> openOrdersPubkeys = findOpenOrdersAccounts(client, market.getOwnAddress());
+
+        // convert to account metas
+        List<AccountMeta> accountMetas = openOrdersPubkeys.stream()
+                .map(publicKey -> new AccountMeta(publicKey, false, true))
+                .collect(Collectors.toList());
+
+        int limit = 5;
+        byte[] transactionData = encodeConsumeEventsTransactionData(
+                limit
+        );
+
+        return createTransactionInstruction(
+                SERUM_PROGRAM_ID_V3,
+                accountMetas,
+                transactionData
+        );
+    }
+
+    private static byte[] encodeConsumeEventsTransactionData(int limit) {
+        ByteBuffer result = ByteBuffer.allocate(3);
+        result.order(ByteOrder.LITTLE_ENDIAN);
+
+        result.put((byte) 4);
+        result.putShort((short) limit);
+
+        return result.array();
+    }
 
     public static TransactionInstruction placeOrder(RpcClient client, Account account, Account payer, Account openOrders, Market market, Order order) {
         /*
@@ -260,6 +299,26 @@ public class SerumProgram extends Program {
         }
 
         return new PublicKey(base58Pubkey);
+    }
+
+    private static List<PublicKey> findOpenOrdersAccounts(RpcClient client, PublicKey marketAddress) {
+        int dataSize = 3228;
+
+        List<ProgramAccount> programAccounts = null;
+        ConfigObjects.Memcmp marketFilter = new ConfigObjects.Memcmp(OWN_ADDRESS_OFFSET, marketAddress.toBase58());
+        List<ConfigObjects.Memcmp> memcmpList = List.of(marketFilter);
+
+        try {
+            programAccounts = client.getApi().getProgramAccounts(SERUM_PROGRAM_ID_V3, memcmpList, dataSize);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        List<PublicKey> results = programAccounts.stream()
+                .map(programAccount -> new PublicKey(programAccount.getPubkey()))
+                .collect(Collectors.toList());
+
+        return results;
     }
 
 }
