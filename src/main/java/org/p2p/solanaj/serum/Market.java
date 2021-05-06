@@ -34,6 +34,26 @@ public class Market {
     private OrderBook bidOrderBook;
     private OrderBook askOrderBook;
 
+    // Data from token mints
+    private byte baseDecimals;
+    private byte quoteDecimals;
+
+    public byte getBaseDecimals() {
+        return baseDecimals;
+    }
+
+    public void setBaseDecimals(byte baseDecimals) {
+        this.baseDecimals = baseDecimals;
+    }
+
+    public byte getQuoteDecimals() {
+        return quoteDecimals;
+    }
+
+    public void setQuoteDecimals(byte quoteDecimals) {
+        this.quoteDecimals = quoteDecimals;
+    }
+
     public OrderBook getBidOrderBook() {
         return bidOrderBook;
     }
@@ -299,6 +319,10 @@ public class Market {
                 ", quoteLotSize=" + quoteLotSize +
                 ", feeRateBps=" + feeRateBps +
                 ", referrerRebatesAccrued=" + referrerRebatesAccrued +
+                ", bidOrderBook=" + bidOrderBook +
+                ", askOrderBook=" + askOrderBook +
+                ", baseDecimals=" + baseDecimals +
+                ", quoteDecimals=" + quoteDecimals +
                 '}';
     }
 }

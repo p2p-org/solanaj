@@ -8,6 +8,7 @@ import org.p2p.solanaj.rpc.types.AccountInfo;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Builds a {@link Market} object, which can have polled data including bid/ask {@link OrderBook}s
@@ -17,6 +18,10 @@ public class MarketBuilder {
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
     private PublicKey publicKey;
     private boolean retrieveOrderbooks = false;
+    private static final Logger LOGGER = Logger.getLogger(MarketBuilder.class.getName());
+
+    // TODO move all publickey consts to it's own static class
+    private static final PublicKey WRAPPED_SOL_MINT = new PublicKey("So11111111111111111111111111111111111111112");
 
     public MarketBuilder setRetrieveOrderBooks(boolean retrieveOrderbooks) {
         this.retrieveOrderbooks = retrieveOrderbooks;
@@ -31,7 +36,7 @@ public class MarketBuilder {
         Market market = new Market();
 
         // Get account Info
-        byte[] base64AccountInfo = getAccountData();
+        byte[] base64AccountInfo = retrieveAccountData();
 
         // Read market
         if (base64AccountInfo == null) {
@@ -42,33 +47,56 @@ public class MarketBuilder {
 
         // Get Order books
         if (retrieveOrderbooks) {
-            byte[] base64BidOrderbook = getOrderbookData(market.getBids());
-            byte[] base64AskOrderbook = getOrderbookData(market.getAsks());
+            // TODO - multi-thread these
+            // Data from the order books
+            byte[] base64BidOrderbook = retrieveAccountData(market.getBids());
+            byte[] base64AskOrderbook = retrieveAccountData(market.getAsks());
 
             OrderBook bidOrderBook = OrderBook.readOrderBook(base64BidOrderbook);
             OrderBook askOrderBook = OrderBook.readOrderBook(base64AskOrderbook);
 
             market.setBidOrderBook(bidOrderBook);
             market.setAskOrderBook(askOrderBook);
+
+            // Data from the token mints
+            // TODO - multi-thread these
+            byte baseDecimals = getMintDecimals(market.getBaseMint());
+            byte quoteDecimals = getMintDecimals(market.getQuoteMint());
+
+            LOGGER.info(String.format("Base decimals = %d", baseDecimals));
+            LOGGER.info(String.format("Quote decimals = %d", quoteDecimals));
+
+            market.setBaseDecimals(baseDecimals);
+            market.setQuoteDecimals(quoteDecimals);
         }
 
         return market;
     }
 
-    private byte[] getAccountData() {
-        AccountInfo accountInfo = null;
-        try {
-            accountInfo = client.getApi().getAccountInfo(publicKey);
-        } catch (RpcException e) {
-            e.printStackTrace();
+    /**
+     * Retrieves decimals for a given Token Mint's {@link PublicKey} from Solana account data.
+     * @param tokenMint
+     * @return
+     */
+    private byte getMintDecimals(PublicKey tokenMint) {
+        if (tokenMint.equals(WRAPPED_SOL_MINT)) {
+            return 9;
         }
 
-        final List<String> accountData = accountInfo.getValue().getData();
+        // RPC call to get mint's account data into decoded bytes (already base64 decoded)
+        byte[] accountData = retrieveAccountData(tokenMint);
 
-        return Base64.getDecoder().decode(accountData.get(0));
+        // Deserialize accountData into the MINT_LAYOUT enum
+        byte decimals = SerumUtils.readDecimalsFromTokenMintData(accountData);
+
+        return decimals;
     }
 
-    private byte[] getOrderbookData(PublicKey publicKey) {
+    private byte[] retrieveAccountData() {
+        return retrieveAccountData(publicKey);
+    }
+
+    private byte[] retrieveAccountData(PublicKey publicKey) {
         AccountInfo orderBook = null;
 
         try {

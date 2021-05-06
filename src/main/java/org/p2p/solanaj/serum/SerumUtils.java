@@ -4,6 +4,7 @@ import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Logger;
 
 /**
  * version 2 market offsets.
@@ -41,6 +42,9 @@ import java.nio.ByteBuffer;
  */
 public class SerumUtils {
 
+    private static final Logger LOGGER = Logger.getLogger(SerumUtils.class.getName());
+
+    // Market
     public static final int OWN_ADDRESS_OFFSET = 13;
     private static final int VAULT_SIGNER_NONCE_OFFSET = 28;
     private static final int BASE_MINT_OFFSET = 53;
@@ -61,8 +65,8 @@ public class SerumUtils {
     private static final int FEE_RATE_BPS_OFFSET = 365;
     private static final int REFERRER_REBATES_ACCRUED_OFFSET = 373;
 
-
-
+    // Token mint
+    private static final int TOKEN_MINT_DECIMALS_OFFSET = 44;
 
     public static PublicKey readOwnAddressPubkey(byte[] bytes) {
         return PublicKey.readPubkey(bytes, OWN_ADDRESS_OFFSET);
@@ -182,5 +186,25 @@ public class SerumUtils {
 
     public static void writeLimit(ByteBuffer result) {
         result.putShort(49, (short) 65535);
+    }
+
+    /**
+     * Reads the decimals value from decoded account data of a given token mint
+     *
+     * Note: MINT_LAYOUT = struct([blob(44), u8('decimals'), blob(37)]);
+     *
+     * 0-43 = other data
+     * index 44 = the single byte of decimals we want
+     * 45-... = other data
+     *
+     * @param accountData decoded account data from the token mint
+     * @return int containing the number of decimals in the token mint
+     */
+    public static byte readDecimalsFromTokenMintData(byte[] accountData) {
+        // Read a SINGLE byte at offset 44
+        byte result = accountData[TOKEN_MINT_DECIMALS_OFFSET];
+        LOGGER.info(String.format("Market decimals byte = %d", result));
+
+        return result;
     }
 }

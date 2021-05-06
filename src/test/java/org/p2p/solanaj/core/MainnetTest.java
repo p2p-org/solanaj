@@ -160,7 +160,7 @@ public class MainnetTest extends AccountBasedTest {
      */
     @Test
     public void marketBuilderSolUsdcTest() {
-        final PublicKey solUsdcPublicKey = new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ");;
+        final PublicKey solUsdcPublicKey = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");;
 
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(solUsdcPublicKey)
