@@ -43,9 +43,6 @@ public class Account {
      * @return {@link Account} built from Sollet-exported private key
      */
     public static Account fromJson(String json) {
-        // Create resulting byte array
-        ByteBuffer buffer = ByteBuffer.allocate(64);
-
         return new Account(convertJsonStringToByteArray(json));
     }
 
