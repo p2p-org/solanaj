@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Implements the "initialize" call from Anchor's basic-0 tutorial.
  */
-public class AnchorBasicTutorialProgram extends Program {
+public class AnchorSecondBasicTutorialProgram extends Program {
 
     // Testnet address of basic-0 = EkEwddr34fqnv2SJREPynyC335PE32PAfjY4LVW5bTJS (has a method called initialize)
     private static final PublicKey PROGRAM_ID = new PublicKey("EkEwddr34fqnv2SJREPynyC335PE32PAfjY4LVW5bTJS");
