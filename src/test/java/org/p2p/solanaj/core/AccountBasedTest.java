@@ -23,7 +23,7 @@ public class AccountBasedTest {
         byte[] data = new byte[0];
 
         try {
-            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+            data = Files.readAllBytes(Paths.get("testnet.dat"));
         } catch (IOException e) {
             e.printStackTrace();
         }

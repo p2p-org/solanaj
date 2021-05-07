@@ -6,5 +6,5 @@ build
 .settings
 .idea
 *.iml
-secretkey.dat
+*.dat
 *.properties

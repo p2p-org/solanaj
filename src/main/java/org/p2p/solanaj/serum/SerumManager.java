@@ -71,7 +71,7 @@ public class SerumManager {
      * @return transaction id of ConsumeEvents call
      */
     public String consumeEvents(Market market, Account payerAccount) {
-        // Get all open orders accounts TODO - fix this
+        // Get all open orders accounts
         final Transaction transaction = new Transaction();
 
         transaction.addInstruction(
