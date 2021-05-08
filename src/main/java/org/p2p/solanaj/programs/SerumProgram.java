@@ -13,8 +13,6 @@ import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -120,7 +118,7 @@ public class SerumProgram extends Program {
         System.out.println("requestQueueKey = " + requestQueueKey.getPublicKey().toBase58());
 
         // pubkey: eventQueue
-        final AccountMeta eventQueueKey = new AccountMeta(market.getEventQueue(), false, true);
+        final AccountMeta eventQueueKey = new AccountMeta(market.getEventQueueKey(), false, true);
         System.out.println("eventQueueKey = " + eventQueueKey.getPublicKey().toBase58());
 
         // pubkey: bids

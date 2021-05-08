@@ -6,6 +6,9 @@ import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
 import java.util.logging.Logger;
@@ -18,6 +21,7 @@ public class MarketBuilder {
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
     private PublicKey publicKey;
     private boolean retrieveOrderbooks = false;
+    private boolean retrieveEventQueue = false;
     private static final Logger LOGGER = Logger.getLogger(MarketBuilder.class.getName());
 
     // TODO move all publickey consts to it's own static class
@@ -30,6 +34,15 @@ public class MarketBuilder {
 
     public boolean isRetrieveOrderbooks() {
         return retrieveOrderbooks;
+    }
+
+    public boolean isRetrieveEventQueue() {
+        return retrieveEventQueue;
+    }
+
+    public MarketBuilder setRetrieveEventQueue(boolean retrieveEventQueue) {
+        this.retrieveEventQueue = retrieveEventQueue;
+        return this;
     }
 
     public Market build() {
@@ -68,6 +81,21 @@ public class MarketBuilder {
 
             market.setBaseDecimals(baseDecimals);
             market.setQuoteDecimals(quoteDecimals);
+        }
+
+        if (retrieveEventQueue) {
+            // retrieveEventQueue
+            byte[] base64EventQueue = retrieveAccountData(market.getEventQueueKey());
+
+            try {
+                Files.write(Path.of("eventqueue.dat"), base64EventQueue);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            EventQueue eventQueue = EventQueue.readEventQueue(base64EventQueue);
+
+            LOGGER.info("Retrieved Event Queue");
         }
 
         return market;

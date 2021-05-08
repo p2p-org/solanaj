@@ -21,7 +21,7 @@ public class Market {
     private long quoteDustThreshold;
 
     private PublicKey requestQueue;
-    private PublicKey eventQueue;
+    private PublicKey eventQueueKey;
 
     private PublicKey bids;
     private PublicKey asks;
@@ -33,6 +33,8 @@ public class Market {
 
     private OrderBook bidOrderBook;
     private OrderBook askOrderBook;
+
+    private EventQueue eventQueue;
 
     // Data from token mints
     private byte baseDecimals;
@@ -52,6 +54,14 @@ public class Market {
 
     public void setQuoteDecimals(byte quoteDecimals) {
         this.quoteDecimals = quoteDecimals;
+    }
+
+    public EventQueue getEventQueue() {
+        return eventQueue;
+    }
+
+    public void setEventQueue(EventQueue eventQueue) {
+        this.eventQueue = eventQueue;
     }
 
     public OrderBook getBidOrderBook() {
@@ -113,7 +123,7 @@ public class Market {
         market.setRequestQueue(requestQueue);
 
         final PublicKey eventQueue = SerumUtils.readEventQueuePubkey(data);
-        market.setEventQueue(eventQueue);
+        market.setEventQueueKey(eventQueue);
 
         final PublicKey bids = SerumUtils.readBidsPubkey(data);
         market.setBids(bids);
@@ -240,12 +250,12 @@ public class Market {
         this.requestQueue = requestQueue;
     }
 
-    public PublicKey getEventQueue() {
-        return eventQueue;
+    public PublicKey getEventQueueKey() {
+        return eventQueueKey;
     }
 
-    public void setEventQueue(PublicKey eventQueue) {
-        this.eventQueue = eventQueue;
+    public void setEventQueueKey(PublicKey eventQueueKey) {
+        this.eventQueueKey = eventQueueKey;
     }
 
     public PublicKey getBids() {
@@ -312,7 +322,7 @@ public class Market {
                 ", quoteFeesAccrued=" + quoteFeesAccrued +
                 ", quoteDustThreshold=" + quoteDustThreshold +
                 ", requestQueue=" + requestQueue +
-                ", eventQueue=" + eventQueue +
+                ", eventQueue=" + eventQueueKey +
                 ", bids=" + bids +
                 ", asks=" + asks +
                 ", baseLotSize=" + baseLotSize +

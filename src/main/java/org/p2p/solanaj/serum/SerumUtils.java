@@ -44,6 +44,8 @@ public class SerumUtils {
 
     private static final Logger LOGGER = Logger.getLogger(SerumUtils.class.getName());
 
+    private static final String PADDING = "serum";
+
     // Market
     public static final int OWN_ADDRESS_OFFSET = 13;
     private static final int VAULT_SIGNER_NONCE_OFFSET = 28;
@@ -206,5 +208,13 @@ public class SerumUtils {
         LOGGER.info(String.format("Market decimals byte = %d", result));
 
         return result;
+    }
+
+    public static void validateSerumData(byte[] accountData) {
+        for (int i = 0; i < 5; i++) {
+            if (accountData[i] != PADDING.getBytes()[i]) {
+                throw new RuntimeException("Invalid Event Queue data.");
+            }
+        }
     }
 }

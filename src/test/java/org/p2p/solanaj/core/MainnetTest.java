@@ -160,7 +160,7 @@ public class MainnetTest extends AccountBasedTest {
      */
     @Test
     public void marketBuilderSolUsdcTest() {
-        final PublicKey solUsdcPublicKey = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");;
+        final PublicKey solUsdcPublicKey = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
 
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(solUsdcPublicKey)
@@ -178,6 +178,25 @@ public class MainnetTest extends AccountBasedTest {
 
         // Verify that an order exists
         assertTrue(orders.size() > 0);
+    }
+
+    /**
+     * Uses a {@link MarketBuilder} class to retrieve the Event Queue from the SOL/USDC Serum market.
+     */
+    @Test
+    public void marketBuilderEventQueueTest() {
+        final PublicKey solUsdcPublicKey = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
+
+        final Market solUsdcMarket = new MarketBuilder()
+                .setPublicKey(solUsdcPublicKey)
+                .setRetrieveOrderBooks(false)
+                .setRetrieveEventQueue(true)
+                .build();
+
+        LOGGER.info("Market = " + solUsdcMarket.toString());
+        LOGGER.info("Event Queue = " + solUsdcMarket.getEventQueue());
+
+
     }
 
     /**
