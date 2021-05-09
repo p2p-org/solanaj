@@ -5,11 +5,12 @@ import org.p2p.solanaj.core.AccountMeta;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,15 +18,13 @@ import java.util.List;
  */
 public class NamingServiceProgram extends Program {
 
-    public static final PublicKey PROGRAM_ID_SPL_NAME_SERVICE = new PublicKey("Gh9eN9nDuS3ysmAkKf4QJ6yBzf3YNqsn6MD8Ms3TsXmA");
-
     /**
      * Registers a name at the SPL Name Registry for the given Solana {@link Account}.
      * @return {@link org.p2p.solanaj.core.TransactionInstruction} object to use in a {@link org.p2p.solanaj.core.Transaction}
      */
     public static TransactionInstruction createNameRegistry(
             final PublicKey nameProgramId,
-            final PublicKey systemProgramid,
+            final PublicKey systemProgramId,
             final PublicKey nameKey,
             final PublicKey nameOwnerKey,
             final PublicKey payerKey,
@@ -35,28 +34,46 @@ public class NamingServiceProgram extends Program {
             final PublicKey nameClassKey,
             final PublicKey nameParent
     ) {
-        // 1000 bytes should be enough for all the data, then we compact it
-        // TODO - calculate the normal size of the data so we don't have to compact it
-
-        ByteBuffer buffer = ByteBuffer.allocate(1000);
+        // 49 bytes - derived from an explorer TX
+        ByteBuffer buffer = ByteBuffer.allocate(49);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.put((byte) 0);
-        buffer.put((byte) hashedName.length);
+        buffer.putInt(hashedName.length);
         buffer.put(hashedName);
         buffer.putLong(lamports);
         buffer.putInt(space);
-        buffer.compact();
 
         // Add signer to AccountMeta keys
         final List<AccountMeta> keys = new ArrayList<>();
+        keys.add(new AccountMeta(systemProgramId, false, false));
+        keys.add(new AccountMeta(payerKey, true, true));
+        keys.add(new AccountMeta(nameKey, false, true));
+        keys.add(new AccountMeta(nameOwnerKey, false, false));
 
-        // Convert memo string to UTF-8 byte array
-        final byte[] nameBytes = newAccountName.getBytes(StandardCharsets.UTF_8);
+        if (nameClassKey != null) {
+            keys.add(new AccountMeta(nameClassKey, true, false));
+        } else {
+            keys.add(new AccountMeta(new Account().getPublicKey(), false, false));
+        }
+
+        if (nameParent != null) {
+            keys.add(new AccountMeta(nameClassKey, false, false));
+        } else {
+            keys.add(new AccountMeta(new Account().getPublicKey(), false, false));
+        }
+
+        byte[] instructionData = buffer.array();
+
+        try {
+            Files.write(Path.of("namingdata.dat"), instructionData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return createTransactionInstruction(
-                PROGRAM_ID_SPL_NAME_SERVICE,
+                nameProgramId,
                 keys,
-                nameBytes
+                instructionData
         );
     }
 }

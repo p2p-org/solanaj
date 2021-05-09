@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 public class MainnetTest extends AccountBasedTest {
 
     private static final Logger LOGGER = Logger.getLogger(MainnetTest.class.getName());
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
+    private final RpcClient client = new RpcClient(Cluster.TESTNET);
     private final PublicKey publicKey = solDestination;
     public final TokenManager tokenManager = new TokenManager();
 
@@ -34,7 +34,7 @@ public class MainnetTest extends AccountBasedTest {
     public void getAccountInfoBase64() {
         try {
             // Get account Info
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey);
+            final AccountInfo accountInfo = client.getApi().getAccountInfo(testAccount.getPublicKey());
             final double balance = (double) accountInfo.getValue().getLamports()/ 100000000;
 
             // Account data list
