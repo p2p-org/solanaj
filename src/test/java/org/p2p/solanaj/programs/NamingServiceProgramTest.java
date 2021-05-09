@@ -16,7 +16,7 @@ public class NamingServiceProgramTest extends AccountBasedTest {
     @Test
     public void createNameRegistryTest() {
         PublicKey nameClass = null; // TODO
-        PublicKey parentName = null; // TODO
+        PublicKey parentName = new PublicKey("11111111111111111111111111111111"); // TODO
 
         boolean result = namingManager.createNameRegistry(DOMAIN_NAME, testAccount, publicKey, nameClass, parentName);
 

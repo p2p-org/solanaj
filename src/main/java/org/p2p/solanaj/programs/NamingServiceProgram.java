@@ -57,7 +57,7 @@ public class NamingServiceProgram extends Program {
         }
 
         if (nameParent != null) {
-            keys.add(new AccountMeta(nameClassKey, false, false));
+            keys.add(new AccountMeta(nameParent, false, false));
         } else {
             keys.add(new AccountMeta(new Account().getPublicKey(), false, false));
         }
