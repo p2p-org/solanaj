@@ -13,15 +13,17 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class NamingManager {
 
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
+    private final RpcClient client = new RpcClient(Cluster.TESTNET);
     private static final Logger LOGGER = Logger.getLogger(NamingManager.class.getName());
     private static final long DATA_LENGTH = 1000L;
     private static final String HASH_PREFIX = "SPL Name Service";
-    private static final PublicKey NAME_PROGRAM_ID = new PublicKey("Gh9eN9nDuS3ysmAkKf4QJ6yBzf3YNqsn6MD8Ms3TsXmA");
+    private static final PublicKey NAME_PROGRAM_ID = new PublicKey("namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX");
 
     /**
      * Creates a .sol domain name with the specified name and payer.
@@ -45,44 +47,43 @@ public class NamingManager {
 
         PublicKey nameAccountKey = getNameAccountKey(hashedName, nameClass, parentName);
 
+        LOGGER.info(String.format("nameAccountKey = %s", nameAccountKey));
+
         long minimumBalanceForRentExemption = getMinimumBalanceForRentExemption();
         LOGGER.info(String.format("minimumBalanceForRentExemption = %d", minimumBalanceForRentExemption));
 
         return true;
     }
 
-    private PublicKey getNameAccountKey(byte[] hashedName, @Nullable PublicKey nameClass, @Nullable PublicKey parentName) {
-        // Convert hashedName to a ByteBuffer.
-        ByteBuffer seeds = ByteBuffer.wrap(hashedName);
-        seeds.order(ByteOrder.LITTLE_ENDIAN);
+    private PublicKey getNameAccountKey(byte[] hashedName, PublicKey nameClass, PublicKey parentName) {
+        PublicKey.ProgramDerivedAddress nameAccountKey = null;
 
-        if (nameClass != null) {
-            byte[] nameClassBytes = toBuffer(nameClass);
-            seeds.put(nameClassBytes);
+        byte[] nameClassBytes, parentNameBytes;
+
+        if (nameClass == null) {
+            nameClassBytes = ByteBuffer.allocate(32).array();
         } else {
-            allocateBytes(seeds, 32);
+            nameClassBytes = nameClass.toByteArray();
         }
 
-        if (parentName != null) {
-            byte[] parentClassBytes = toBuffer(parentName);
-            seeds.put(parentClassBytes);
+        if (parentName == null) {
+            parentNameBytes = ByteBuffer.allocate(32).array();
         } else {
-           allocateBytes(seeds, 32);
+            parentNameBytes = parentName.toByteArray();
         }
 
-        /*
-          let [nameAccountKey, _] = await PublicKey.findProgramAddress(
-              seeds,
-              NAME_PROGRAM_ID
-            );
-            return nameAccountKey
-         */
+        try {
+            nameAccountKey = PublicKey.findProgramAddress(Arrays.asList(nameClassBytes, parentNameBytes), NAME_PROGRAM_ID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        return null;
+        // TODO - cleanup NPE
+        return nameAccountKey.getAddress();
     }
 
     private void allocateBytes(ByteBuffer buffer, int amount) {
-        buffer.put(new byte[amount]);
+        buffer.put(ByteBuffer.allocate(amount));
     }
 
     private byte[] toBuffer(PublicKey nameClass) {
