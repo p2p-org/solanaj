@@ -11,7 +11,7 @@ public class NamingServiceProgramTest extends AccountBasedTest {
 
     private final NamingManager namingManager = new NamingManager();
     private final PublicKey publicKey = testAccount.getPublicKey();
-    private static final String DOMAIN_NAME = "testdomainname";  // testdomainname.sol
+    private static final String DOMAIN_NAME = ".sol";  // testdomainname.sol
 
     @Test
     public void createNameRegistryTest() {

@@ -2,6 +2,9 @@ package org.p2p.solanaj.naming;
 
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
+import org.p2p.solanaj.core.Transaction;
+import org.p2p.solanaj.programs.NamingServiceProgram;
+import org.p2p.solanaj.programs.SerumProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -43,11 +46,40 @@ public class NamingManager {
         LOGGER.info(String.format("Name = %s, Sha256 = %s", fullDomainName, ByteUtils.bytesToHex(hashedName)).toLowerCase());
 
         PublicKey nameAccountKey = getNameAccountKey(hashedName, nameClass, parentName);
-
         LOGGER.info(String.format("nameAccountKey = %s", nameAccountKey));
 
         long minimumBalanceForRentExemption = getMinimumBalanceForRentExemption();
         LOGGER.info(String.format("minimumBalanceForRentExemption = %d", minimumBalanceForRentExemption));
+
+        // nameParentOwner and parentAccount in bindings.ts are seemingly never used, so we ignore
+        // Get all open orders accounts
+        final Transaction transaction = new Transaction();
+        transaction.addInstruction(
+                NamingServiceProgram.createNameRegistry(
+                        NAME_PROGRAM_ID,
+                        new PublicKey("11111111111111111111111111111111"), // TODO const-ify
+                        nameAccountKey,
+                        nameOwner,
+                        payer.getPublicKey(),
+                        hashedName,
+                        minimumBalanceForRentExemption,
+                        1000, // TODO const-ify "space"
+                        nameClass,
+                        parentName
+                )
+        );
+
+
+
+
+        // Call sendTransaction
+        String result;
+        try {
+            result = client.getApi().sendTransaction(transaction, payer);
+            LOGGER.info("Result = " + result);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
 
         return true;
     }
@@ -105,18 +137,5 @@ public class NamingManager {
             e.printStackTrace();
         }
         return DATA_LENGTH * 10;
-    }
-
-    /**
-     * Reverse a {@link ByteBuffer}
-     * @param buffer existing ByteBuffer to reverse
-     */
-    private void reverseByteBuffer(ByteBuffer buffer) {
-        for (int i = 0; i < buffer.array().length; i++) {
-            byte leftByte = buffer.get(i);
-            byte rightByte = buffer.get(buffer.array().length - i);
-            buffer.put(i, rightByte);
-            buffer.put(buffer.array().length - i, leftByte);
-        }
     }
 }
