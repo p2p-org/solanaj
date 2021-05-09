@@ -1,6 +1,5 @@
 package org.p2p.solanaj.naming;
 
-import org.jetbrains.annotations.Nullable;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.Cluster;
@@ -9,11 +8,9 @@ import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -73,51 +70,13 @@ public class NamingManager {
         }
 
         try {
-            nameAccountKey = PublicKey.findProgramAddress(Arrays.asList(nameClassBytes, parentNameBytes), NAME_PROGRAM_ID);
+            nameAccountKey = PublicKey.findProgramAddress(Arrays.asList(hashedName, nameClassBytes, parentNameBytes), NAME_PROGRAM_ID);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         // TODO - cleanup NPE
         return nameAccountKey.getAddress();
-    }
-
-    private void allocateBytes(ByteBuffer buffer, int amount) {
-        buffer.put(ByteBuffer.allocate(amount));
-    }
-
-    private byte[] toBuffer(PublicKey nameClass) {
-        /*
-          toBuffer(): Buffer {
-              const a = super.toArray().reverse();
-              const b = Buffer.from(a);
-              if (b.length === 4) {
-                return b;
-              }
-              assert(b.length < 4, "Numberu32 too large");
-
-              const zeroPad = Buffer.alloc(4);
-              b.copy(zeroPad);
-              return zeroPad;
-            }
-         */
-        ByteBuffer buffer = ByteBuffer.wrap(nameClass.toByteArray());
-        reverseByteBuffer(buffer);
-
-        ByteBuffer resultBuffer = buffer.duplicate();
-
-        if (resultBuffer.array().length == 4) {
-            return resultBuffer.array();
-        }
-
-        if (resultBuffer.array().length < 4) {
-            throw new RuntimeException("Resulting buffer is too large");
-        }
-
-        ByteBuffer zeroPad = ByteBuffer.allocate(4);
-        zeroPad.put(resultBuffer.array());
-
-        return zeroPad.array();
     }
 
     /**
