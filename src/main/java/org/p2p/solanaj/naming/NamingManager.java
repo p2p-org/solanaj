@@ -4,7 +4,6 @@ import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
 import org.p2p.solanaj.programs.NamingServiceProgram;
-import org.p2p.solanaj.programs.SerumProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -24,6 +23,8 @@ public class NamingManager {
     private static final long DATA_LENGTH = 1000L;
     private static final String HASH_PREFIX = "SPL Name Service";
     private static final PublicKey NAME_PROGRAM_ID = new PublicKey("namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX");
+    private static final PublicKey SYSTEM_PROGRAM_ID = new PublicKey("11111111111111111111111111111111");
+    private static final int SPACE = 1000;
 
     /**
      * Creates a .sol domain name with the specified name and payer.
@@ -52,25 +53,21 @@ public class NamingManager {
         LOGGER.info(String.format("minimumBalanceForRentExemption = %d", minimumBalanceForRentExemption));
 
         // nameParentOwner and parentAccount in bindings.ts are seemingly never used, so we ignore
-        // Get all open orders accounts
         final Transaction transaction = new Transaction();
         transaction.addInstruction(
                 NamingServiceProgram.createNameRegistry(
                         NAME_PROGRAM_ID,
-                        new PublicKey("11111111111111111111111111111111"), // TODO const-ify
+                        SYSTEM_PROGRAM_ID,
                         nameAccountKey,
                         nameOwner,
                         payer.getPublicKey(),
                         hashedName,
                         minimumBalanceForRentExemption,
-                        1000, // TODO const-ify "space"
+                        SPACE,
                         nameClass,
                         parentName
                 )
         );
-
-
-
 
         // Call sendTransaction
         String result;
