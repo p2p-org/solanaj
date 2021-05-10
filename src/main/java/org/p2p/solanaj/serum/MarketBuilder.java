@@ -94,8 +94,7 @@ public class MarketBuilder {
             }
 
             EventQueue eventQueue = EventQueue.readEventQueue(base64EventQueue);
-
-            LOGGER.info("Retrieved Event Queue");
+            market.setEventQueue(eventQueue);
         }
 
         return market;
