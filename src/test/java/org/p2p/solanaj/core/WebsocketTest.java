@@ -22,7 +22,6 @@ public class WebsocketTest extends AccountBasedTest {
     private final SubscriptionWebSocketClient client = SubscriptionWebSocketClient.getInstance(Cluster.MAINNET.getEndpoint());
     private final RpcClient rpcClient = new RpcClient(Cluster.MAINNET);
     private final static int AMOUNT_OF_LAMPORTS = 100;
-    private static final Logger LOGGER = Logger.getLogger(WebsocketTest.class.getName());
 
     private static final PublicKey BTC_USDC_BIDS = new PublicKey("6wLt7CX1zZdFpa6uGJJpZfzWvG6W9rxXjquJDYiFwf9K");
 

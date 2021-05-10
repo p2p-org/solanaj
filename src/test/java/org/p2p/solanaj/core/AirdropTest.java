@@ -15,7 +15,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class AirdropTest extends AccountBasedTest {
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-    private static final Logger LOGGER = Logger.getLogger(AirdropTest.class.getName());
 
     private final PublicKey publicKey = solDestination;
     public final TokenManager tokenManager = new TokenManager();

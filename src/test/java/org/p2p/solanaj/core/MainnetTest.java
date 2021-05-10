@@ -17,13 +17,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
 public class MainnetTest extends AccountBasedTest {
 
-    private static final Logger LOGGER = Logger.getLogger(MainnetTest.class.getName());
     private final RpcClient client = new RpcClient(Cluster.TESTNET);
     private final PublicKey publicKey = solDestination;
     public final TokenManager tokenManager = new TokenManager();
