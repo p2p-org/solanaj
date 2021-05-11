@@ -141,8 +141,12 @@ public class EventQueue {
             );
 
             // blob = 3-7 - ignore
-            long nativeQuantityReleased = ByteUtils.readUint64(eventData, 8).longValue(); // Amount the user received
-            long nativeQuantityPaid = ByteUtils.readUint64(eventData, 16).longValue(); // Amount the user paid
+            // Amount the user received
+            long nativeQuantityReleased = ByteUtils.readUint64(eventData, 8).longValue();
+
+            // Amount the user paid
+            long nativeQuantityPaid = ByteUtils.readUint64(eventData, 16).longValue();
+
             long nativeFeeOrRebate = ByteUtils.readUint64(eventData, 24).longValue();
             byte[] orderId = Arrays.copyOfRange(eventData, 32, 48);
             PublicKey openOrders = PublicKey.readPubkey(eventData, 48);
@@ -162,7 +166,12 @@ public class EventQueue {
             );
 
             if (fill && nativeQuantityPaid > 0) {
-                eventQueue.getEvents().add(new TradeEvent(openOrders, nativeQuantityPaid, orderId));
+                TradeEvent tradeEvent = new TradeEvent();
+                tradeEvent.setOpenOrders(openOrders);
+                tradeEvent.setNativeQuantityPaid(nativeQuantityPaid);
+                tradeEvent.setOrderId(orderId);
+
+                eventQueue.getEvents().add(tradeEvent);
             }
         }
 

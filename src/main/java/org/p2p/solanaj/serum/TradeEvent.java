@@ -10,6 +10,10 @@ public class TradeEvent {
     private long nativeQuantityPaid;
     private byte[] orderId;
 
+    public TradeEvent() {
+
+    }
+
     public TradeEvent(PublicKey openOrders, long nativeQuantityPaid, byte[] orderId) {
         this.openOrders = openOrders;
         this.nativeQuantityPaid = nativeQuantityPaid;

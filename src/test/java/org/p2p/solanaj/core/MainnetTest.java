@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -193,6 +194,24 @@ public class MainnetTest extends AccountBasedTest {
 
         LOGGER.info("Market = " + solUsdcMarket.toString());
         LOGGER.info("Event Queue = " + solUsdcMarket.getEventQueue());
+
+        List<String> publicKeys = solUsdcMarket.getEventQueue().getEvents().stream()
+                .map(tradeEvent -> tradeEvent.getOpenOrders().toBase58())
+                .sorted()
+                .collect(Collectors.toList());
+
+        Map<String, Integer> counter = new HashMap<>();
+
+        publicKeys.forEach(publicKey -> {
+            int value = counter.getOrDefault(publicKey, 0) + 1;
+            counter.put(publicKey, value);
+        });
+
+        counter.entrySet().stream()
+                .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
+                .forEach(k -> {
+                    LOGGER.info(String.format("Open Orders Account: %s, Number of Event Queue fills: %d\nExplorer: https://explorer.solana.com/address/%s", k.getKey(), k.getValue(), k.getKey()));
+                });
 
 
     }
