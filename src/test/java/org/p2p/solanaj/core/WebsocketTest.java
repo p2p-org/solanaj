@@ -10,8 +10,6 @@ import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
 import org.p2p.solanaj.ws.listeners.AccountNotificationEventListener;
 import org.p2p.solanaj.ws.listeners.LogNotificationEventListener;
 
-import java.util.logging.Logger;
-
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -24,6 +22,20 @@ public class WebsocketTest extends AccountBasedTest {
     private final static int AMOUNT_OF_LAMPORTS = 100;
 
     private static final PublicKey BTC_USDC_BIDS = new PublicKey("6wLt7CX1zZdFpa6uGJJpZfzWvG6W9rxXjquJDYiFwf9K");
+
+    @Test
+    @Ignore
+    public void serumApeTest() throws InterruptedException {
+        PublicKey skynet = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
+
+        client.logsSubscribe(skynet.toBase58(), new LogNotificationEventListener());
+        LOGGER.info(String.format("Listening for activity at the address: %s", skynet));
+
+        // wait for the person to make a trade
+        Thread.sleep(200000L);
+    }
+
+
 
     @Test
     @Ignore
