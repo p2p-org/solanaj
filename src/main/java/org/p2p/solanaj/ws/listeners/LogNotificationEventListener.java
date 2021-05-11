@@ -1,6 +1,5 @@
 package org.p2p.solanaj.ws.listeners;
 
-import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.ConfirmedTransaction;
@@ -11,7 +10,11 @@ import java.util.logging.Logger;
 public class LogNotificationEventListener implements NotificationEventListener {
 
     private static final Logger LOGGER = Logger.getLogger(LogNotificationEventListener.class.getName());
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
+    private final RpcClient client;
+
+    public LogNotificationEventListener(RpcClient client) {
+        this.client = client;
+    }
 
     /**
      * Handle Account notification event (change in data or change in lamports). Type of "data" is a Map.
@@ -27,12 +30,12 @@ public class LogNotificationEventListener implements NotificationEventListener {
             LOGGER.info(String.format("Serum action detected in TX %s" , signature));
             try {
                 ConfirmedTransaction confirmedTransaction = client.getApi().getConfirmedTransaction(signature);
-                System.out.println(confirmedTransaction.getTransaction().getMessage());
+                LOGGER.info(confirmedTransaction.getTransaction().getMessage().toString());
             } catch (RpcException e) {
                 e.printStackTrace();
             }
         } else {
-            LOGGER.info("EVENT = " + data.toString());
+            LOGGER.info("EVENT = " + data);
         }
     }
 }
