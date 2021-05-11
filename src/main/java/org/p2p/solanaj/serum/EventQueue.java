@@ -1,6 +1,8 @@
 package org.p2p.solanaj.serum;
 
 import org.bitcoinj.core.Utils;
+import org.p2p.solanaj.core.PublicKey;
+import org.p2p.solanaj.utils.ByteUtils;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
@@ -121,6 +123,41 @@ public class EventQueue {
                             maker
                     )
             );
+
+            byte openOrdersSlot = eventData[1];
+            byte feeTier = eventData[2];
+
+            LOGGER.info(
+                    String.format(
+                            "openOrdersSlot = %d, feeTier = %d",
+                            openOrdersSlot,
+                            feeTier
+                    )
+            );
+
+            // blob = 3-7 - ignore
+
+            long nativeQuantityReleased = ByteUtils.readUint64(eventData, 8).longValue(); // Amount the user received
+            long nativeQuantityPaid = ByteUtils.readUint64(eventData, 16).longValue(); // Amount the user paid
+            long nativeFeeOrRebate = ByteUtils.readUint64(eventData, 24).longValue();
+            byte[] orderId = Arrays.copyOfRange(eventData, 32, 48);
+            PublicKey openOrders = PublicKey.readPubkey(eventData, 48);
+            long clientOrderId = ByteUtils.readUint64(eventData, 80).longValue();
+
+            LOGGER.info(
+                    String.format(
+                            "nativeQuantityReleased = %d, nativeQuantityPaid = %d, nativeFeeRebate = %d, " +
+                                    "orderId = %s, openOrders = %s, clientOrderId = %d",
+                            nativeQuantityReleased,
+                            nativeQuantityPaid,
+                            nativeFeeOrRebate,
+                            Arrays.toString(orderId),
+                            openOrders,
+                            clientOrderId
+                    )
+            );
+
+
         }
 
         return eventQueue;
