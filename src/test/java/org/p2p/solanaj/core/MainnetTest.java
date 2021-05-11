@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 
 public class MainnetTest extends AccountBasedTest {
 
-    private final RpcClient client = new RpcClient(Cluster.TESTNET);
+    private final RpcClient client = new RpcClient(Cluster.MAINNET);
     private final PublicKey publicKey = solDestination;
     public final TokenManager tokenManager = new TokenManager();
 
@@ -207,13 +207,27 @@ public class MainnetTest extends AccountBasedTest {
             counter.put(publicKey, value);
         });
 
+        final List<PublicKey> sortedMarketmakers = counter.entrySet().stream()
+                .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
+                .map(stringIntegerEntry -> new PublicKey(stringIntegerEntry.getKey()))
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < 5; i++) {
+            try {
+                PublicKey sortedMarketMaker = sortedMarketmakers.get(i);
+                byte[] bytes = Base64.getDecoder().decode(client.getApi().getAccountInfo(sortedMarketMaker).getValue().getData().get(0));
+                PublicKey owner = PublicKey.readPubkey(bytes, 45);
+                LOGGER.info(String.format("Rank #%d Market Maker = %s, Owner = %s (https://explorer.solana.com/address/%s)", i + 1, sortedMarketMaker.toBase58(), owner.toBase58(), owner.toBase58()));
+            } catch (RpcException e) {
+                e.printStackTrace();
+            }
+        }
+
         counter.entrySet().stream()
                 .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
                 .forEach(k -> {
                     LOGGER.info(String.format("Open Orders Account: %s, Number of Event Queue fills: %d\nExplorer: https://explorer.solana.com/address/%s", k.getKey(), k.getValue(), k.getKey()));
                 });
-
-
     }
 
     /**

@@ -23,7 +23,7 @@ public class RpcClient {
     private String endpoint;
 
     private OkHttpClient httpClient = new OkHttpClient.Builder()
-            .addInterceptor(new LoggingInterceptor())
+            //.addInterceptor(new LoggingInterceptor())
             .build();
 
     private RpcApi rpcApi;
@@ -50,7 +50,7 @@ public class RpcClient {
         try {
             Response response = httpClient.newCall(request).execute();
             final String result = response.body().string();
-            System.out.println("Response = " + result);
+            //System.out.println("Response = " + result);
             RpcResponse<T> rpcResult = resultAdapter.fromJson(result);
 
             if (rpcResult.getError() != null) {
