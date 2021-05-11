@@ -74,7 +74,16 @@ public class EventQueue {
         eventQueue.setCount(count);
         eventQueue.setSeqNum(seqNum);
 
+        // allocLen = number of elements
+        int allocLen = (eventQueueData.length - HEADER_LAYOUT_SPAN) / NODE_LAYOUT_SPAN;
+
+        LOGGER.info(String.format("allocLen = %d", allocLen));
         LOGGER.info(String.format("Head = %d, Count = %d, seqNum = %d", head, count, seqNum));
+
+        for (int i = 0; i < allocLen; ++i) {
+            int nodeIndex = (head + count + allocLen - 1 - i) % allocLen;
+            LOGGER.info(String.format("HPush: nodeIndex = %d, headerLayout.span = %d, nodeLayout.span = %d", nodeIndex, HEADER_LAYOUT_SPAN, NODE_LAYOUT_SPAN));
+        }
 
         return eventQueue;
     }
