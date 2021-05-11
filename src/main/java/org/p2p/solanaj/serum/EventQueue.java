@@ -2,6 +2,7 @@ package org.p2p.solanaj.serum;
 
 import org.bitcoinj.core.Utils;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 /*
@@ -89,7 +90,37 @@ public class EventQueue {
 
         for (int i = 0; i < allocLen; ++i) {
             int nodeIndex = (head + count + allocLen - 1 - i) % allocLen;
-            LOGGER.info(String.format("HPush: nodeIndex = %d, headerLayout.span = %d, nodeLayout.span = %d", nodeIndex, HEADER_LAYOUT_SPAN, NODE_LAYOUT_SPAN));
+            int eventOffset = HEADER_LAYOUT_SPAN + (nodeIndex * NODE_LAYOUT_SPAN);
+            LOGGER.info(
+                String.format(
+                        "HPush (%d) (offset %d): nodeIndex = %d, headerLayout.span = %d, nodeLayout.span = %d",
+                        i,
+                        eventOffset,
+                        nodeIndex,
+                        HEADER_LAYOUT_SPAN,
+                        NODE_LAYOUT_SPAN
+                )
+            );
+
+            // read in 88 bytes of event queue data
+            byte[] eventData = Arrays.copyOfRange(eventQueueData, eventOffset, eventOffset + NODE_LAYOUT_SPAN);
+            byte eventFlags = eventData[0];
+
+            boolean fill = (eventFlags & 1) == 1;
+            boolean out = (eventFlags & 2) == 2;
+            boolean bid = (eventFlags & 4) == 4;
+            boolean maker = (eventFlags & 8) == 8;
+
+            LOGGER.info(
+                    String.format(
+                            "Event flags (%d): Fill (%s), Out (%s), Bid (%s), Maker (%s)",
+                            eventFlags,
+                            fill,
+                            out,
+                            bid,
+                            maker
+                    )
+            );
         }
 
         return eventQueue;
