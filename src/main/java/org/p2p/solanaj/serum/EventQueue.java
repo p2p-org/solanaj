@@ -41,8 +41,15 @@ const EVENT = struct([
 public class EventQueue {
 
     private static final Logger LOGGER = Logger.getLogger(EventQueue.class.getName());
+
+    // sizes
     private static final int HEADER_LAYOUT_SPAN = 37;
     private static final int NODE_LAYOUT_SPAN = 88;
+
+    // offsets
+    private static final int HEAD_OFFSET = 13;
+    private static final int COUNT_OFFSET = 21;
+    private static final int SEQ_NUM_OFFSET = 29;
 
     private AccountFlags accountFlags;
     private int head;
@@ -66,9 +73,9 @@ public class EventQueue {
         eventQueue.setAccountFlags(accountFlags);
 
         // Read rest of EVENT_QUEUE_HEADER (head, count, seqNum ints)
-        int head = (int) Utils.readUint32(eventQueueData, 12);
-        int count = (int) Utils.readUint32(eventQueueData, 20);
-        int seqNum = (int) Utils.readUint32(eventQueueData, 28);
+        int head = (int) Utils.readUint32(eventQueueData, HEAD_OFFSET);
+        int count = (int) Utils.readUint32(eventQueueData, COUNT_OFFSET);
+        int seqNum = (int) Utils.readUint32(eventQueueData, SEQ_NUM_OFFSET);
 
         eventQueue.setHead(head);
         eventQueue.setCount(count);
