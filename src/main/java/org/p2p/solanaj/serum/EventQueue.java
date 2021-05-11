@@ -4,7 +4,9 @@ import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.utils.ByteUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 /*
@@ -58,6 +60,7 @@ public class EventQueue {
     private int head;
     private int count;
     private int seqNum;
+    private List<TradeEvent> events;
 
     /**
      * Returns an {@link EventQueue} object which is built from binary data.
@@ -67,6 +70,8 @@ public class EventQueue {
      */
     public static EventQueue readEventQueue(byte[] eventQueueData) {
         EventQueue eventQueue = new EventQueue();
+        List<TradeEvent> events = new ArrayList<>();
+        eventQueue.setEvents(events);
 
         // Verify that the "serum" padding exists
         SerumUtils.validateSerumData(eventQueueData);
@@ -136,7 +141,6 @@ public class EventQueue {
             );
 
             // blob = 3-7 - ignore
-
             long nativeQuantityReleased = ByteUtils.readUint64(eventData, 8).longValue(); // Amount the user received
             long nativeQuantityPaid = ByteUtils.readUint64(eventData, 16).longValue(); // Amount the user paid
             long nativeFeeOrRebate = ByteUtils.readUint64(eventData, 24).longValue();
@@ -157,7 +161,9 @@ public class EventQueue {
                     )
             );
 
-
+            if (fill && nativeQuantityPaid > 0) {
+                eventQueue.getEvents().add(new TradeEvent(openOrders, nativeQuantityPaid, orderId));
+            }
         }
 
         return eventQueue;
@@ -193,5 +199,13 @@ public class EventQueue {
 
     public void setSeqNum(int seqNum) {
         this.seqNum = seqNum;
+    }
+
+    public List<TradeEvent> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<TradeEvent> events) {
+        this.events = events;
     }
 }
