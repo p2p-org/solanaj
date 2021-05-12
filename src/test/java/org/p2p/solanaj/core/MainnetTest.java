@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -194,40 +193,7 @@ public class MainnetTest extends AccountBasedTest {
 
         LOGGER.info("Market = " + solUsdcMarket.toString());
         LOGGER.info("Event Queue = " + solUsdcMarket.getEventQueue());
-
-        List<String> publicKeys = solUsdcMarket.getEventQueue().getEvents().stream()
-                .map(tradeEvent -> tradeEvent.getOpenOrders().toBase58())
-                .sorted()
-                .collect(Collectors.toList());
-
-        Map<String, Integer> counter = new HashMap<>();
-
-        publicKeys.forEach(publicKey -> {
-            int value = counter.getOrDefault(publicKey, 0) + 1;
-            counter.put(publicKey, value);
-        });
-
-        final List<PublicKey> sortedMarketmakers = counter.entrySet().stream()
-                .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
-                .map(stringIntegerEntry -> new PublicKey(stringIntegerEntry.getKey()))
-                .collect(Collectors.toList());
-
-        for (int i = 0; i < 5; i++) {
-            try {
-                PublicKey sortedMarketMaker = sortedMarketmakers.get(i);
-                byte[] bytes = Base64.getDecoder().decode(client.getApi().getAccountInfo(sortedMarketMaker).getValue().getData().get(0));
-                PublicKey owner = PublicKey.readPubkey(bytes, 45);
-                LOGGER.info(String.format("Rank #%d Market Maker = %s, Owner = %s (https://explorer.solana.com/address/%s)", i + 1, sortedMarketMaker.toBase58(), owner.toBase58(), owner.toBase58()));
-            } catch (RpcException e) {
-                e.printStackTrace();
-            }
-        }
-
-        counter.entrySet().stream()
-                .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
-                .forEach(k -> {
-                    LOGGER.info(String.format("Open Orders Account: %s, Number of Event Queue fills: %d\nExplorer: https://explorer.solana.com/address/%s", k.getKey(), k.getValue(), k.getKey()));
-                });
+        LOGGER.info("# of top traders = " + solUsdcMarket.getEventQueue().getTopTraders().size());
     }
 
     /**

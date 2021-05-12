@@ -93,7 +93,7 @@ public class MarketBuilder {
                 e.printStackTrace();
             }
 
-            EventQueue eventQueue = EventQueue.readEventQueue(base64EventQueue);
+            EventQueue eventQueue = EventQueue.readEventQueue(base64EventQueue, client);
             market.setEventQueue(eventQueue);
         }
 
