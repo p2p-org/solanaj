@@ -68,4 +68,28 @@ public class ConfigObjects {
         }
 
     }
+
+    public static class ConfirmedBlockConfig {
+        @Json(name = "encoding")
+        private String encoding = "json";
+        @Json(name = "transactionDetails")
+        private String transactionDetails = "full";
+        @Json(name = "rewards")
+        private Boolean rewards = true;
+        @Json(name = "commitment")
+        private String commitment = "finalized";
+
+        public ConfirmedBlockConfig() {
+        }
+
+        public ConfirmedBlockConfig(String encoding,
+                                    String transactionDetails,
+                                    Boolean rewards,
+                                    String commitment) {
+            this.encoding = encoding;
+            this.transactionDetails = transactionDetails;
+            this.rewards = rewards;
+            this.commitment = commitment;
+        }
+    }
 }
