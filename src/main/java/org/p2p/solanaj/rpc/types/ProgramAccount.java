@@ -1,8 +1,14 @@
 package org.p2p.solanaj.rpc.types;
 
 import java.util.AbstractMap;
+import java.util.List;
+import java.util.Base64;
 
 import com.squareup.moshi.Json;
+
+import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
+
+import org.bitcoinj.core.Base58;
 
 public class ProgramAccount {
 
@@ -18,11 +24,22 @@ public class ProgramAccount {
         @Json(name = "rentEpoch")
         private double rentEpoch;
 
-        @SuppressWarnings({ "rawtypes" })
+        private String encoding;
+
+        @SuppressWarnings({ "rawtypes", "unchecked" })
         public Account(Object acc) {
             AbstractMap account = (AbstractMap) acc;
 
-            this.data = (String) account.get("data");
+            Object rawData = account.get("data");
+            if (rawData instanceof List) {
+                List<String> dataList = ((List<String>) rawData);
+
+                this.data = dataList.get(0);
+                this.encoding = (String) dataList.get(1);
+            } else if (rawData instanceof String) {
+                this.data = (String) rawData;
+            }
+
             this.executable = (boolean) account.get("executable");
             this.lamports = (double) account.get("lamports");
             this.owner = (String) account.get("owner");
@@ -31,6 +48,14 @@ public class ProgramAccount {
 
         public String getData() {
             return data;
+        }
+
+        public byte[] getDecodedData() {
+            if (encoding.equals(Encoding.base64.toString())) {
+                return Base64.getDecoder().decode(data);
+            }
+
+            return Base58.decode(data);
         }
 
         public boolean isExecutable() {
