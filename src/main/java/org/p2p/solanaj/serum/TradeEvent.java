@@ -10,6 +10,13 @@ public class TradeEvent {
     private long nativeQuantityPaid;
     private byte[] orderId;
     private EventQueueFlags eventQueueFlags;
+    private byte openOrdersSlot;
+    private byte feeTier;
+    private long nativeQuantityReleased;
+    private long nativeFeeOrRebate;
+    private long clientOrderId;
+
+
 
     public TradeEvent() {
 
@@ -54,6 +61,46 @@ public class TradeEvent {
         this.eventQueueFlags = eventQueueFlags;
     }
 
+    public byte getOpenOrdersSlot() {
+        return openOrdersSlot;
+    }
+
+    public void setOpenOrdersSlot(byte openOrdersSlot) {
+        this.openOrdersSlot = openOrdersSlot;
+    }
+
+    public byte getFeeTier() {
+        return feeTier;
+    }
+
+    public void setFeeTier(byte feeTier) {
+        this.feeTier = feeTier;
+    }
+
+    public long getNativeQuantityReleased() {
+        return nativeQuantityReleased;
+    }
+
+    public void setNativeQuantityReleased(long nativeQuantityReleased) {
+        this.nativeQuantityReleased = nativeQuantityReleased;
+    }
+
+    public long getNativeFeeOrRebate() {
+        return nativeFeeOrRebate;
+    }
+
+    public void setNativeFeeOrRebate(long nativeFeeOrRebate) {
+        this.nativeFeeOrRebate = nativeFeeOrRebate;
+    }
+
+    public long getClientOrderId() {
+        return clientOrderId;
+    }
+
+    public void setClientOrderId(long clientOrderId) {
+        this.clientOrderId = clientOrderId;
+    }
+
     @Override
     public String toString() {
         return "TradeEvent{" +
@@ -61,6 +108,11 @@ public class TradeEvent {
                 ", nativeQuantityPaid=" + nativeQuantityPaid +
                 ", orderId=" + Arrays.toString(orderId) +
                 ", eventQueueFlags=" + eventQueueFlags +
+                ", openOrdersSlot=" + openOrdersSlot +
+                ", feeTier=" + feeTier +
+                ", nativeQuantityReleased=" + nativeQuantityReleased +
+                ", nativeFeeOrRebate=" + nativeFeeOrRebate +
+                ", clientOrderId=" + clientOrderId +
                 '}';
     }
 }

@@ -94,22 +94,9 @@ public class EventQueue {
         // allocLen = number of elements
         int allocLen = (eventQueueData.length - HEADER_LAYOUT_SPAN) / NODE_LAYOUT_SPAN;
 
-//        LOGGER.info(String.format("allocLen = %d", allocLen));
-//        LOGGER.info(String.format("Head = %d, Count = %d, seqNum = %d", head, count, seqNum));
-
         for (int i = 0; i < allocLen; ++i) {
             int nodeIndex = (head + count + allocLen - 1 - i) % allocLen;
             int eventOffset = HEADER_LAYOUT_SPAN + (nodeIndex * NODE_LAYOUT_SPAN);
-//            LOGGER.info(
-//                String.format(
-//                        "HPush (%d) (offset %d): nodeIndex = %d, headerLayout.span = %d, nodeLayout.span = %d",
-//                        i,
-//                        eventOffset,
-//                        nodeIndex,
-//                        HEADER_LAYOUT_SPAN,
-//                        NODE_LAYOUT_SPAN
-//                )
-//            );
 
             // read in 88 bytes of event queue data
             byte[] eventData = Arrays.copyOfRange(eventQueueData, eventOffset, eventOffset + NODE_LAYOUT_SPAN);
@@ -142,11 +129,17 @@ public class EventQueue {
                 tradeEvent.setNativeQuantityPaid(nativeQuantityPaid);
                 tradeEvent.setOrderId(orderId);
                 tradeEvent.setEventQueueFlags(eventQueueFlags);
+                tradeEvent.setOpenOrdersSlot(openOrdersSlot);
+                tradeEvent.setFeeTier(feeTier);
+                tradeEvent.setNativeQuantityReleased(nativeQuantityReleased);
+                tradeEvent.setNativeFeeOrRebate(nativeFeeOrRebate);
+                tradeEvent.setClientOrderId(clientOrderId);
 
                 eventQueue.getEvents().add(tradeEvent);
             }
         }
 
+        // Calculate top traders by # of fills
         List<String> publicKeys = events.stream()
                 .map(tradeEvent -> tradeEvent.getOpenOrders().toBase58())
                 .sorted()
