@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.squareup.moshi.Json;
 
+import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
+
 public class ConfigObjects {
 
     public static class ConfirmedSignFAddr2 {
@@ -49,6 +51,8 @@ public class ConfigObjects {
     }
 
     public static class ProgramAccountConfig {
+        @Json(name = "encoding")
+        private Encoding encoding = null;
         @Json(name = "filters")
         private List<Object> filters = null;
 
@@ -58,5 +62,10 @@ public class ConfigObjects {
         public ProgramAccountConfig(List<Object> filters) {
             this.filters = filters;
         }
+
+        public ProgramAccountConfig(Encoding encoding) {
+            this.encoding = encoding;
+        }
+
     }
 }
