@@ -9,15 +9,17 @@ public class TradeEvent {
     private PublicKey openOrders;
     private long nativeQuantityPaid;
     private byte[] orderId;
+    private EventQueueFlags eventQueueFlags;
 
     public TradeEvent() {
 
     }
 
-    public TradeEvent(PublicKey openOrders, long nativeQuantityPaid, byte[] orderId) {
+    public TradeEvent(PublicKey openOrders, long nativeQuantityPaid, byte[] orderId, EventQueueFlags eventQueueFlags) {
         this.openOrders = openOrders;
         this.nativeQuantityPaid = nativeQuantityPaid;
         this.orderId = orderId;
+        this.eventQueueFlags = eventQueueFlags;
     }
 
     public PublicKey getOpenOrders() {
@@ -44,12 +46,21 @@ public class TradeEvent {
         this.orderId = orderId;
     }
 
+    public EventQueueFlags getEventQueueFlags() {
+        return eventQueueFlags;
+    }
+
+    public void setEventQueueFlags(EventQueueFlags eventQueueFlags) {
+        this.eventQueueFlags = eventQueueFlags;
+    }
+
     @Override
     public String toString() {
         return "TradeEvent{" +
                 "openOrders=" + openOrders +
                 ", nativeQuantityPaid=" + nativeQuantityPaid +
                 ", orderId=" + Arrays.toString(orderId) +
+                ", eventQueueFlags=" + eventQueueFlags +
                 '}';
     }
 }

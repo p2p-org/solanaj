@@ -94,53 +94,35 @@ public class EventQueue {
         // allocLen = number of elements
         int allocLen = (eventQueueData.length - HEADER_LAYOUT_SPAN) / NODE_LAYOUT_SPAN;
 
-        LOGGER.info(String.format("allocLen = %d", allocLen));
-        LOGGER.info(String.format("Head = %d, Count = %d, seqNum = %d", head, count, seqNum));
+//        LOGGER.info(String.format("allocLen = %d", allocLen));
+//        LOGGER.info(String.format("Head = %d, Count = %d, seqNum = %d", head, count, seqNum));
 
         for (int i = 0; i < allocLen; ++i) {
             int nodeIndex = (head + count + allocLen - 1 - i) % allocLen;
             int eventOffset = HEADER_LAYOUT_SPAN + (nodeIndex * NODE_LAYOUT_SPAN);
-            LOGGER.info(
-                String.format(
-                        "HPush (%d) (offset %d): nodeIndex = %d, headerLayout.span = %d, nodeLayout.span = %d",
-                        i,
-                        eventOffset,
-                        nodeIndex,
-                        HEADER_LAYOUT_SPAN,
-                        NODE_LAYOUT_SPAN
-                )
-            );
+//            LOGGER.info(
+//                String.format(
+//                        "HPush (%d) (offset %d): nodeIndex = %d, headerLayout.span = %d, nodeLayout.span = %d",
+//                        i,
+//                        eventOffset,
+//                        nodeIndex,
+//                        HEADER_LAYOUT_SPAN,
+//                        NODE_LAYOUT_SPAN
+//                )
+//            );
 
             // read in 88 bytes of event queue data
             byte[] eventData = Arrays.copyOfRange(eventQueueData, eventOffset, eventOffset + NODE_LAYOUT_SPAN);
             byte eventFlags = eventData[0];
-
             boolean fill = (eventFlags & 1) == 1;
             boolean out = (eventFlags & 2) == 2;
             boolean bid = (eventFlags & 4) == 4;
             boolean maker = (eventFlags & 8) == 8;
 
-            LOGGER.info(
-                    String.format(
-                            "Event flags (%d): Fill (%s), Out (%s), Bid (%s), Maker (%s)",
-                            eventFlags,
-                            fill,
-                            out,
-                            bid,
-                            maker
-                    )
-            );
+            EventQueueFlags eventQueueFlags = new EventQueueFlags(fill, out, bid, maker);
 
             byte openOrdersSlot = eventData[1];
             byte feeTier = eventData[2];
-
-            LOGGER.info(
-                    String.format(
-                            "openOrdersSlot = %d, feeTier = %d",
-                            openOrdersSlot,
-                            feeTier
-                    )
-            );
 
             // blob = 3-7 - ignore
             // Amount the user received
@@ -154,24 +136,12 @@ public class EventQueue {
             PublicKey openOrders = PublicKey.readPubkey(eventData, 48);
             long clientOrderId = ByteUtils.readUint64(eventData, 80).longValue();
 
-            LOGGER.info(
-                    String.format(
-                            "nativeQuantityReleased = %d, nativeQuantityPaid = %d, nativeFeeRebate = %d, " +
-                                    "orderId = %s, openOrders = %s, clientOrderId = %d",
-                            nativeQuantityReleased,
-                            nativeQuantityPaid,
-                            nativeFeeOrRebate,
-                            Arrays.toString(orderId),
-                            openOrders,
-                            clientOrderId
-                    )
-            );
-
             if (fill && nativeQuantityPaid > 0) {
                 TradeEvent tradeEvent = new TradeEvent();
                 tradeEvent.setOpenOrders(openOrders);
                 tradeEvent.setNativeQuantityPaid(nativeQuantityPaid);
                 tradeEvent.setOrderId(orderId);
+                tradeEvent.setEventQueueFlags(eventQueueFlags);
 
                 eventQueue.getEvents().add(tradeEvent);
             }
@@ -193,11 +163,14 @@ public class EventQueue {
                 .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
                 .map(stringIntegerEntry -> new PublicKey(stringIntegerEntry.getKey())).distinct().collect(Collectors.toList());
 
+        eventQueue.getTopTraders().clear();
+
         for (int i = 0; i < 5; i++) {
             try {
                 PublicKey sortedMarketMaker = sortedMarketMakers.get(i);
                 byte[] bytes = Base64.getDecoder().decode(client.getApi().getAccountInfo(sortedMarketMaker).getValue().getData().get(0));
                 PublicKey owner = PublicKey.readPubkey(bytes, 45);
+                eventQueue.getTopTraders().add(owner);
                 LOGGER.info(String.format("Rank #%d Market Maker = %s, Owner = %s (https://explorer.solana.com/address/%s)", i + 1, sortedMarketMaker.toBase58(), owner.toBase58(), owner.toBase58()));
             } catch (RpcException e) {
                 e.printStackTrace();
@@ -209,9 +182,6 @@ public class EventQueue {
 //                .forEach(k -> {
 //                    LOGGER.info(String.format("Open Orders Account: %s, Number of Event Queue fills: %d\nExplorer: https://explorer.solana.com/address/%s", k.getKey(), k.getValue(), k.getKey()));
 //                });
-
-        eventQueue.getTopTraders().clear();
-        eventQueue.getTopTraders().addAll(sortedMarketMakers);
 
         return eventQueue;
     }
