@@ -8,6 +8,7 @@ import org.p2p.solanaj.core.Transaction;
 import org.p2p.solanaj.rpc.types.*;
 import org.p2p.solanaj.rpc.types.ConfigObjects.*;
 import org.p2p.solanaj.rpc.types.RpcResultTypes.ValueLong;
+import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
 import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
 import org.p2p.solanaj.ws.listeners.NotificationEventListener;
 
@@ -98,17 +99,28 @@ public class RpcApi {
         return result;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<ProgramAccount> getProgramAccounts(PublicKey account, long offset, String bytes) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
-
-        params.add(account.toString());
-
         List<Object> filters = new ArrayList<Object>();
         filters.add(new Filter(new Memcmp(offset, bytes)));
 
         ProgramAccountConfig programAccountConfig = new ProgramAccountConfig(filters);
-        params.add(programAccountConfig);
+        return getProgramAccounts(account, programAccountConfig);
+    }
+
+    public List<ProgramAccount> getProgramAccounts(PublicKey account) throws RpcException {
+        return getProgramAccounts(account, new ProgramAccountConfig(Encoding.base64));
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<ProgramAccount> getProgramAccounts(PublicKey account, ProgramAccountConfig programAccountConfig)
+            throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(account.toString());
+
+        if (programAccountConfig != null) {
+            params.add(programAccountConfig);
+        }
 
         List<AbstractMap> rawResult = client.call("getProgramAccounts", params, List.class);
 
