@@ -62,6 +62,6 @@ public class NamingServiceProgramTest extends AccountBasedTest {
         PublicKey skynetMainnetPubkey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
         String twitterHandle = namingManager.getTwitterHandle(skynetMainnetPubkey);
 
-        assertTrue(twitterHandle.startsWith("skynetcap"));
+        assertTrue(twitterHandle.equalsIgnoreCase("skynetcap"));
     }
 }
