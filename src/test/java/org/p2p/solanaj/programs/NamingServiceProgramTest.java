@@ -1,5 +1,6 @@
 package org.p2p.solanaj.programs;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.core.AccountBasedTest;
 import org.p2p.solanaj.core.PublicKey;
@@ -21,6 +22,7 @@ public class NamingServiceProgramTest extends AccountBasedTest {
     private static final String DOMAIN_NAME = ".sol";  // testdomainname.sol
 
     @Test
+    @Ignore
     public void createNameRegistryTest() {
         PublicKey nameClass = null; // TODO
         PublicKey parentName = new PublicKey("11111111111111111111111111111111"); // TODO
@@ -53,8 +55,13 @@ public class NamingServiceProgramTest extends AccountBasedTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    @Test
+    public void getTwitterHandleTest() {
+        PublicKey skynetMainnetPubkey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
+        String twitterHandle = namingManager.getTwitterHandle(skynetMainnetPubkey);
 
-
+        assertTrue(twitterHandle.startsWith("skynetcap"));
     }
 }

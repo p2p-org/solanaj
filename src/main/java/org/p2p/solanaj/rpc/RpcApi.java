@@ -158,6 +158,30 @@ public class RpcApi {
         return result;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<ProgramAccount> getProgramAccounts(PublicKey account, List<Memcmp> memcmpList) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        params.add(account.toString());
+
+        List<Object> filters = new ArrayList<>();
+        memcmpList.forEach(memcmp -> {
+            filters.add(new Filter(memcmp));
+        });
+
+        ProgramAccountConfig programAccountConfig = new ProgramAccountConfig(filters);
+        params.add(programAccountConfig);
+
+        List<AbstractMap> rawResult = client.call("getProgramAccounts", params, List.class);
+
+        List<ProgramAccount> result = new ArrayList<>();
+        for (AbstractMap item : rawResult) {
+            result.add(new ProgramAccount(item));
+        }
+
+        return result;
+    }
+
     public AccountInfo getAccountInfo(PublicKey account) throws RpcException {
         return getAccountInfo(account, new HashMap<>());
     }

@@ -5,6 +5,7 @@ import static org.bitcoinj.core.Utils.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 public class ByteUtils {
     public static final int UINT_32_LENGTH = 4;
@@ -50,6 +51,17 @@ public class ByteUtils {
             hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public static byte[] trim(byte[] bytes)
+    {
+        int i = bytes.length - 1;
+        while (i >= 0 && bytes[i] == 0)
+        {
+            --i;
+        }
+
+        return Arrays.copyOf(bytes, i + 1);
     }
 
 }

@@ -1,5 +1,6 @@
 package org.p2p.solanaj.naming;
 
+import org.bitcoinj.core.Base58;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
@@ -8,6 +9,8 @@ import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
+import org.p2p.solanaj.rpc.types.ConfigObjects;
+import org.p2p.solanaj.rpc.types.ProgramAccount;
 import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
@@ -15,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class NamingManager {
@@ -26,6 +30,11 @@ public class NamingManager {
     private static final PublicKey NAME_PROGRAM_ID = new PublicKey("namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX");
     private static final PublicKey SYSTEM_PROGRAM_ID = new PublicKey("11111111111111111111111111111111");
     private static final int SPACE = 1000;
+    private static final int TWITTER_PUBLIC_KEY_OFFSET = 32;
+    private static final int TWITTER_VERIFICATION_AUTHORITY_OFFSET = 64;
+    private static final int TWITTER_ACCOUNT_LENGTH = 114;
+    private static final int TWITTER_HANDLE_START_OFFSET = 96;
+    private static final PublicKey TWITTER_VERIFICATION_AUTHORITY = new PublicKey("867BLob5b52i81SNaV9Awm5ejkZV6VGSv9SxLcwukDDJ");
 
     /**
      * Creates a .sol domain name with the specified name and payer.
@@ -143,6 +152,55 @@ public class NamingManager {
         } catch (RpcException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    /**
+     * Looks up a Bonfida-associated Twitter account from a given owner's Pubkey
+     * @param publicKey owner of Bonfida-associated Twitter account
+     * @return twitter handle of the pubkey
+     */
+    public String getTwitterHandle(PublicKey publicKey) {
+        List<ProgramAccount> programAccounts = null;
+        try {
+            programAccounts = client.getApi().getProgramAccounts(
+                    NAME_PROGRAM_ID,
+                    List.of(
+                            new ConfigObjects.Memcmp(
+                                    TWITTER_PUBLIC_KEY_OFFSET,
+                                    publicKey.toBase58()
+                            ),
+                            new ConfigObjects.Memcmp(
+                                    TWITTER_VERIFICATION_AUTHORITY_OFFSET,
+                                    TWITTER_VERIFICATION_AUTHORITY.toBase58()
+                            )
+                    )
+            );
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        if (programAccounts != null) {
+            for (ProgramAccount programAccount : programAccounts) {
+                byte[] programAccountData = Base58.decode(programAccount.getAccount().getData());
+                if (programAccountData.length == TWITTER_ACCOUNT_LENGTH) {
+                    String twitterHandle = new String(
+                            ByteUtils.trim(
+                                    Arrays.copyOfRange(
+                                            programAccountData,
+                                            TWITTER_HANDLE_START_OFFSET,
+                                            TWITTER_ACCOUNT_LENGTH)
+                            )
+                    );
+
+                    LOGGER.info(String.format("Found Twitter account for %s: %s", publicKey.toBase58(), twitterHandle));
+                    return twitterHandle;
+                } else {
+                    LOGGER.warning(String.format("Unable to find Twitter account for %s", publicKey.toBase58()));
+                }
+            }
+        }
+
         return null;
     }
 }
