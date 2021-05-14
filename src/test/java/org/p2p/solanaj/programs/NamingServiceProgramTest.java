@@ -4,6 +4,13 @@ import org.junit.Test;
 import org.p2p.solanaj.core.AccountBasedTest;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.naming.NamingManager;
+import org.p2p.solanaj.rpc.types.AccountInfo;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Base64;
 
 import static org.junit.Assert.assertTrue;
 
@@ -21,5 +28,33 @@ public class NamingServiceProgramTest extends AccountBasedTest {
         boolean result = namingManager.createNameRegistry(DOMAIN_NAME, testAccount, publicKey, nameClass, parentName);
 
         assertTrue(result);
+    }
+
+    @Test
+    public void retrieveNameFromRegistry() {
+        // getAccountInfo
+        AccountInfo testAccountInfo = namingManager.getAccountInfo(new PublicKey("BVk1qg1y9AJ3LkfWCpr8FkDXZZcu7muAyVgbTBDbqDwZ"));
+        byte[] data = Base64.getDecoder().decode(testAccountInfo.getValue().getData().get(0));
+
+        LOGGER.info(Arrays.toString(data));
+
+
+        PublicKey parentName = PublicKey.readPubkey(data, 0);
+        PublicKey owner = PublicKey.readPubkey(data, 32);
+        PublicKey nameClass = PublicKey.readPubkey(data, 64);
+        byte[] nameData = Arrays.copyOfRange(data, 64, data.length);
+
+
+        LOGGER.info(String.format("parentName = %s, owner = %s, nameClass = %s", parentName, owner, nameClass));
+        LOGGER.info(String.format("data = %s", Arrays.toString(nameData)));
+
+        try {
+            Files.write(Path.of("namingaccountinfo.dat"), data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
     }
 }

@@ -7,6 +7,7 @@ import org.p2p.solanaj.programs.NamingServiceProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
+import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
 
 public class NamingManager {
 
-    private final RpcClient client = new RpcClient(Cluster.TESTNET);
+    private final RpcClient client = new RpcClient(Cluster.MAINNET);
     private static final Logger LOGGER = Logger.getLogger(NamingManager.class.getName());
     private static final long DATA_LENGTH = 1000L;
     private static final String HASH_PREFIX = "SPL Name Service";
@@ -134,5 +135,14 @@ public class NamingManager {
             e.printStackTrace();
         }
         return DATA_LENGTH * 10;
+    }
+
+    public AccountInfo getAccountInfo(PublicKey publicKey) {
+        try {
+            return client.getApi().getAccountInfo(publicKey);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
