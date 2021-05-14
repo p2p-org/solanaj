@@ -20,6 +20,7 @@ public class NamingServiceProgramTest extends AccountBasedTest {
     private final NamingManager namingManager = new NamingManager();
     private final PublicKey publicKey = testAccount.getPublicKey();
     private static final String DOMAIN_NAME = ".sol";  // testdomainname.sol
+    private final PublicKey skynetMainnetPubkey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
 
     @Test
     @Ignore
@@ -59,9 +60,17 @@ public class NamingServiceProgramTest extends AccountBasedTest {
 
     @Test
     public void getTwitterHandleTest() {
-        PublicKey skynetMainnetPubkey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
         String twitterHandle = namingManager.getTwitterHandle(skynetMainnetPubkey);
 
+        LOGGER.info(twitterHandle);
         assertTrue(twitterHandle.equalsIgnoreCase("skynetcap"));
+    }
+
+    @Test
+    public void twitterHandleToPubkeyLookupTest() {
+        PublicKey pubkey = namingManager.getPublicKey("skynetcap");
+
+        LOGGER.info(pubkey.toBase58());
+        assertTrue(skynetMainnetPubkey.toBase58().equalsIgnoreCase(pubkey.toBase58()));
     }
 }

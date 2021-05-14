@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -35,6 +36,7 @@ public class NamingManager {
     private static final int TWITTER_ACCOUNT_LENGTH = 114;
     private static final int TWITTER_HANDLE_START_OFFSET = 96;
     private static final PublicKey TWITTER_VERIFICATION_AUTHORITY = new PublicKey("867BLob5b52i81SNaV9Awm5ejkZV6VGSv9SxLcwukDDJ");
+    private static final PublicKey TWITTER_ROOT_PARENT_REGISTRY_KEY = new PublicKey("AFrGkxNmVLBn3mKhvfJJABvm8RJkTtRhHDoaF97pQZaA");
 
     /**
      * Creates a .sol domain name with the specified name and payer.
@@ -125,6 +127,7 @@ public class NamingManager {
      */
     private byte[] getHashedName(String input) {
         MessageDigest digest = null;
+        input = HASH_PREFIX + input;
         try {
             digest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
@@ -202,5 +205,26 @@ public class NamingManager {
         }
 
         return null;
+    }
+
+    /**
+     * Looks up a Pubkey associated with a Twitter handle using Bonfida's naming service
+     * @param twitterHandle twitter handle to look up
+     * @return pubkey associated with the twitter handle
+     */
+    public PublicKey getPublicKey(String twitterHandle) {
+        byte[] hashedTwitterHandle = getHashedName(twitterHandle);
+        PublicKey twitterHandleRegistryKey = getNameAccountKey(
+                hashedTwitterHandle,
+                null,
+                TWITTER_ROOT_PARENT_REGISTRY_KEY
+        );
+
+        AccountInfo accountInfo = getAccountInfo(twitterHandleRegistryKey);
+        byte[] data = Base64.getDecoder().decode(accountInfo.getValue().getData().get(0));
+
+        PublicKey owner = PublicKey.readPubkey(data, 32);
+
+        return owner;
     }
 }
