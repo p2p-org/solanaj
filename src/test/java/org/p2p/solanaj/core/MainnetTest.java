@@ -166,13 +166,23 @@ public class MainnetTest extends AccountBasedTest {
                 .build();
 
         final OrderBook bids = solUsdcMarket.getBidOrderBook();
+        final OrderBook asks = solUsdcMarket.getAskOrderBook();
         LOGGER.info("Market = " + solUsdcMarket.toString());
+
+        final ArrayList<Order> asksOrders = asks.getOrders();
+        asksOrders.sort(Comparator.comparingLong(Order::getPrice).reversed());
+        asksOrders.forEach(order -> {
+            System.out.println(String.format("SOL/USDC Ask: $%.4f", order.getFloatPrice()));
+        });
+
+        LOGGER.info("Bids");
 
         final ArrayList<Order> orders = bids.getOrders();
         orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
         orders.forEach(order -> {
-            LOGGER.info(order.toString());
+            System.out.println(String.format("SOL/USDC Bid: $%.4f", order.getFloatPrice()));
         });
+
 
         // Verify that an order exists
         assertTrue(orders.size() > 0);
