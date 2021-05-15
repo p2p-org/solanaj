@@ -60,17 +60,6 @@ public class MarketBuilder {
 
         // Get Order books
         if (retrieveOrderbooks) {
-            // TODO - multi-thread these
-            // Data from the order books
-            byte[] base64BidOrderbook = retrieveAccountData(market.getBids());
-            byte[] base64AskOrderbook = retrieveAccountData(market.getAsks());
-
-            OrderBook bidOrderBook = OrderBook.readOrderBook(base64BidOrderbook);
-            OrderBook askOrderBook = OrderBook.readOrderBook(base64AskOrderbook);
-
-            market.setBidOrderBook(bidOrderBook);
-            market.setAskOrderBook(askOrderBook);
-
             // Data from the token mints
             // TODO - multi-thread these
             byte baseDecimals = getMintDecimals(market.getBaseMint());
@@ -81,6 +70,29 @@ public class MarketBuilder {
 
             market.setBaseDecimals(baseDecimals);
             market.setQuoteDecimals(quoteDecimals);
+
+            // TODO - multi-thread these
+            // Data from the order books
+            byte[] base64BidOrderbook = retrieveAccountData(market.getBids());
+            byte[] base64AskOrderbook = retrieveAccountData(market.getAsks());
+
+            // TODO - change/limit how we pass the decimals around
+            // Currently giving them to everything for testing
+            OrderBook bidOrderBook = OrderBook.readOrderBook(base64BidOrderbook);
+            OrderBook askOrderBook = OrderBook.readOrderBook(base64AskOrderbook);
+
+            bidOrderBook.setBaseDecimals(baseDecimals);
+            bidOrderBook.setQuoteDecimals(quoteDecimals);
+            askOrderBook.setBaseDecimals(baseDecimals);
+            askOrderBook.setQuoteDecimals(quoteDecimals);
+
+            bidOrderBook.setBaseLotSize(market.getBaseLotSize());
+            bidOrderBook.setQuoteLotSize(market.getQuoteLotSize());
+            askOrderBook.setBaseLotSize(market.getBaseLotSize());
+            askOrderBook.setQuoteLotSize(market.getQuoteLotSize());
+
+            market.setBidOrderBook(bidOrderBook);
+            market.setAskOrderBook(askOrderBook);
         }
 
         if (retrieveEventQueue) {

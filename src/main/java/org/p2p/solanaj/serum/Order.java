@@ -8,11 +8,13 @@ public class Order {
     private long price;
     private long quantity;
     private long clientOrderId;
+    private float floatPrice;
 
-    public Order(long price, long quantity, long clientOrderId) {
+    public Order(long price, long quantity, long clientOrderId, float floatPrice) {
         this.price = price;
         this.quantity = quantity;
         this.clientOrderId = clientOrderId;
+        this.floatPrice = floatPrice;
     }
 
     public long getPrice() {
@@ -39,12 +41,21 @@ public class Order {
         this.clientOrderId = clientOrderId;
     }
 
+    public float getFloatPrice() {
+        return floatPrice;
+    }
+
+    public void setFloatPrice(float floatPrice) {
+        this.floatPrice = floatPrice;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
                 "price=" + price +
                 ", quantity=" + quantity +
                 ", clientOrderId=" + clientOrderId +
+                ", floatPrice=" + floatPrice +
                 '}';
     }
 }

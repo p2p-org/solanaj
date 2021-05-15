@@ -19,6 +19,10 @@ public class OrderBook {
 
     private AccountFlags accountFlags;
     private Slab slab;
+    private byte baseDecimals;
+    private byte quoteDecimals;
+    private long baseLotSize;
+    private long quoteLotSize;
 
     public static OrderBook readOrderBook(byte[] data) {
         final OrderBook orderBook = new OrderBook();
@@ -52,7 +56,8 @@ public class OrderBook {
                         new Order(
                                 slabLeafNode.getPrice(),
                                 slabLeafNode.getQuantity(),
-                                slabLeafNode.getClientOrderId()
+                                slabLeafNode.getClientOrderId(),
+                                priceLotsToNumber(slabLeafNode.getPrice())
                         )
                 );
             }
@@ -95,4 +100,50 @@ public class OrderBook {
         this.accountFlags = accountFlags;
     }
 
+    public void setBaseDecimals(byte baseDecimals) {
+        this.baseDecimals = baseDecimals;
+    }
+
+    public byte getBaseDecimals() {
+        return baseDecimals;
+    }
+
+    public void setQuoteDecimals(byte quoteDecimals) {
+        this.quoteDecimals = quoteDecimals;
+    }
+
+    public byte getQuoteDecimals() {
+        return quoteDecimals;
+    }
+
+    private float priceLotsToNumber(long price) {
+        double top = (price * quoteLotSize * getBaseSplTokenMultiplier());
+        double bottom = (baseLotSize * getQuoteSplTokenMultiplier());
+
+        return (float) (top / bottom);
+    }
+
+    public void setBaseLotSize(long baseLotSize) {
+        this.baseLotSize = baseLotSize;
+    }
+
+    public long getBaseLotSize() {
+        return baseLotSize;
+    }
+
+    public void setQuoteLotSize(long quoteLotSize) {
+        this.quoteLotSize = quoteLotSize;
+    }
+
+    public long getQuoteLotSize() {
+        return quoteLotSize;
+    }
+
+    public double getBaseSplTokenMultiplier() {
+        return Math.pow(10, baseDecimals);
+    }
+
+    public double getQuoteSplTokenMultiplier() {
+        return Math.pow(10, quoteDecimals);
+    }
 }
