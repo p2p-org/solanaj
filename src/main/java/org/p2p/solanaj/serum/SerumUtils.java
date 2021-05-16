@@ -205,7 +205,7 @@ public class SerumUtils {
     public static byte readDecimalsFromTokenMintData(byte[] accountData) {
         // Read a SINGLE byte at offset 44
         byte result = accountData[TOKEN_MINT_DECIMALS_OFFSET];
-        LOGGER.info(String.format("Market decimals byte = %d", result));
+        //LOGGER.info(String.format("Market decimals byte = %d", result));
 
         return result;
     }

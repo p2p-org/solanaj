@@ -172,7 +172,7 @@ public class MainnetTest extends AccountBasedTest {
         final ArrayList<Order> asksOrders = asks.getOrders();
         asksOrders.sort(Comparator.comparingLong(Order::getPrice).reversed());
         asksOrders.forEach(order -> {
-            System.out.println(String.format("SOL/USDC Ask: $%.4f", order.getFloatPrice()));
+            System.out.println(String.format("SOL/USDC Ask: $%.4f (Quantity: %.4f)", order.getFloatPrice(), order.getFloatQuantity()));
         });
 
         LOGGER.info("Bids");
@@ -180,9 +180,8 @@ public class MainnetTest extends AccountBasedTest {
         final ArrayList<Order> orders = bids.getOrders();
         orders.sort(Comparator.comparingLong(Order::getPrice).reversed());
         orders.forEach(order -> {
-            System.out.println(String.format("SOL/USDC Bid: $%.4f", order.getFloatPrice()));
+            System.out.println(String.format("SOL/USDC Bid: $%.4f (Quantity: %.4f)", order.getFloatPrice(), order.getFloatQuantity()));
         });
-
 
         // Verify that an order exists
         assertTrue(orders.size() > 0);

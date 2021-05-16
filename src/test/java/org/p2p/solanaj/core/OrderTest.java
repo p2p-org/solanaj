@@ -48,7 +48,12 @@ public class OrderTest {
         final Account openOrders = new Account();
 
         // Place order
-        String transactionId = serumManager.placeOrder(account, openOrders, solUsdcMarket, new Order(1, 1, 1, 0.0f));
+        String transactionId = serumManager.placeOrder(
+                account,
+                openOrders,
+                solUsdcMarket,
+                new Order(1, 1, 1, 0.0f, 0.0f)
+        );
 
         // Verify we got a txId
         assertNotNull(transactionId);

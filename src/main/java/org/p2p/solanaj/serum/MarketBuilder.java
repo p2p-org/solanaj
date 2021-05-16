@@ -65,8 +65,8 @@ public class MarketBuilder {
             byte baseDecimals = getMintDecimals(market.getBaseMint());
             byte quoteDecimals = getMintDecimals(market.getQuoteMint());
 
-            LOGGER.info(String.format("Base decimals = %d", baseDecimals));
-            LOGGER.info(String.format("Quote decimals = %d", quoteDecimals));
+//            LOGGER.info(String.format("Base decimals = %d", baseDecimals));
+//            LOGGER.info(String.format("Quote decimals = %d", quoteDecimals));
 
             market.setBaseDecimals(baseDecimals);
             market.setQuoteDecimals(quoteDecimals);
