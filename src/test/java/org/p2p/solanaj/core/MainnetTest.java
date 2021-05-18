@@ -78,6 +78,22 @@ public class MainnetTest extends AccountBasedTest {
         }
     }
 
+    @Test
+    public void getAccountInfoJsonParsed() {
+        try {
+            final SplTokenAccountInfo accountInfo = client.getApi().getSplTokenAccountInfo(
+                    PublicKey.valueOf("8tnpAECxAT9nHBqR1Ba494Ar5dQMPGhL31MmPJz1zZvY")
+            );
+
+            assertTrue(
+                    accountInfo.getValue().getData().getProgram().equalsIgnoreCase("spl-token")
+            );
+
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Uses a {@link MarketBuilder} class to retrieve data about the BTC/USDC Serum market.
      */
@@ -386,7 +402,7 @@ public class MainnetTest extends AccountBasedTest {
     @Test
     @Ignore
     public void getConfirmedTransactionTest() {
-        String txId = "QkxfbHrmJ6FtEZqSvtj71tViqVkWg9mQABUGtt4AynZjr6JHEuY5BtyiHVZ46CA4ZMF1jv5vNZSZc4oz4tcXpnt";
+        String txId = "46VcVPoecvVASnX9vHEZLA8JMS6BVXhvMMhqtGBcn9eg4bHehK6uA2icuTjwjWLZxwfxdT2z1CqYxCHHvjorvWDi";
 
         ConfirmedTransaction confirmedTransaction = null;
         try {

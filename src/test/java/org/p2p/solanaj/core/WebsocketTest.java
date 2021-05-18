@@ -76,6 +76,20 @@ public class WebsocketTest extends AccountBasedTest {
         assertTrue(true);
     }
 
+    @Test
+    @Ignore
+    public void raydiumSingleStakingWebsocketTest() {
+        client.accountSubscribe(PublicKey.valueOf("8tnpAECxAT9nHBqR1Ba494Ar5dQMPGhL31MmPJz1zZvY").toBase58(), new AccountNotificationEventListener());
+
+
+        try {
+            Thread.sleep(120000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertTrue(true);
+    }
+
     private void sendLamports(int amount) {
         // Create account from private key
         final Account feePayer = testAccount;

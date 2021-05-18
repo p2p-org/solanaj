@@ -205,6 +205,17 @@ public class RpcApi {
         return client.call("getAccountInfo", params, AccountInfo.class);
     }
 
+    public SplTokenAccountInfo getSplTokenAccountInfo(PublicKey account) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("encoding", "jsonParsed");
+
+        params.add(account.toString());
+        params.add(parameterMap);
+
+        return client.call("getAccountInfo", params, SplTokenAccountInfo.class);
+    }
+
     public long getMinimumBalanceForRentExemption(long dataLength) throws RpcException {
         List<Object> params = new ArrayList<Object>();
 

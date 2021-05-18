@@ -119,4 +119,8 @@ public class PublicKey {
         throw new Exception("Unable to find a viable program address nonce");
     }
 
+    public static PublicKey valueOf(String publicKey) {
+        return new PublicKey(publicKey);
+    }
+
 }
