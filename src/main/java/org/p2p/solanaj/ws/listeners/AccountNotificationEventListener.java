@@ -18,10 +18,12 @@ public class AccountNotificationEventListener implements NotificationEventListen
     @SuppressWarnings("rawtypes")
     @Override
     public void onNotificationEvent(Object data) {
-        final byte[] base64Data = Base64.getDecoder().decode((((Map)data).get("data").toString()));
+        //final byte[] base64Data = Base64.getDecoder().decode((((Map)data).get("data").toString()));
 
-        OrderBook bidOrderBook = OrderBook.readOrderBook(base64Data);
+        LOGGER.info(String.format("Event = %s", data.toString()));
 
-        LOGGER.info("Best Bid = " + bidOrderBook.getBestBid());
+        //OrderBook bidOrderBook = OrderBook.readOrderBook(base64Data);
+
+        //LOGGER.info("Best Bid = " + bidOrderBook.getBestBid());
     }
 }

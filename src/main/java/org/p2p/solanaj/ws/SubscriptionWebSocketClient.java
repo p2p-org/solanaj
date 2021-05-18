@@ -120,9 +120,13 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
             String rpcResultId = rpcResult.getId();
             if (rpcResultId != null) {
                 if (subscriptionIds.containsKey(rpcResultId)) {
-                    subscriptionIds.put(rpcResultId, rpcResult.getResult());
-                    subscriptionLinsteners.put(rpcResult.getResult(), subscriptions.get(rpcResultId).listener);
-                    subscriptions.remove(rpcResultId);
+                    try {
+                        subscriptionIds.put(rpcResultId, rpcResult.getResult());
+                        subscriptionLinsteners.put(rpcResult.getResult(), subscriptions.get(rpcResultId).listener);
+                        subscriptions.remove(rpcResultId);
+                    } catch (NullPointerException ignored) {
+
+                    }
                 }
             } else {
                 JsonAdapter<RpcNotificationResult> notificationResultAdapter = new Moshi.Builder().build()
@@ -143,7 +147,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
                 }
             }
         } catch (Exception ex) {
-            System.out.println(ex);
+            ex.printStackTrace();
         }
     }
 

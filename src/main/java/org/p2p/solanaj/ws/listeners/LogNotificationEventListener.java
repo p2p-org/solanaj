@@ -1,19 +1,20 @@
 package org.p2p.solanaj.ws.listeners;
 
+import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.rpc.RpcException;
-import org.p2p.solanaj.rpc.types.ConfirmedTransaction;
 
-import java.util.Map;
+import java.util.AbstractMap;
 import java.util.logging.Logger;
 
 public class LogNotificationEventListener implements NotificationEventListener {
 
     private static final Logger LOGGER = Logger.getLogger(LogNotificationEventListener.class.getName());
     private final RpcClient client;
+    private PublicKey listeningPubkey;
 
-    public LogNotificationEventListener(RpcClient client) {
+    public LogNotificationEventListener(RpcClient client, PublicKey listeningPubkey) {
         this.client = client;
+        this.listeningPubkey = listeningPubkey;
     }
 
     /**
@@ -23,19 +24,11 @@ public class LogNotificationEventListener implements NotificationEventListener {
     @SuppressWarnings("rawtypes")
     @Override
     public void onNotificationEvent(Object data) {
-        Map map = (Map) data;
-
-        if (map.get("logs").toString().contains("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin")) {
-            String signature = map.get("signature").toString();
-            LOGGER.info(String.format("Serum action detected in TX %s" , signature));
-            try {
-                ConfirmedTransaction confirmedTransaction = client.getApi().getConfirmedTransaction(signature);
-                LOGGER.info(confirmedTransaction.getTransaction().getMessage().toString());
-            } catch (RpcException e) {
-                e.printStackTrace();
-            }
-        } else {
-            LOGGER.info("EVENT = " + data);
+        if (data != null) {
+            AbstractMap<String, String> map = (AbstractMap<String, String>) data;
+            LOGGER.info(String.format("Data = %s", map));
+            String signature = map.get("signature");
+            LOGGER.info("Signature = " + signature);
         }
     }
 }

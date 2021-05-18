@@ -100,6 +100,10 @@ public class ConfirmedTransaction {
         private long fee;
         @Json(name = "innerInstructions")
         private List<Object> innerInstructions = null;
+        @Json(name = "preTokenBalances")
+        private List<Object> preTokenBalances = null;
+        @Json(name = "postTokenBalances")
+        private List<Object> postTokenBalances = null;
         @Json(name = "postBalances")
         private List<Long> postBalances = null;
         @Json(name = "preBalances")
@@ -131,6 +135,13 @@ public class ConfirmedTransaction {
             return status;
         }
 
+        public List<Object> getPreTokenBalances() {
+            return preTokenBalances;
+        }
+
+        public List<Object> getPostTokenBalances() {
+            return postTokenBalances;
+        }
     }
 
     public static class Transaction {

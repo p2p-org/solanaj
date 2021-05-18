@@ -28,7 +28,7 @@ public class WebsocketTest extends AccountBasedTest {
     public void serumApeTest() throws InterruptedException {
         PublicKey skynet = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
 
-        client.logsSubscribe(skynet.toBase58(), new LogNotificationEventListener(rpcClient));
+        client.logsSubscribe(skynet.toBase58(), new LogNotificationEventListener(rpcClient, null));
         LOGGER.info(String.format("Listening for activity at the address: %s", skynet));
 
         // wait for the person to make a trade
@@ -40,7 +40,7 @@ public class WebsocketTest extends AccountBasedTest {
     @Test
     @Ignore
     public void logsSubscribeWebsocketTest() throws InterruptedException {
-        client.logsSubscribe(solDestination.toBase58(), new LogNotificationEventListener(rpcClient));
+        client.logsSubscribe(solDestination.toBase58(), new LogNotificationEventListener(rpcClient, null));
         Thread.sleep(3000L);
         sendLamports(AMOUNT_OF_LAMPORTS);
         Thread.sleep(200000L);
