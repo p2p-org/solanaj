@@ -382,4 +382,23 @@ public class MainnetTest extends AccountBasedTest {
         assertNotNull(txId);
         System.out.println(testAccount.getPublicKey().toBase58());
     }
+
+    @Test
+    @Ignore
+    public void getConfirmedTransactionTest() {
+        String txId = "QkxfbHrmJ6FtEZqSvtj71tViqVkWg9mQABUGtt4AynZjr6JHEuY5BtyiHVZ46CA4ZMF1jv5vNZSZc4oz4tcXpnt";
+
+        ConfirmedTransaction confirmedTransaction = null;
+        try {
+            confirmedTransaction = client.getApi().getConfirmedTransaction(txId);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+        //
+        if (confirmedTransaction != null) {
+            LOGGER.info(String.format("Tx: %s", confirmedTransaction));
+        }
+
+
+    }
 }
