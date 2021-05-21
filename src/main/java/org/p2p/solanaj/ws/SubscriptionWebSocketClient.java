@@ -69,6 +69,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
     public void accountSubscribe(String key, NotificationEventListener listener) {
         List<Object> params = new ArrayList<Object>();
         params.add(key);
+        params.add(Map.of("encoding", "jsonParsed"));
 
         RpcRequest rpcRequest = new RpcRequest("accountSubscribe", params);
 
