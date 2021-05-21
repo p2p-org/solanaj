@@ -63,6 +63,7 @@ public class EventQueue {
     private int seqNum;
     private List<TradeEvent> events;
     private List<PublicKey> topTraders = new ArrayList<>();
+    private List<PublicKey> openOrdersAccounts = new ArrayList<>();
 
     /**
      * Returns an {@link EventQueue} object which is built from binary data.
@@ -145,6 +146,12 @@ public class EventQueue {
                 .sorted()
                 .collect(Collectors.toList());
 
+        eventQueue.getOpenOrdersAccounts().clear();
+
+        for (String publicKey : publicKeys) {
+            eventQueue.getOpenOrdersAccounts().add(PublicKey.valueOf(publicKey));
+        }
+
         Map<String, Integer> counter = new HashMap<>();
 
         publicKeys.forEach(publicKey -> {
@@ -225,5 +232,13 @@ public class EventQueue {
 
     public void setTopTraders(List<PublicKey> topTraders) {
         this.topTraders = topTraders;
+    }
+
+    public List<PublicKey> getOpenOrdersAccounts() {
+        return openOrdersAccounts;
+    }
+
+    public void setOpenOrdersAccounts(List<PublicKey> openOrdersAccounts) {
+        this.openOrdersAccounts = openOrdersAccounts;
     }
 }
