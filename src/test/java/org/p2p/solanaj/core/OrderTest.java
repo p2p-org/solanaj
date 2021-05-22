@@ -93,9 +93,9 @@ public class OrderTest {
                 .setRetrieveOrderBooks(false)
                 .build();
         // Place order
-        String transactionId = serumManager.consumeEvents(solUsdcMarket, account);
+        //String transactionId = serumManager.consumeEvents(solUsdcMarket, account);
 
         // Verify we got a txId
-        assertNotNull(transactionId);
+        //assertNotNull(transactionId);
     }
 }

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -25,6 +26,7 @@ public class MainnetTest extends AccountBasedTest {
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
     private final PublicKey publicKey = solDestination;
     public final TokenManager tokenManager = new TokenManager();
+    private final SerumManager serumManager = new SerumManager();
 
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 
@@ -208,7 +210,7 @@ public class MainnetTest extends AccountBasedTest {
      */
     @Test
     public void marketBuilderEventQueueTest() {
-        final PublicKey solUsdcPublicKey = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
+        final PublicKey solUsdcPublicKey = new PublicKey("3HZWXFCx74xapSPV4rqBv2V7jUshauGS37vqxxoGp6qJ");
 
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(solUsdcPublicKey)
@@ -220,6 +222,10 @@ public class MainnetTest extends AccountBasedTest {
         LOGGER.info("Event Queue = " + solUsdcMarket.getEventQueue());
         LOGGER.info("# of top traders = " + solUsdcMarket.getEventQueue().getTopTraders().size());
         LOGGER.info("# of Open Orders accounts = " + solUsdcMarket.getEventQueue().getOpenOrdersAccounts().size());
+
+        String transactionId = serumManager.consumeEvents(solUsdcMarket, testAccount, solUsdcMarket.getEventQueue().getOpenOrdersAccounts().stream().limit(5).collect(Collectors.toList()));
+
+        LOGGER.info("Consumed events = " + transactionId);
     }
 
     /**

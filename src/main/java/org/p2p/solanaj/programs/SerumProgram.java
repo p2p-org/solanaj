@@ -13,6 +13,7 @@ import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,18 +29,33 @@ public class SerumProgram extends Program {
     private static final PublicKey SERUM_PROGRAM_ID_V3 = new PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
 
 
-    public static TransactionInstruction consumeEvents(RpcClient client, Market market) {
+    public static TransactionInstruction consumeEvents(List<PublicKey> openOrdersAccounts, Account payerAccount, Market market) {
         // Add signer to AccountMeta keys
 
         // openOrders Pubkeys
         // market Pubkey
         // eventQueue Pubkey
-        List<PublicKey> openOrdersPubkeys = findOpenOrdersAccounts(client, market.getOwnAddress());
+        //List<PublicKey> openOrdersPubkeys = findOpenOrdersAccounts(client, market.getOwnAddress());
 
         // convert to account metas
-        List<AccountMeta> accountMetas = openOrdersPubkeys.stream()
-                .map(publicKey -> new AccountMeta(publicKey, false, true))
-                .collect(Collectors.toList());
+
+        List<AccountMeta> accountMetas = new ArrayList<>();
+
+        // 0 fee payer + signer => your account
+        accountMetas.add(new AccountMeta(payerAccount.getPublicKey(), true, true));
+
+        // 1 - 5 = 5 open orders accounts
+        accountMetas.addAll(openOrdersAccounts.stream()
+                .map(publicKey -> new AccountMeta(publicKey, false, true)).collect(Collectors.toList()));
+
+        // 6 = market's event queue
+        accountMetas.add(new AccountMeta(market.getEventQueueKey(), false, true));
+
+
+        // 7 dummy key (just me)
+
+        accountMetas.add(new AccountMeta(market.getOwnAddress(), false, false));
+
 
         int limit = 5;
         byte[] transactionData = encodeConsumeEventsTransactionData(

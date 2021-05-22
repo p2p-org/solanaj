@@ -70,13 +70,14 @@ public class SerumManager {
      * @param market market to run crank against
      * @return transaction id of ConsumeEvents call
      */
-    public String consumeEvents(Market market, Account payerAccount) {
+    public String consumeEvents(Market market, Account payerAccount, List<PublicKey> openOrdersAccounts) {
         // Get all open orders accounts
         final Transaction transaction = new Transaction();
 
         transaction.addInstruction(
                 SerumProgram.consumeEvents(
-                        client,
+                        openOrdersAccounts,
+                        payerAccount,
                         market
                 )
         );
