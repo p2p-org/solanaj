@@ -52,7 +52,7 @@ public class OrderTest {
                 account,
                 openOrders,
                 solUsdcMarket,
-                new Order(1, 1, 1, 0.0f, 0.0f)
+                new Order(1, 1, 1, 0.0f, 0.0f, null)
         );
 
         // Verify we got a txId

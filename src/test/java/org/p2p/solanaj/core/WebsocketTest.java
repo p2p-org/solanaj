@@ -49,6 +49,23 @@ public class WebsocketTest extends AccountBasedTest {
 
     @Test
     @Ignore
+    public void logsSubscribePoolTest() throws InterruptedException {
+        PublicKey copev4Usdc = new PublicKey("Cz1kUvHw98imKkrqqu95GQB9h1frY8RikxPojMwWKGXf");
+        PublicKey solUsdc = new PublicKey("8HoQnePLqPj4M7PUDzfw8e3Ymdwgc7NLGnaTUapubyvu");
+
+        client.logsSubscribe(copev4Usdc.toBase58(), new LogNotificationEventListener(rpcClient, null));
+        client.logsSubscribe(solUsdc.toBase58(), new LogNotificationEventListener(rpcClient, null));
+
+        for (int i = 0; i < 100; i++) {
+            Thread.sleep(30000L);
+            client.sendPing();
+        }
+        System.out.println("done");
+    }
+
+
+    @Test
+    @Ignore
     public void orderbookWebsocketTest() {
         client.accountSubscribe(BTC_USDC_BIDS.toBase58(), new AccountNotificationEventListener());
 

@@ -58,7 +58,8 @@ public class OrderBook {
                                 slabLeafNode.getQuantity(),
                                 slabLeafNode.getClientOrderId(),
                                 priceLotsToNumber(slabLeafNode.getPrice()),
-                                (float) ((slabLeafNode.getQuantity() * baseLotSize) / getBaseSplTokenMultiplier())
+                                (float) ((slabLeafNode.getQuantity() * baseLotSize) / getBaseSplTokenMultiplier()),
+                                slabLeafNode.getOwner()
                         )
                 );
             }

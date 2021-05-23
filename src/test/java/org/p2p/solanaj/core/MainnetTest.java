@@ -214,7 +214,7 @@ public class MainnetTest extends AccountBasedTest {
 
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(solUsdcPublicKey)
-                .setRetrieveOrderBooks(false)
+                .setRetrieveOrderBooks(true)
                 .setRetrieveEventQueue(true)
                 .build();
 
@@ -223,9 +223,13 @@ public class MainnetTest extends AccountBasedTest {
         LOGGER.info("# of top traders = " + solUsdcMarket.getEventQueue().getTopTraders().size());
         LOGGER.info("# of Open Orders accounts = " + solUsdcMarket.getEventQueue().getOpenOrdersAccounts().size());
 
-        String transactionId = serumManager.consumeEvents(solUsdcMarket, testAccount, solUsdcMarket.getEventQueue().getOpenOrdersAccounts().stream().limit(5).collect(Collectors.toList()));
+        //String transactionId = serumManager.consumeEvents(solUsdcMarket, testAccount, solUsdcMarket.getEventQueue().getOpenOrdersAccounts().stream().limit(5).collect(Collectors.toList()));
 
-        LOGGER.info("Consumed events = " + transactionId);
+        //LOGGER.info("Consumed events = " + transactionId);
+        for (Order order : solUsdcMarket.getBidOrderBook().getOrders()) {
+            LOGGER.info("Order: " + order.toString());
+        }
+
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.p2p.solanaj.serum;
 
+import org.p2p.solanaj.core.PublicKey;
+
 /**
  * Class that represents a Serum order.
  */
@@ -10,13 +12,15 @@ public class Order {
     private long clientOrderId;
     private float floatPrice;
     private float floatQuantity;
+    private PublicKey owner;
 
-    public Order(long price, long quantity, long clientOrderId, float floatPrice, float floatQuantity) {
+    public Order(long price, long quantity, long clientOrderId, float floatPrice, float floatQuantity, PublicKey owner) {
         this.price = price;
         this.quantity = quantity;
         this.clientOrderId = clientOrderId;
         this.floatPrice = floatPrice;
         this.floatQuantity = floatQuantity;
+        this.owner = owner;
     }
 
     public long getPrice() {
@@ -59,6 +63,14 @@ public class Order {
         this.floatQuantity = floatQuantity;
     }
 
+    public PublicKey getOwner() {
+        return owner;
+    }
+
+    public void setOwner(PublicKey owner) {
+        this.owner = owner;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
@@ -67,6 +79,7 @@ public class Order {
                 ", clientOrderId=" + clientOrderId +
                 ", floatPrice=" + floatPrice +
                 ", floatQuantity=" + floatQuantity +
+                ", owner=" + owner +
                 '}';
     }
 }

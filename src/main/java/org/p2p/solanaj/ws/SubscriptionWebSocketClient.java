@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import com.squareup.moshi.JsonAdapter;
@@ -33,9 +34,9 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
 
     private static SubscriptionWebSocketClient instance;
 
-    private Map<String, SubscriptionParams> subscriptions = new HashMap<>();
-    private Map<String, Long> subscriptionIds = new HashMap<>();
-    private Map<Long, NotificationEventListener> subscriptionLinsteners = new HashMap<>();
+    private Map<String, SubscriptionParams> subscriptions = new ConcurrentHashMap<>();
+    private Map<String, Long> subscriptionIds = new ConcurrentHashMap<>();
+    private Map<Long, NotificationEventListener> subscriptionLinsteners = new ConcurrentHashMap<>();
     private static final Logger LOGGER = Logger.getLogger(SubscriptionWebSocketClient.class.getName());
 
     public static SubscriptionWebSocketClient getInstance(String endpoint) {
@@ -99,6 +100,19 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
         RpcRequest rpcRequest = new RpcRequest("logsSubscribe", params);
 
         subscriptions.put(rpcRequest.getId(), new SubscriptionParams(rpcRequest, listener));
+        subscriptionIds.put(rpcRequest.getId(), 0L);
+
+        updateSubscriptions();
+    }
+
+    public void logsSubscribe(List<String> mentions, NotificationEventListener listener) {
+        List<Object> params = new ArrayList<Object>();
+        params.add(Map.of("mentions", mentions));
+        params.add(Map.of("commitment", "finalized"));
+
+        RpcRequest rpcRequest = new RpcRequest("logsSubscribe", params);
+
+        subscriptions.put(rpcRequest.getId(), new SubscriptionParams(rpcRequest, listener));
         subscriptionIds.put(rpcRequest.getId(), null);
 
         updateSubscriptions();
@@ -143,7 +157,9 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
                         break;
                     case "accountNotification":
                     case "logsNotification":
-                        listener.onNotificationEvent(value);
+                        if (listener != null) {
+                            listener.onNotificationEvent(value);
+                        }
                         break;
                 }
             }
