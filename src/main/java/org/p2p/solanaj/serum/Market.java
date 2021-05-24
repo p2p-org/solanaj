@@ -306,6 +306,15 @@ public class Market {
         this.referrerRebatesAccrued = referrerRebatesAccrued;
     }
 
+    // TODO - implement all of these, just updating bids, asks, and event queue.
+    // However, most of these fields won't change after a reload.
+    public void reload(MarketBuilder builder) {
+        Market market = builder.reload();
+        this.bidOrderBook = market.getBidOrderBook();
+        this.askOrderBook = market.getAskOrderBook();
+        this.eventQueue = market.getEventQueue();
+    }
+
     @Override
     public String toString() {
         return "Market{" +

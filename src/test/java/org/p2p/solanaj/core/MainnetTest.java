@@ -210,13 +210,14 @@ public class MainnetTest extends AccountBasedTest {
      */
     @Test
     public void marketBuilderEventQueueTest() {
-        final PublicKey solUsdcPublicKey = new PublicKey("3HZWXFCx74xapSPV4rqBv2V7jUshauGS37vqxxoGp6qJ");
+        final PublicKey solUsdcPublicKey = new PublicKey("A8YFbxQYFVqKZaoYJLLUVcQiWP7G2MeEgW5wsAQgMvFw");
 
-        final Market solUsdcMarket = new MarketBuilder()
+        final MarketBuilder solUsdcMarketBuilder = new MarketBuilder()
                 .setPublicKey(solUsdcPublicKey)
                 .setRetrieveOrderBooks(true)
-                .setRetrieveEventQueue(true)
-                .build();
+                .setRetrieveEventQueue(true);
+
+        Market solUsdcMarket = solUsdcMarketBuilder.build();
 
         LOGGER.info("Market = " + solUsdcMarket.toString());
         LOGGER.info("Event Queue = " + solUsdcMarket.getEventQueue());
@@ -225,10 +226,14 @@ public class MainnetTest extends AccountBasedTest {
 
         //String transactionId = serumManager.consumeEvents(solUsdcMarket, testAccount, solUsdcMarket.getEventQueue().getOpenOrdersAccounts().stream().limit(5).collect(Collectors.toList()));
 
-        //LOGGER.info("Consumed events = " + transactionId);
-        for (Order order : solUsdcMarket.getBidOrderBook().getOrders()) {
-            LOGGER.info("Order: " + order.toString());
+        List<Order> bids = solUsdcMarket.getBidOrderBook().getOrders();
+
+        for (int i = 0; i < bids.size(); i++) {
+            LOGGER.info(String.format("Bid: %s", bids.get(i)));
         }
+
+        LOGGER.info("Reloading market");
+        solUsdcMarket.reload(solUsdcMarketBuilder);
 
     }
 

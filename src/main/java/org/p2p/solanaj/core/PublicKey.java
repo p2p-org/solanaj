@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.Sha256Hash;
@@ -48,6 +49,27 @@ public class PublicKey {
 
     public boolean equals(PublicKey pubkey) {
         return Arrays.equals(this.pubkey, pubkey.toByteArray());
+    }
+
+    @Override
+    public final int hashCode() {
+        int result = 17;
+        if (pubkey != null) {
+            result = 31 * result + Arrays.hashCode(pubkey);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+        PublicKey person = (PublicKey) o;
+        return equals(person);
     }
 
     public String toString() {

@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
@@ -18,17 +20,26 @@ import java.util.logging.Logger;
  */
 public class MarketBuilder {
 
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
+    private RpcClient client = new RpcClient(Cluster.MAINNET);
     private PublicKey publicKey;
     private boolean retrieveOrderbooks = false;
     private boolean retrieveEventQueue = false;
+    private boolean built = false;
+    private byte[] base64AccountInfo;
     private static final Logger LOGGER = Logger.getLogger(MarketBuilder.class.getName());
+
+    private Map<PublicKey, Byte> decimalsCache = new ConcurrentHashMap<>();
 
     // TODO move all publickey consts to it's own static class
     private static final PublicKey WRAPPED_SOL_MINT = new PublicKey("So11111111111111111111111111111111111111112");
 
     public MarketBuilder setRetrieveOrderBooks(boolean retrieveOrderbooks) {
         this.retrieveOrderbooks = retrieveOrderbooks;
+        return this;
+    }
+
+    public MarketBuilder setClient(RpcClient client) {
+        this.client = client;
         return this;
     }
 
@@ -46,27 +57,46 @@ public class MarketBuilder {
     }
 
     public Market build() {
-        Market market = new Market();
-
-        // Get account Info
-        byte[] base64AccountInfo = retrieveAccountData();
+        // Only lookup account info one time since it never changes (except for fees accrued, not important imo)
+        if (!built) {
+            LOGGER.info("Retrieving market data once for " + publicKey.toBase58());
+            base64AccountInfo = retrieveAccountData();
+        } else {
+            LOGGER.info("Already built for " + publicKey.toBase58() + ", using cached data");
+        }
 
         // Read market
         if (base64AccountInfo == null) {
             throw new RuntimeException("Unable to read account data");
         }
 
-        market = Market.readMarket(base64AccountInfo);
+        Market market = Market.readMarket(base64AccountInfo);
 
         // Get Order books
         if (retrieveOrderbooks) {
             // Data from the token mints
-            // TODO - multi-thread these
-            byte baseDecimals = getMintDecimals(market.getBaseMint());
-            byte quoteDecimals = getMintDecimals(market.getQuoteMint());
 
-//            LOGGER.info(String.format("Base decimals = %d", baseDecimals));
-//            LOGGER.info(String.format("Quote decimals = %d", quoteDecimals));
+            // first, check the cache for the byte. otherwise, make a request for it
+            byte baseDecimals;
+            byte quoteDecimals;
+
+            if (decimalsCache.containsKey(market.getBaseMint())) {
+                LOGGER.info("Using cache to get decimal for " + market.getBaseMint().toBase58());
+                baseDecimals = decimalsCache.get(market.getBaseMint());
+            } else {
+                LOGGER.info("Looking up mint for " + market.getBaseMint().toBase58());
+                baseDecimals = getMintDecimals(market.getBaseMint());
+                decimalsCache.put(market.getBaseMint(), baseDecimals);
+            }
+
+            if (decimalsCache.containsKey(market.getQuoteMint())) {
+                LOGGER.info("Using cache to get decimal for " + market.getQuoteMint().toBase58());
+                quoteDecimals = decimalsCache.get(market.getQuoteMint());
+            } else {
+                LOGGER.info("Looking up mint for " + market.getQuoteMint().toBase58());
+                quoteDecimals = getMintDecimals(market.getQuoteMint());
+                decimalsCache.put(market.getQuoteMint(), quoteDecimals);
+            }
 
             market.setBaseDecimals(baseDecimals);
             market.setQuoteDecimals(quoteDecimals);
@@ -109,6 +139,7 @@ public class MarketBuilder {
             market.setEventQueue(eventQueue);
         }
 
+        built = true;
         return market;
     }
 
@@ -156,5 +187,9 @@ public class MarketBuilder {
     public MarketBuilder setPublicKey(PublicKey publicKey) {
         this.publicKey = publicKey;
         return this;
+    }
+
+    public Market reload() {
+        return build();
     }
 }

@@ -165,17 +165,17 @@ public class EventQueue {
 
         eventQueue.getTopTraders().clear();
 
-        for (int i = 0; i < 5; i++) {
-            try {
-                PublicKey sortedMarketMaker = sortedMarketMakers.get(i);
-                byte[] bytes = Base64.getDecoder().decode(client.getApi().getAccountInfo(sortedMarketMaker).getValue().getData().get(0));
-                PublicKey owner = PublicKey.readPubkey(bytes, 45);
-                eventQueue.getTopTraders().add(owner);
-                LOGGER.info(String.format("Rank #%d Market Maker = %s, Owner = %s (https://explorer.solana.com/address/%s)", i + 1, sortedMarketMaker.toBase58(), owner.toBase58(), owner.toBase58()));
-            } catch (RpcException e) {
-                e.printStackTrace();
-            }
-        }
+//        for (int i = 0; i < 5; i++) {
+//            try {
+//                PublicKey sortedMarketMaker = sortedMarketMakers.get(i);
+//                byte[] bytes = Base64.getDecoder().decode(client.getApi().getAccountInfo(sortedMarketMaker).getValue().getData().get(0));
+//                PublicKey owner = PublicKey.readPubkey(bytes, 45);
+//                eventQueue.getTopTraders().add(owner);
+//                LOGGER.info(String.format("Rank #%d Market Maker = %s, Owner = %s (https://explorer.solana.com/address/%s)", i + 1, sortedMarketMaker.toBase58(), owner.toBase58(), owner.toBase58()));
+//            } catch (RpcException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
 //        counter.entrySet().stream()
 //                .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
