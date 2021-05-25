@@ -65,16 +65,26 @@ public class EventQueue {
     private List<PublicKey> topTraders = new ArrayList<>();
     private List<PublicKey> openOrdersAccounts = new ArrayList<>();
 
+    private long baseLotSize;
+    private long quoteLotSize;
+    private byte baseDecimals;
+    private byte quoteDecimals;
+
     /**
      * Returns an {@link EventQueue} object which is built from binary data.
      *
      * @param eventQueueData binary data
      * @return built {@link EventQueue} object
      */
-    public static EventQueue readEventQueue(byte[] eventQueueData, RpcClient client) {
+    public static EventQueue readEventQueue(byte[] eventQueueData, byte baseDecimals, byte quoteDecimals, long baseLotSize, long quoteLotSize) {
         EventQueue eventQueue = new EventQueue();
         List<TradeEvent> events = new ArrayList<>();
         eventQueue.setEvents(events);
+
+        eventQueue.setBaseDecimals(baseDecimals);
+        eventQueue.setQuoteDecimals(quoteDecimals);
+        eventQueue.setBaseLotSize(baseLotSize);
+        eventQueue.setQuoteLotSize(quoteLotSize);
 
         // Verify that the "serum" padding exists
         SerumUtils.validateSerumData(eventQueueData);
@@ -113,10 +123,10 @@ public class EventQueue {
             byte feeTier = eventData[2];
 
             // blob = 3-7 - ignore
-            // Amount the user received
+            // Amount the user received (quantity)
             long nativeQuantityReleased = ByteUtils.readUint64(eventData, 8).longValue();
 
-            // Amount the user paid
+            // Amount the user paid (price)
             long nativeQuantityPaid = ByteUtils.readUint64(eventData, 16).longValue();
 
             long nativeFeeOrRebate = ByteUtils.readUint64(eventData, 24).longValue();
@@ -135,6 +145,25 @@ public class EventQueue {
                 tradeEvent.setNativeQuantityReleased(nativeQuantityReleased);
                 tradeEvent.setNativeFeeOrRebate(nativeFeeOrRebate);
                 tradeEvent.setClientOrderId(clientOrderId);
+
+                if (bid) {
+                    double priceBeforeFees = maker ? nativeQuantityPaid + nativeFeeOrRebate : nativeQuantityPaid - nativeFeeOrRebate;
+                    double top = priceBeforeFees * SerumUtils.getBaseSplTokenMultiplier(baseDecimals);
+                    double bottom = SerumUtils.getQuoteSplTokenMultiplier(quoteDecimals) * nativeQuantityReleased;
+                    float price = (float) (top / bottom);
+
+                    tradeEvent.setFloatPrice(price);
+                    tradeEvent.setFloatQuantity((float) (nativeQuantityReleased / SerumUtils.getBaseSplTokenMultiplier(baseDecimals)));
+
+                } else {
+                    double priceBeforeFees = maker ? nativeQuantityReleased - nativeFeeOrRebate : nativeQuantityReleased + nativeFeeOrRebate;
+                    double top = priceBeforeFees * SerumUtils.getBaseSplTokenMultiplier(baseDecimals);
+                    double bottom = SerumUtils.getQuoteSplTokenMultiplier(quoteDecimals) * nativeQuantityPaid;
+                    float price = (float) (top / bottom);
+
+                    tradeEvent.setFloatPrice(price);
+                    tradeEvent.setFloatQuantity((float) (nativeQuantityPaid / SerumUtils.getBaseSplTokenMultiplier(baseDecimals)));
+                }
 
                 eventQueue.getEvents().add(tradeEvent);
             }
@@ -240,5 +269,37 @@ public class EventQueue {
 
     public void setOpenOrdersAccounts(List<PublicKey> openOrdersAccounts) {
         this.openOrdersAccounts = openOrdersAccounts;
+    }
+
+    public long getBaseLotSize() {
+        return baseLotSize;
+    }
+
+    public void setBaseLotSize(long baseLotSize) {
+        this.baseLotSize = baseLotSize;
+    }
+
+    public long getQuoteLotSize() {
+        return quoteLotSize;
+    }
+
+    public void setQuoteLotSize(long quoteLotSize) {
+        this.quoteLotSize = quoteLotSize;
+    }
+
+    public byte getBaseDecimals() {
+        return baseDecimals;
+    }
+
+    public void setBaseDecimals(byte baseDecimals) {
+        this.baseDecimals = baseDecimals;
+    }
+
+    public byte getQuoteDecimals() {
+        return quoteDecimals;
+    }
+
+    public void setQuoteDecimals(byte quoteDecimals) {
+        this.quoteDecimals = quoteDecimals;
     }
 }

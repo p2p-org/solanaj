@@ -129,13 +129,39 @@ public class MarketBuilder {
             // retrieveEventQueue
             byte[] base64EventQueue = retrieveAccountData(market.getEventQueueKey());
 
-            try {
-                Files.write(Path.of("eventqueue.dat"), base64EventQueue);
-            } catch (IOException e) {
-                e.printStackTrace();
+//            try {
+//                Files.write(Path.of("eventqueue.dat"), base64EventQueue);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+            // first, check the cache for the byte. otherwise, make a request for it
+            // TODO - unduplicate this code
+            byte baseDecimals;
+            byte quoteDecimals;
+
+            if (decimalsCache.containsKey(market.getBaseMint())) {
+                LOGGER.info("Using cache to get decimal for " + market.getBaseMint().toBase58());
+                baseDecimals = decimalsCache.get(market.getBaseMint());
+            } else {
+                LOGGER.info("Looking up mint for " + market.getBaseMint().toBase58());
+                baseDecimals = getMintDecimals(market.getBaseMint());
+                decimalsCache.put(market.getBaseMint(), baseDecimals);
             }
 
-            EventQueue eventQueue = EventQueue.readEventQueue(base64EventQueue, client);
+            if (decimalsCache.containsKey(market.getQuoteMint())) {
+                LOGGER.info("Using cache to get decimal for " + market.getQuoteMint().toBase58());
+                quoteDecimals = decimalsCache.get(market.getQuoteMint());
+            } else {
+                LOGGER.info("Looking up mint for " + market.getQuoteMint().toBase58());
+                quoteDecimals = getMintDecimals(market.getQuoteMint());
+                decimalsCache.put(market.getQuoteMint(), quoteDecimals);
+            }
+
+            long baseLotSize = market.getBaseLotSize();
+            long quoteLotSize = market.getQuoteLotSize();
+
+            EventQueue eventQueue = EventQueue.readEventQueue(base64EventQueue, baseDecimals, quoteDecimals, baseLotSize, quoteLotSize);
             market.setEventQueue(eventQueue);
         }
 

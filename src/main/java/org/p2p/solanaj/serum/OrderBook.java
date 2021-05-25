@@ -57,8 +57,8 @@ public class OrderBook {
                                 slabLeafNode.getPrice(),
                                 slabLeafNode.getQuantity(),
                                 slabLeafNode.getClientOrderId(),
-                                priceLotsToNumber(slabLeafNode.getPrice()),
-                                (float) ((slabLeafNode.getQuantity() * baseLotSize) / getBaseSplTokenMultiplier()),
+                                SerumUtils.priceLotsToNumber(slabLeafNode.getPrice(), baseDecimals, quoteDecimals, baseLotSize, quoteLotSize),
+                                (float) ((slabLeafNode.getQuantity() * baseLotSize) / SerumUtils.getBaseSplTokenMultiplier(baseDecimals)),
                                 slabLeafNode.getOwner()
                         )
                 );
@@ -118,12 +118,6 @@ public class OrderBook {
         return quoteDecimals;
     }
 
-    private float priceLotsToNumber(long price) {
-        double top = (price * quoteLotSize * getBaseSplTokenMultiplier());
-        double bottom = (baseLotSize * getQuoteSplTokenMultiplier());
-
-        return (float) (top / bottom);
-    }
 
     public void setBaseLotSize(long baseLotSize) {
         this.baseLotSize = baseLotSize;
@@ -141,11 +135,4 @@ public class OrderBook {
         return quoteLotSize;
     }
 
-    public double getBaseSplTokenMultiplier() {
-        return Math.pow(10, baseDecimals);
-    }
-
-    public double getQuoteSplTokenMultiplier() {
-        return Math.pow(10, quoteDecimals);
-    }
 }

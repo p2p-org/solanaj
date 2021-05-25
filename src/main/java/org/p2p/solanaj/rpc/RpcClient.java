@@ -23,7 +23,7 @@ public class RpcClient {
     private String endpoint;
 
     private OkHttpClient httpClient = new OkHttpClient.Builder()
-            .addInterceptor(new LoggingInterceptor())
+            //.addInterceptor(new LoggingInterceptor())
             .build();
 
     private RpcApi rpcApi;

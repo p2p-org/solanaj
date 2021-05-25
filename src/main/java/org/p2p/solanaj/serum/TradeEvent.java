@@ -16,6 +16,9 @@ public class TradeEvent {
     private long nativeFeeOrRebate;
     private long clientOrderId;
 
+    private float floatPrice;
+    private float floatQuantity;
+
 
 
     public TradeEvent() {
@@ -101,6 +104,22 @@ public class TradeEvent {
         this.clientOrderId = clientOrderId;
     }
 
+    public float getFloatPrice() {
+        return floatPrice;
+    }
+
+    public void setFloatPrice(float floatPrice) {
+        this.floatPrice = floatPrice;
+    }
+
+    public float getFloatQuantity() {
+        return floatQuantity;
+    }
+
+    public void setFloatQuantity(float floatQuantity) {
+        this.floatQuantity = floatQuantity;
+    }
+
     @Override
     public String toString() {
         return "TradeEvent{" +
@@ -113,6 +132,8 @@ public class TradeEvent {
                 ", nativeQuantityReleased=" + nativeQuantityReleased +
                 ", nativeFeeOrRebate=" + nativeFeeOrRebate +
                 ", clientOrderId=" + clientOrderId +
+                ", floatPrice=" + floatPrice +
+                ", floatQuantity=" + floatQuantity +
                 '}';
     }
 }
