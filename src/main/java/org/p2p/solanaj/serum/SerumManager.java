@@ -19,15 +19,17 @@ public class SerumManager {
         this.client = client;
     }
 
-
     /**
      * Places order at the specified {@link Market} with the given {@link Order}
+     *
+     * TODO: Currently, an open orders account is required to already exist for the given market. fix this.
+     *
      * @param account Solana account to pay for the order
      * @param market Market to trade on
      * @param order Buy or sell order with quantity and price
      * @return true if the order succeeded
      */
-    public String placeOrder(Account account, Account openOrders, Market market, Order order) {
+    public String placeOrder(Account account, Market market, Order order) {
         /*
           Placing orders: A user funds an intermediary account (their OpenOrders account) from their SPL token
           account (wallet) and adds an order placement request to the Request Queue
@@ -38,8 +40,9 @@ public class SerumManager {
 
         // Create payer account
         final Account payerAccount = new Account();
+        final PublicKey openOrders = SerumUtils.findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
 
-        // 0.1 SOL
+        // 0.11 SOL
         long lamports = 110000000L;
         long space = 165L;
 
@@ -55,13 +58,12 @@ public class SerumManager {
         transaction.addInstruction(
                 TokenProgram.initializeAccount(
                         payerAccount.getPublicKey(),
-                        new PublicKey("So11111111111111111111111111111111111111112"),
+                        SerumUtils.WRAPPED_SOL_MINT,
                         account.getPublicKey()
                 )
         );
         transaction.addInstruction(
                 SerumProgram.placeOrder(
-                        client,
                         account,
                         payerAccount,
                         openOrders,
@@ -74,9 +76,8 @@ public class SerumManager {
 
         String result = null;
         try {
-            //result = client.getApi().sendTransaction(transaction, account);
             result = client.getApi().sendTransaction(transaction, signers, null);
-            LOGGER.info("Result = " + result);
+            LOGGER.info("placeOrder Signature = " + result);
         } catch (RpcException e) {
             e.printStackTrace();
         }

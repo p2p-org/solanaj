@@ -47,12 +47,18 @@ public class OrderTest {
         // Get Open Orders account for market - Hardcode this for the test's account - take from explorer
         final Account openOrders = new Account();
 
+        final Order order = new Order(1337000L, 1L, 1, 0.0f, 0.0f, null);
+        order.setMaxQuoteQuantity(1337000000L);
+        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+        order.setClientId(0L);
+        order.setBuy(false);
+
         // Place order
         String transactionId = serumManager.placeOrder(
                 account,
-                openOrders,
                 solUsdcMarket,
-                new Order(1, 1, 1, 0.0f, 0.0f, null)
+                order
         );
 
         // Verify we got a txId

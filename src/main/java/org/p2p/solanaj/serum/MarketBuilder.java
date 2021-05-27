@@ -30,9 +30,6 @@ public class MarketBuilder {
 
     private Map<PublicKey, Byte> decimalsCache = new ConcurrentHashMap<>();
 
-    // TODO move all publickey consts to it's own static class
-    private static final PublicKey WRAPPED_SOL_MINT = new PublicKey("So11111111111111111111111111111111111111112");
-
     public MarketBuilder setRetrieveOrderBooks(boolean retrieveOrderbooks) {
         this.retrieveOrderbooks = retrieveOrderbooks;
         return this;
@@ -175,7 +172,7 @@ public class MarketBuilder {
      * @return
      */
     private byte getMintDecimals(PublicKey tokenMint) {
-        if (tokenMint.equals(WRAPPED_SOL_MINT)) {
+        if (tokenMint.equals(SerumUtils.WRAPPED_SOL_MINT)) {
             return 9;
         }
 

@@ -14,6 +14,13 @@ public class Order {
     private float floatQuantity;
     private PublicKey owner;
 
+    // used in newOrderv3. no constructor, only setters/getters
+    private long maxQuoteQuantity;
+    private long clientId;
+    private OrderTypeLayout orderTypeLayout;
+    private SelfTradeBehaviorLayout selfTradeBehaviorLayout;
+    private boolean buy;
+
     public Order(long price, long quantity, long clientOrderId, float floatPrice, float floatQuantity, PublicKey owner) {
         this.price = price;
         this.quantity = quantity;
@@ -71,6 +78,46 @@ public class Order {
         this.owner = owner;
     }
 
+    public long getMaxQuoteQuantity() {
+        return maxQuoteQuantity;
+    }
+
+    public void setMaxQuoteQuantity(long maxQuoteQuantity) {
+        this.maxQuoteQuantity = maxQuoteQuantity;
+    }
+
+    public long getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(long clientId) {
+        this.clientId = clientId;
+    }
+
+    public OrderTypeLayout getOrderTypeLayout() {
+        return orderTypeLayout;
+    }
+
+    public void setOrderTypeLayout(OrderTypeLayout orderTypeLayout) {
+        this.orderTypeLayout = orderTypeLayout;
+    }
+
+    public SelfTradeBehaviorLayout getSelfTradeBehaviorLayout() {
+        return selfTradeBehaviorLayout;
+    }
+
+    public void setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout selfTradeBehaviorLayout) {
+        this.selfTradeBehaviorLayout = selfTradeBehaviorLayout;
+    }
+
+    public boolean isBuy() {
+        return buy;
+    }
+
+    public void setBuy(boolean buy) {
+        this.buy = buy;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
@@ -80,6 +127,11 @@ public class Order {
                 ", floatPrice=" + floatPrice +
                 ", floatQuantity=" + floatQuantity +
                 ", owner=" + owner +
+                ", maxQuoteQuantity=" + maxQuoteQuantity +
+                ", clientId=" + clientId +
+                ", orderTypeLayout=" + orderTypeLayout +
+                ", selfTradeBehaviorLayout=" + selfTradeBehaviorLayout +
+                ", buy=" + buy +
                 '}';
     }
 }

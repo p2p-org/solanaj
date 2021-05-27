@@ -4,10 +4,6 @@ import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.AccountMeta;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
-import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.rpc.RpcException;
-import org.p2p.solanaj.rpc.types.ConfigObjects;
-import org.p2p.solanaj.rpc.types.ProgramAccount;
 import org.p2p.solanaj.serum.*;
 import org.p2p.solanaj.utils.ByteUtils;
 
@@ -15,30 +11,20 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static org.p2p.solanaj.serum.SerumUtils.OWN_ADDRESS_OFFSET;
-
 /**
- * Class for creating Serum v3v {@link TransactionInstruction}s
+ * Class for creating Serum v3 {@link TransactionInstruction}s
  */
 public class SerumProgram extends Program {
 
+
+    private static final Logger LOGGER = Logger.getLogger(SerumProgram.class.getName());
     private static final PublicKey TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
     private static final PublicKey SYSVAR_RENT_PUBKEY = new PublicKey("SysvarRent111111111111111111111111111111111");
-    private static final PublicKey SERUM_PROGRAM_ID_V3 = new PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
-
 
     public static TransactionInstruction consumeEvents(List<PublicKey> openOrdersAccounts, Account payerAccount, Market market) {
-        // Add signer to AccountMeta keys
-
-        // openOrders Pubkeys
-        // market Pubkey
-        // eventQueue Pubkey
-        //List<PublicKey> openOrdersPubkeys = findOpenOrdersAccounts(client, market.getOwnAddress());
-
-        // convert to account metas
-
         List<AccountMeta> accountMetas = new ArrayList<>();
 
         // 0 fee payer + signer => your account
@@ -63,7 +49,7 @@ public class SerumProgram extends Program {
         );
 
         return createTransactionInstruction(
-                SERUM_PROGRAM_ID_V3,
+                SerumUtils.SERUM_PROGRAM_ID_V3,
                 accountMetas,
                 transactionData
         );
@@ -79,7 +65,7 @@ public class SerumProgram extends Program {
         return result.array();
     }
 
-    public static TransactionInstruction placeOrder(RpcClient client, Account account, Account payer, Account openOrders, Market market, Order order) {
+    public static TransactionInstruction placeOrder(Account account, Account payer, PublicKey openOrders, Market market, Order order) {
         /*
         See: https://github.com/project-serum/serum-ts/blob/e51e3d9af0ab7026155b76a1824cea6507fc7ef7/packages/serum/src/instructions.js#L118
         */
@@ -113,62 +99,40 @@ public class SerumProgram extends Program {
 
         // pubkey: market
         final AccountMeta marketKey = new AccountMeta(market.getOwnAddress(), false, true);
-        System.out.println("marketKey = " + marketKey.getPublicKey().toBase58());
 
-        // pubkey: openOrders (+ findOpenOrdersAccountForOwner)
-        final PublicKey openOrdersAccount = findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
-
-        // if null, create open orders account
-        if (openOrdersAccount == null) {
-            // TODO - create openOrders account
-            final Account newOpenOrders = new Account();
-        }
-
-        final AccountMeta openOrdersKey = new AccountMeta(openOrdersAccount, false, true);
-
-        // temp: use passed-in open orders account instead of trying to find it (for now, proof of concept stage)
-        System.out.println("openOrdersKey = " + openOrdersKey.getPublicKey().toBase58());
+        // openOrders account retrieval/creation should be done in the manager
+        final AccountMeta openOrdersKey = new AccountMeta(openOrders, false, true);
 
         // pubkey: requestQueue
         final AccountMeta requestQueueKey = new AccountMeta(market.getRequestQueue(), false, true);
-        System.out.println("requestQueueKey = " + requestQueueKey.getPublicKey().toBase58());
 
         // pubkey: eventQueue
         final AccountMeta eventQueueKey = new AccountMeta(market.getEventQueueKey(), false, true);
-        System.out.println("eventQueueKey = " + eventQueueKey.getPublicKey().toBase58());
 
         // pubkey: bids
         final AccountMeta bidsKey = new AccountMeta(market.getBids(), false, true);
-        System.out.println("bidsKey = " + bidsKey.getPublicKey().toBase58());
 
         // pubkey: asks
         final AccountMeta asksKey = new AccountMeta(market.getAsks(), false, true);
-        System.out.println("asksKey = " + asksKey.getPublicKey().toBase58());
 
         // pubkey: payer
         // TODO - fix this to create a new account each time - and has an initialize instruction after the createaccount instruction
         final AccountMeta payerKey = new AccountMeta(payer.getPublicKey(), true, true);
-        System.out.println("payerKey = " + payer.getPublicKey().toBase58());
 
         // pubkey: owner
         final AccountMeta ownerKey = new AccountMeta(account.getPublicKey(), true, false);
-        System.out.println("ownerKey = " + ownerKey.getPublicKey().toBase58());
 
         // pubkey: baseVault
         final AccountMeta baseVaultKey = new AccountMeta(market.getBaseVault(), false, true);
-        System.out.println("baseVaultKey = " + baseVaultKey.getPublicKey().toBase58());
 
         // pubkey: quoteVault
         final AccountMeta quoteVaultKey = new AccountMeta(market.getQuoteVault(), false, true);
-        System.out.println("quoteVaultKey = " + quoteVaultKey.getPublicKey().toBase58());
 
         // pubkey: TOKEN_PROGRAM_ID
         final AccountMeta tokenProgramIdKey = new AccountMeta(TOKEN_PROGRAM_ID, false, false);
-        System.out.println("tokenProgramIdKey = " + tokenProgramIdKey.getPublicKey().toBase58());
 
         // pubkey: SYSVAR_RENT_PUBKEY
         final AccountMeta sysvarRentKey = new AccountMeta(SYSVAR_RENT_PUBKEY, false, false);
-        System.out.println("sysvarRentKey = " + sysvarRentKey.getPublicKey().toBase58());
 
         final List<AccountMeta> keys = List.of(
                 marketKey,
@@ -186,33 +150,15 @@ public class SerumProgram extends Program {
         );
 
         byte[] transactionData =  buildNewOrderv3InstructionData(
-                null
-        ); // TODO
+                order
+        );
 
-        /*
-        return new TransactionInstruction({
-        keys,
-        programId,
-        data: encodeInstruction({
-            newOrderV3: {
-            side,
-                limitPrice,
-                maxBaseQuantity,
-                maxQuoteQuantity,
-                selfTradeBehavior,
-                orderType,
-                clientId,
-                limit: 65535,
-            },
-        }),
-        */
-
-        return createTransactionInstruction(SERUM_PROGRAM_ID_V3, keys, transactionData);
+        return createTransactionInstruction(SerumUtils.SERUM_PROGRAM_ID_V3, keys, transactionData);
     }
 
     // Using some constant data for testing at the moment
     // Going to be testing a Post-Only sell order of 1 SOL at the SOL/USDC market
-    public static byte[] buildNewOrderv3InstructionData(byte[] instruction) {
+    public static byte[] buildNewOrderv3InstructionData(Order order) {
         ByteBuffer result = ByteBuffer.allocate(51);
         result.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -220,119 +166,33 @@ public class SerumProgram extends Program {
         SerumUtils.writeNewOrderStructLayout(result);
 
         // Order side (buy/sell) - enum
-        SerumUtils.writeSideLayout(result, SideLayout.SELL);
+        SerumUtils.writeSideLayout(result, order.isBuy() ? SideLayout.BUY : SideLayout.SELL);
 
         // Limit price - uint64
-        SerumUtils.writeLimitPrice(result, 1337000L);
+        SerumUtils.writeLimitPrice(result, order.getPrice());
 
         // maxBaseQuantity - uint64 (for some reason 0.1 sol = 1L)
-        SerumUtils.writeMaxBaseQuantity(result, 1L);
+        SerumUtils.writeMaxBaseQuantity(result, order.getQuantity());
 
         // maxQuoteQuantity - uint64
-        SerumUtils.writeMaxQuoteQuantity(result, 1337000000L);
+        SerumUtils.writeMaxQuoteQuantity(result, order.getMaxQuoteQuantity());
 
         // selfTradeBehaviorLayout - selfTradeBehaviorLayout (serum-ts) - 4 bytes for a 1 byte enum
-        SerumUtils.writeSelfTradeBehavior(result, SelfTradeBehaviorLayout.DECREMENT_TAKE);
+        SerumUtils.writeSelfTradeBehavior(result, order.getSelfTradeBehaviorLayout());
 
         // orderType - orderTypeLayout (enum)
-        SerumUtils.writeOrderType(result, OrderTypeLayout.POST_ONLY);
+        SerumUtils.writeOrderType(result, order.getOrderTypeLayout());
 
         // clientId - uint64
-        SerumUtils.writeClientId(result, 0L);
+        SerumUtils.writeClientId(result, order.getClientId());
 
         // "limit" - uint16 - might always be static equal to 65535
         SerumUtils.writeLimit(result);
 
         byte[] arrayResult = result.array();
-        System.out.println("newOrderv3 instruction hex = " + ByteUtils.bytesToHex(arrayResult));
+        LOGGER.info("newOrderV3 instruction hex = " + ByteUtils.bytesToHex(arrayResult));
 
         return arrayResult;
-    }
-
-    private static PublicKey findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress) {
-        /*
-        const filters = [
-          {
-            memcmp: {
-              offset: this.getLayout(programId).offsetOf('market'),
-              bytes: marketAddress.toBase58(),
-            },
-          },
-          {
-            memcmp: {
-              offset: this.getLayout(programId).offsetOf('owner'),
-              bytes: ownerAddress.toBase58(),
-            },
-          },
-          {
-            dataSize: this.getLayout(programId).span,
-          },
-        ];
-        const accounts = await getFilteredProgramAccounts(
-          connection,
-          programId,
-          filters,
-        );
-        return accounts.map(({ publicKey, accountInfo }) =>
-          OpenOrders.fromAccountInfo(publicKey, accountInfo, programId),
-        );
-         */
-
-        // TODO - handle dataSize filter - can ignore for now as it is super negligible. actually it's not
-        int dataSize = 3228;
-
-        List<ProgramAccount> programAccounts = null;
-
-        ConfigObjects.Memcmp marketFilter = new ConfigObjects.Memcmp(OWN_ADDRESS_OFFSET, marketAddress.toBase58());
-        ConfigObjects.Memcmp ownerFilter = new ConfigObjects.Memcmp(45, ownerAddress.toBase58()); // TODO remove magic number
-
-        List<ConfigObjects.Memcmp> memcmpList = List.of(marketFilter, ownerFilter);
-
-        try {
-            programAccounts = client.getApi().getProgramAccounts(SERUM_PROGRAM_ID_V3, memcmpList, dataSize);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("findOpenOrdersAccountForOwner:");
-        if (programAccounts != null) {
-            programAccounts.forEach(programAccount -> {
-                System.out.println("Account = " + programAccount.getAccount().getData());
-                System.out.println("Pubkey = " + programAccount.getPubkey());
-            });
-        }
-
-        // TODO - handle failed lookup more cleaner than null
-        String base58Pubkey = null;
-        if (programAccounts != null) {
-            base58Pubkey = programAccounts.stream().map(ProgramAccount::getPubkey).findFirst().orElse(null);
-        }
-
-        if (base58Pubkey == null) {
-            return null;
-        }
-
-        return new PublicKey(base58Pubkey);
-    }
-
-    private static List<PublicKey> findOpenOrdersAccounts(RpcClient client, PublicKey marketAddress) {
-        int dataSize = 3228;
-
-        List<ProgramAccount> programAccounts = null;
-        ConfigObjects.Memcmp marketFilter = new ConfigObjects.Memcmp(OWN_ADDRESS_OFFSET, marketAddress.toBase58());
-        List<ConfigObjects.Memcmp> memcmpList = List.of(marketFilter);
-
-        try {
-            programAccounts = client.getApi().getProgramAccounts(SERUM_PROGRAM_ID_V3, memcmpList, dataSize);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-
-        List<PublicKey> results = programAccounts.stream()
-                .map(programAccount -> new PublicKey(programAccount.getPubkey()))
-                .collect(Collectors.toList());
-
-        return results;
     }
 
 }

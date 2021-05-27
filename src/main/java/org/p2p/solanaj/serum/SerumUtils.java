@@ -2,8 +2,13 @@ package org.p2p.solanaj.serum;
 
 import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
+import org.p2p.solanaj.rpc.RpcClient;
+import org.p2p.solanaj.rpc.RpcException;
+import org.p2p.solanaj.rpc.types.ConfigObjects;
+import org.p2p.solanaj.rpc.types.ProgramAccount;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -69,6 +74,9 @@ public class SerumUtils {
 
     // Token mint
     private static final int TOKEN_MINT_DECIMALS_OFFSET = 44;
+
+    public static final PublicKey SERUM_PROGRAM_ID_V3 = new PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
+    public static final PublicKey WRAPPED_SOL_MINT = new PublicKey("So11111111111111111111111111111111111111112");
 
     public static PublicKey readOwnAddressPubkey(byte[] bytes) {
         return PublicKey.readPubkey(bytes, OWN_ADDRESS_OFFSET);
@@ -249,5 +257,34 @@ public class SerumUtils {
         return (float) (top / baseLotSize);
 
 
+    }
+
+    public static PublicKey findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress) {
+        int dataSize = 3228;
+
+        List<ProgramAccount> programAccounts = null;
+
+        ConfigObjects.Memcmp marketFilter = new ConfigObjects.Memcmp(OWN_ADDRESS_OFFSET, marketAddress.toBase58());
+        ConfigObjects.Memcmp ownerFilter = new ConfigObjects.Memcmp(45, ownerAddress.toBase58()); // TODO remove magic number
+
+        List<ConfigObjects.Memcmp> memcmpList = List.of(marketFilter, ownerFilter);
+
+        try {
+            programAccounts = client.getApi().getProgramAccounts(SERUM_PROGRAM_ID_V3, memcmpList, dataSize);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        // TODO - handle failed lookup more cleaner than null
+        String base58Pubkey = null;
+        if (programAccounts != null) {
+            base58Pubkey = programAccounts.stream().map(ProgramAccount::getPubkey).findFirst().orElse(null);
+        }
+
+        if (base58Pubkey == null) {
+            return null;
+        }
+
+        return new PublicKey(base58Pubkey);
     }
 }
