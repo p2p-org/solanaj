@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.p2p.solanaj.core.AccountBasedTest;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.naming.NamingManager;
+import org.p2p.solanaj.rpc.Cluster;
+import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 
 import java.io.IOException;
@@ -17,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 public class NamingServiceProgramTest extends AccountBasedTest {
 
-    private final NamingManager namingManager = new NamingManager();
+    private final NamingManager namingManager = new NamingManager(new RpcClient(Cluster.MAINNET));
     private final PublicKey publicKey = testAccount.getPublicKey();
     private static final String DOMAIN_NAME = ".sol";  // testdomainname.sol
     private final PublicKey skynetMainnetPubkey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");

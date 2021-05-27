@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 public class NamingManager {
 
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
+    private final RpcClient client;
     private static final Logger LOGGER = Logger.getLogger(NamingManager.class.getName());
     private static final long DATA_LENGTH = 1000L;
     private static final String HASH_PREFIX = "SPL Name Service";
@@ -37,6 +37,10 @@ public class NamingManager {
     private static final int TWITTER_HANDLE_START_OFFSET = 96;
     private static final PublicKey TWITTER_VERIFICATION_AUTHORITY = new PublicKey("867BLob5b52i81SNaV9Awm5ejkZV6VGSv9SxLcwukDDJ");
     private static final PublicKey TWITTER_ROOT_PARENT_REGISTRY_KEY = new PublicKey("AFrGkxNmVLBn3mKhvfJJABvm8RJkTtRhHDoaF97pQZaA");
+
+    public NamingManager(final RpcClient client) {
+        this.client = client;
+    }
 
     /**
      * Creates a .sol domain name with the specified name and payer.
