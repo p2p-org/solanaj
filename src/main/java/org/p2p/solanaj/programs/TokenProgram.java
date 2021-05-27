@@ -68,14 +68,15 @@ public class TokenProgram extends Program {
 
     public static TransactionInstruction initializeAccount(final PublicKey account, final PublicKey mint, final PublicKey owner) {
         final List<AccountMeta> keys = new ArrayList<>();
-        ByteBuffer buffer = ByteBuffer.allocate(1);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.put((byte) INITIALIZE_METHOD_ID);
 
         keys.add(new AccountMeta(account,false, true));
         keys.add(new AccountMeta(mint, false, false));
         keys.add(new AccountMeta(owner,false, true));
         keys.add(new AccountMeta(SYSVAR_RENT_PUBKEY,false, false));
+
+        ByteBuffer buffer = ByteBuffer.allocate(1);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer.put((byte) INITIALIZE_METHOD_ID);
 
         return createTransactionInstruction(
                 PROGRAM_ID,

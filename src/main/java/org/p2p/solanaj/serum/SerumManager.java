@@ -4,7 +4,6 @@ import org.p2p.solanaj.core.*;
 import org.p2p.solanaj.programs.SerumProgram;
 import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.programs.TokenProgram;
-import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 
@@ -14,7 +13,12 @@ import java.util.logging.Logger;
 public class SerumManager {
 
     private static final Logger LOGGER = Logger.getLogger(SerumManager.class.getName());
-    private final RpcClient client = new RpcClient("https://solana-api.projectserum.com");
+    private final RpcClient client;
+
+    public SerumManager(final RpcClient client) {
+        this.client = client;
+    }
+
 
     /**
      * Places order at the specified {@link Market} with the given {@link Order}
@@ -34,9 +38,6 @@ public class SerumManager {
 
         // Create payer account
         final Account payerAccount = new Account();
-
-        // Call Create Account with Token Program as the assign owner... or whatnot
-        final Transaction createAccountTransaction = new Transaction();
 
         // 0.1 SOL
         long lamports = 110000000L;

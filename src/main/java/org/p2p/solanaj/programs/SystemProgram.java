@@ -1,14 +1,10 @@
 package org.p2p.solanaj.programs;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 import org.p2p.solanaj.core.PublicKey;
-import org.p2p.solanaj.core.Sysvar;
 import org.p2p.solanaj.core.TransactionInstruction;
 import org.p2p.solanaj.core.AccountMeta;
-import org.p2p.solanaj.utils.ByteUtils;
 
 import static org.bitcoinj.core.Utils.*;
 
@@ -16,7 +12,6 @@ public class SystemProgram extends Program {
     public static final PublicKey PROGRAM_ID = new PublicKey("11111111111111111111111111111111");
 
     public static final int PROGRAM_INDEX_CREATE_ACCOUNT = 0;
-    public static final int PROGRAM_INDEX_INITIALIZE_ACCOUNT = 1;
     public static final int PROGRAM_INDEX_TRANSFER = 2;
 
     public static TransactionInstruction transfer(PublicKey fromPublicKey, PublicKey toPublickKey, long lamports) {
@@ -43,12 +38,6 @@ public class SystemProgram extends Program {
         int64ToByteArrayLE(lamports, data, 4);
         int64ToByteArrayLE(space, data, 12);
         System.arraycopy(programId.toByteArray(), 0, data, 20, 32);
-
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.putLong(4, lamports);
-
-        System.out.println("INSTRUCTION DATA = "   + ByteUtils.bytesToHex(data));
 
         return createTransactionInstruction(PROGRAM_ID, keys, data);
     }

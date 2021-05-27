@@ -8,9 +8,6 @@ import okhttp3.Response;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.List;
 
 import com.squareup.moshi.JsonAdapter;
@@ -53,7 +50,7 @@ public class RpcClient {
         try {
             Response response = httpClient.newCall(request).execute();
             final String result = response.body().string();
-            System.out.println("Response = " + result);
+            // System.out.println("Response = " + result);
             RpcResponse<T> rpcResult = resultAdapter.fromJson(result);
 
             if (rpcResult.getError() != null) {
@@ -62,9 +59,7 @@ public class RpcClient {
 
             return (T) rpcResult.getResult();
         } catch (SSLHandshakeException e) {
-            System.out.println("SSL handshake exception from SolanaJ - rebuilding client");
             this.httpClient = new OkHttpClient.Builder().build();
-            System.out.println("BUILT NEW OK HTTP client");
             throw new RpcException(e.getMessage());
         } catch (IOException e) {
             throw new RpcException(e.getMessage());

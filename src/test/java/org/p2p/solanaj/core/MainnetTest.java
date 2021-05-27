@@ -26,7 +26,7 @@ public class MainnetTest extends AccountBasedTest {
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
     private final PublicKey publicKey = solDestination;
     public final TokenManager tokenManager = new TokenManager();
-    private final SerumManager serumManager = new SerumManager();
+    private final SerumManager serumManager = new SerumManager(client);
 
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 
