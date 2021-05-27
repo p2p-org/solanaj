@@ -182,18 +182,18 @@ public class EventQueue {
             eventQueue.getOpenOrdersAccounts().add(PublicKey.valueOf(publicKey));
         }
 
-        Map<String, Integer> counter = new HashMap<>();
-
-        publicKeys.forEach(publicKey -> {
-            int value = counter.getOrDefault(publicKey, 0) + 1;
-            counter.put(publicKey, value);
-        });
-
-        final List<PublicKey> sortedMarketMakers = counter.entrySet().stream()
-                .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
-                .map(stringIntegerEntry -> new PublicKey(stringIntegerEntry.getKey())).distinct().collect(Collectors.toList());
-
-        eventQueue.getTopTraders().clear();
+//        Map<String, Integer> counter = new HashMap<>();
+//
+//        publicKeys.forEach(publicKey -> {
+//            int value = counter.getOrDefault(publicKey, 0) + 1;
+//            counter.put(publicKey, value);
+//        });
+//
+//        final List<PublicKey> sortedMarketMakers = counter.entrySet().stream()
+//                .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
+//                .map(stringIntegerEntry -> new PublicKey(stringIntegerEntry.getKey())).distinct().collect(Collectors.toList());
+//
+//        eventQueue.getTopTraders().clear();
 
 //        for (int i = 0; i < 5; i++) {
 //            try {

@@ -24,45 +24,8 @@ import javax.net.ssl.*;
 
 public class RpcClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
     private String endpoint;
-
     private OkHttpClient httpClient;
-
-    {
-        final TrustManager[] trustAllCerts = new TrustManager[] {
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return new java.security.cert.X509Certificate[]{};
-                    }
-                }
-        };
-
-        SSLContext sslContext = null;
-        try {
-            sslContext = SSLContext.getInstance("SSL");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            e.printStackTrace();
-        }
-
-        final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        this.httpClient = new OkHttpClient.Builder()
-                .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
-                .hostnameVerifier((hostname, session) -> true)
-                //.addInterceptor(new LoggingInterceptor())
-                .build();
-    }
-
     private RpcApi rpcApi;
 
     public RpcClient(Cluster endpoint) {
@@ -71,7 +34,9 @@ public class RpcClient {
 
     public RpcClient(String endpoint) {
         this.endpoint = endpoint;
-        this.httpClient.sslSocketFactory();
+        this.httpClient = new OkHttpClient.Builder()
+                //.addInterceptor(new LoggingInterceptor())
+                .build();
         rpcApi = new RpcApi(this);
     }
 
@@ -96,6 +61,11 @@ public class RpcClient {
             }
 
             return (T) rpcResult.getResult();
+        } catch (SSLHandshakeException e) {
+            System.out.println("SSL handshake exception from SolanaJ - rebuilding client");
+            this.httpClient = new OkHttpClient.Builder().build();
+            System.out.println("BUILT NEW OK HTTP client");
+            throw new RpcException(e.getMessage());
         } catch (IOException e) {
             throw new RpcException(e.getMessage());
         }
