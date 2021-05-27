@@ -76,6 +76,7 @@ public class EventQueue {
      * @param eventQueueData binary data
      * @return built {@link EventQueue} object
      */
+    @SuppressWarnings("DuplicatedCode")
     public static EventQueue readEventQueue(byte[] eventQueueData, byte baseDecimals, byte quoteDecimals, long baseLotSize, long quoteLotSize) {
         EventQueue eventQueue = new EventQueue();
         List<TradeEvent> events = new ArrayList<>();

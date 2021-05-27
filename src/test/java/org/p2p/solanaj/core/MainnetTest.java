@@ -210,7 +210,7 @@ public class MainnetTest extends AccountBasedTest {
      */
     @Test
     public void marketBuilderEventQueueTest() {
-        final PublicKey solUsdcPublicKey = new PublicKey("GJWnwZJ599xjf7cRPP93aaVKqD5xUG5PBLNypHgPxitF");
+        final PublicKey solUsdcPublicKey = new PublicKey("2Pbh1CvRVku1TgewMfycemghf6sU9EyuFDcNXqvRmSxc");
 
         final MarketBuilder solUsdcMarketBuilder = new MarketBuilder()
                 .setPublicKey(solUsdcPublicKey)
