@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -34,7 +33,7 @@ public class MainnetTest extends AccountBasedTest {
     public void getAccountInfoBase64() {
         try {
             // Get account Info
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(testAccount.getPublicKey());
+            final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"));
             final double balance = (double) accountInfo.getValue().getLamports()/ 100000000;
 
             // Account data list
@@ -52,7 +51,7 @@ public class MainnetTest extends AccountBasedTest {
     public void getAccountInfoBase58() {
         try {
             // Get account Info
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey, Map.of("encoding", "base58"));
+            final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"), Map.of("encoding", "base58"));
             final double balance = (double) accountInfo.getValue().getLamports()/ 100000000;
 
             // Account data list
@@ -70,7 +69,7 @@ public class MainnetTest extends AccountBasedTest {
     public void getAccountInfoRootCommitment() {
         try {
             // Get account Info
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(publicKey, Map.of("commitment", "root"));
+            final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"), Map.of("commitment", "root"));
             final double balance = (double) accountInfo.getValue().getLamports()/ 100000000;
 
             // Verify any balance

@@ -1,5 +1,6 @@
 package org.p2p.solanaj.core;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.programs.anchor.AnchorBasicTutorialProgram;
@@ -20,6 +21,7 @@ public class AnchorTest extends AccountBasedTest {
      * Also attaches a memo.
      */
     @Test
+    @Ignore
     public void basicInitializeTest() {
         final Account feePayer = testAccount;
 

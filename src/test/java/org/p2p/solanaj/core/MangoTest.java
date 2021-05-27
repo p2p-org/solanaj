@@ -1,6 +1,7 @@
 package org.p2p.solanaj.core;
 
 import org.bitcoinj.core.Utils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.mango.MarginAccount;
 import org.p2p.solanaj.rpc.Cluster;
@@ -23,6 +24,7 @@ public class MangoTest extends AccountBasedTest {
     private final RpcClient client = new RpcClient(Cluster.MAINNET);
 
     @Test
+    @Ignore
     public void mangoDepositsTest() {
         byte[] mangoData = new byte[0];
 

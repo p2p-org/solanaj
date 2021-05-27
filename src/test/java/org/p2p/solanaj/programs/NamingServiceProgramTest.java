@@ -36,6 +36,7 @@ public class NamingServiceProgramTest extends AccountBasedTest {
     }
 
     @Test
+    @Ignore
     public void retrieveNameFromRegistry() {
         // getAccountInfo
         AccountInfo testAccountInfo = namingManager.getAccountInfo(new PublicKey("BVk1qg1y9AJ3LkfWCpr8FkDXZZcu7muAyVgbTBDbqDwZ"));
