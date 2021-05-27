@@ -11,7 +11,7 @@ import org.p2p.solanaj.rpc.RpcException;
 
 public class TokenManager {
 
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
+    private final RpcClient client = new RpcClient(Cluster.TESTNET);
 
     public String transfer(final Account owner, final PublicKey source, final PublicKey destination, final PublicKey tokenMint, long amount) {
         final Transaction transaction = new Transaction();

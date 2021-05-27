@@ -20,7 +20,7 @@ public class OrderTest {
 
     private static final Logger LOGGER = Logger.getLogger(OrderTest.class.getName());
     private final SerumManager serumManager = new SerumManager();
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
+    private final RpcClient client = new RpcClient("https://solana-api.projectserum.com");
     private static final PublicKey SOL_USDC_MARKET_V3 = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
 
     @Test
@@ -57,6 +57,8 @@ public class OrderTest {
 
         // Verify we got a txId
         assertNotNull(transactionId);
+
+        LOGGER.info("Successfully placed offer for 0.1 SOL on SOL/USDC market.");
     }
 
     // TODO - fix this

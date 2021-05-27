@@ -14,6 +14,7 @@ public class TokenProgram extends Program {
     public static final PublicKey PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
     private static final PublicKey SYSVAR_RENT_PUBKEY = new PublicKey("SysvarRent111111111111111111111111111111111");
 
+    private static final int INITIALIZE_METHOD_ID = 1;
     private static final int TRANSFER_METHOD_ID = 3;
     private static final int TRANSFER_CHECKED_METHOD_ID = 12;
 
@@ -67,7 +68,9 @@ public class TokenProgram extends Program {
 
     public static TransactionInstruction initializeAccount(final PublicKey account, final PublicKey mint, final PublicKey owner) {
         final List<AccountMeta> keys = new ArrayList<>();
-        byte[] data = new byte[0];
+        ByteBuffer buffer = ByteBuffer.allocate(1);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer.put((byte) INITIALIZE_METHOD_ID);
 
         keys.add(new AccountMeta(account,false, true));
         keys.add(new AccountMeta(mint, false, false));
@@ -77,7 +80,7 @@ public class TokenProgram extends Program {
         return createTransactionInstruction(
                 PROGRAM_ID,
                 keys,
-                data
+                buffer.array()
         );
     }
 

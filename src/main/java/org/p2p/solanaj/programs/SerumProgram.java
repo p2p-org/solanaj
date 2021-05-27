@@ -223,9 +223,9 @@ public class SerumProgram extends Program {
         SerumUtils.writeSideLayout(result, SideLayout.SELL);
 
         // Limit price - uint64
-        SerumUtils.writeLimitPrice(result, 13370000L);
+        SerumUtils.writeLimitPrice(result, 1337000L);
 
-        // maxBaseQuantity - uint64
+        // maxBaseQuantity - uint64 (for some reason 0.1 sol = 1L)
         SerumUtils.writeMaxBaseQuantity(result, 1L);
 
         // maxQuoteQuantity - uint64

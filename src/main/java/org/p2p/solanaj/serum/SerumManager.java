@@ -2,6 +2,8 @@ package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.core.*;
 import org.p2p.solanaj.programs.SerumProgram;
+import org.p2p.solanaj.programs.SystemProgram;
+import org.p2p.solanaj.programs.TokenProgram;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
@@ -12,7 +14,7 @@ import java.util.logging.Logger;
 public class SerumManager {
 
     private static final Logger LOGGER = Logger.getLogger(SerumManager.class.getName());
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
+    private final RpcClient client = new RpcClient("https://solana-api.projectserum.com");
 
     /**
      * Places order at the specified {@link Market} with the given {@link Order}
@@ -33,12 +35,29 @@ public class SerumManager {
         // Create payer account
         final Account payerAccount = new Account();
 
-        // TODO - OpenOrders account
+        // Call Create Account with Token Program as the assign owner... or whatnot
+        final Transaction createAccountTransaction = new Transaction();
 
-        // TODO - createAccount Serum instruction
-        // TODO - initializeAccount Serum instruction
+        // 0.1 SOL
+        long lamports = 110000000L;
+        long space = 165L;
 
-        // PlaceOrder instruction
+        transaction.addInstruction(
+                SystemProgram.createAccount(
+                        account.getPublicKey(),
+                        payerAccount.getPublicKey(),
+                        lamports,
+                        space,
+                        TokenProgram.PROGRAM_ID
+                )
+        );
+        transaction.addInstruction(
+                TokenProgram.initializeAccount(
+                        payerAccount.getPublicKey(),
+                        new PublicKey("So11111111111111111111111111111111111111112"),
+                        account.getPublicKey()
+                )
+        );
         transaction.addInstruction(
                 SerumProgram.placeOrder(
                         client,
