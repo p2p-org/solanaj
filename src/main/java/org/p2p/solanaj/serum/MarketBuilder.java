@@ -1,14 +1,10 @@
 package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.core.PublicKey;
-import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -125,12 +121,6 @@ public class MarketBuilder {
         if (retrieveEventQueue) {
             // retrieveEventQueue
             byte[] base64EventQueue = retrieveAccountData(market.getEventQueueKey());
-
-//            try {
-//                Files.write(Path.of("eventqueue.dat"), base64EventQueue);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
 
             // first, check the cache for the byte. otherwise, make a request for it
             // TODO - unduplicate this code
