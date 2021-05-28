@@ -33,14 +33,33 @@ public class SerumManager {
      * @return transaction ID for the order
      */
     public String placeOrder(Account account, PublicKey payer, Market market, Order order) {
-        /*
-          Placing orders: A user funds an intermediary account (their OpenOrders account) from their SPL token
-          account (wallet) and adds an order placement request to the Request Queue
-          See: https://github.com/project-serum/serum-ts/blob/master/packages/serum/src/market.ts#L637
-         */
+        if (order.getFloatPrice() <= 0 || order.getFloatQuantity() <= 0) {
+            throw new RuntimeException("Invalid floatPrice or floatQuantity");
+        }
 
         final Transaction transaction = new Transaction();
         final OpenOrdersAccount openOrders = SerumUtils.findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
+
+        long longPrice = SerumUtils.priceNumberToLots(
+                order.getFloatPrice(),
+                market
+        );
+
+        long longQuantity = SerumUtils.baseSizeNumberToLots(
+                order.getFloatQuantity(),
+                market.getBaseDecimals(),
+                market.getBaseLotSize()
+        );
+
+        long maxQuoteQuantity = SerumUtils.getMaxQuoteQuantity(
+                order.getFloatPrice(),
+                order.getFloatQuantity(),
+                market
+        );
+
+        order.setPrice(longPrice);
+        order.setQuantity(longQuantity);
+        order.setMaxQuoteQuantity(maxQuoteQuantity);
 
         long lamports = SerumUtils.getLamportsNeededForSolWrapping(
                 order.getFloatPrice(),

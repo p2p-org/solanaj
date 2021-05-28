@@ -243,7 +243,17 @@ public class SerumUtils {
         return (float) (top / bottom);
     }
 
-    public static float priceNumberToLots(long price, byte quoteDecimals, long baseLotSize, byte baseDecimals, long quoteLotSize) {
+    public static long priceNumberToLots(float price, Market market) {
+        return priceNumberToLots(
+                price,
+                market.getQuoteDecimals(),
+                market.getBaseLotSize(),
+                market.getBaseDecimals(),
+                market.getQuoteLotSize()
+        );
+    }
+
+    public static long priceNumberToLots(float price, byte quoteDecimals, long baseLotSize, byte baseDecimals, long quoteLotSize) {
         double top = (price * Math.pow(10, quoteDecimals) * baseLotSize);
         double bottom = Math.pow(10, baseDecimals) * quoteLotSize;
         return Math.round(top / bottom);
@@ -254,11 +264,9 @@ public class SerumUtils {
         return (float) (top / baseMultiplier);
     }
 
-    public static float baseSizeNumberToLots(long size, byte baseDecimals, long baseLotSize) {
+    public static long baseSizeNumberToLots(float size, byte baseDecimals, long baseLotSize) {
         double top = Math.round(size * Math.pow(10, baseDecimals));
-        return (float) (top / baseLotSize);
-
-
+        return (long) (top / baseLotSize);
     }
 
     public static OpenOrdersAccount findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress) {
@@ -305,5 +313,11 @@ public class SerumUtils {
         }
 
         return Math.max(lamports, 0) + 10000000;
+    }
+
+    public static long getMaxQuoteQuantity(float price, float size, Market market) {
+        return market.getQuoteLotSize() *
+                baseSizeNumberToLots(size, market.getBaseDecimals(), market.getBaseLotSize()) *
+                priceNumberToLots(price, market);
     }
 }

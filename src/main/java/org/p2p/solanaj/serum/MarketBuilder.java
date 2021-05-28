@@ -145,6 +145,9 @@ public class MarketBuilder {
                 decimalsCache.put(market.getQuoteMint(), quoteDecimals);
             }
 
+            market.setBaseDecimals(baseDecimals);
+            market.setQuoteDecimals(quoteDecimals);
+
             long baseLotSize = market.getBaseLotSize();
             long quoteLotSize = market.getQuoteLotSize();
 

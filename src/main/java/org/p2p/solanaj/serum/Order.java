@@ -21,6 +21,13 @@ public class Order {
     private SelfTradeBehaviorLayout selfTradeBehaviorLayout;
     private boolean buy;
 
+    // constructor used by new orders
+    public Order(float floatPrice, float floatQuantity, long clientOrderId) {
+        this.floatPrice = floatPrice;
+        this.floatQuantity = floatQuantity;
+        this.clientOrderId = clientOrderId;
+    }
+
     public Order(long price, long quantity, long clientOrderId, float floatPrice, float floatQuantity, PublicKey owner) {
         this.price = price;
         this.quantity = quantity;

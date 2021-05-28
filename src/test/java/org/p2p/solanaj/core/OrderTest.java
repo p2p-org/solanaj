@@ -58,13 +58,17 @@ public class OrderTest {
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(SOL_USDC_MARKET_V3)
                 .setClient(client)
+                .setRetrieveEventQueue(true)
                 .build();
 
-        final Order order = new Order(1337000L, 1L, 1, 1337, 0.1f, null);
-        order.setMaxQuoteQuantity(1337000000L);
+        final Order order = new Order(
+                1337,
+                0.1f,
+                1
+        );
+
         order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
         order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        order.setClientId(0L);
         order.setBuy(false);
 
         // Place order
@@ -78,11 +82,14 @@ public class OrderTest {
         assertNotNull(transactionId);
         LOGGER.info("Successfully placed offer for 0.1 SOL on SOL/USDC market.");
 
-        final Order usdcOrder = new Order(1, 1L, 1, 0.0f, 0.0f, null);
-        usdcOrder.setMaxQuoteQuantity(100L);
+        final Order usdcOrder = new Order(
+                0.001f,
+                0.1f,
+                1
+        );
+
         usdcOrder.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
         usdcOrder.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        usdcOrder.setClientId(0L);
         usdcOrder.setBuy(true);
 
         // Place order
