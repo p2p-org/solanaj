@@ -104,6 +104,7 @@ public class MainnetTest extends AccountBasedTest {
         final PublicKey publicKey = new PublicKey("ByRys5tuUWDgL73G8JBAEfkdFf8JWBzPBDHsBVQ5vbQA"); //SRM/USDC
 
         final Market solUsdcMarket = new MarketBuilder()
+                .setClient(client)
                 .setPublicKey(publicKey)
                 .setRetrieveOrderBooks(true)
                 .build();
@@ -178,6 +179,7 @@ public class MainnetTest extends AccountBasedTest {
         final PublicKey solUsdcPublicKey = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
 
         final Market solUsdcMarket = new MarketBuilder()
+                .setClient(client)
                 .setPublicKey(solUsdcPublicKey)
                 .setRetrieveOrderBooks(true)
                 .build();
@@ -213,6 +215,7 @@ public class MainnetTest extends AccountBasedTest {
 
         final MarketBuilder solUsdcMarketBuilder = new MarketBuilder()
                 .setPublicKey(solUsdcPublicKey)
+                .setClient(client)
                 .setRetrieveOrderBooks(true)
                 .setRetrieveEventQueue(true);
 

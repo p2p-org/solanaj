@@ -53,6 +53,7 @@ long balance = client.getApi().getBalance(new PublicKey("QqCCvshxtqMAL2CVALqiJB7
 ```java
 final PublicKey solUsdcPublicKey = new PublicKey("7xMDbYTCqQEcK2aM9LbetGtNFJpzKdfXzLL5juaLh4GJ");
 final Market solUsdcMarket = new MarketBuilder()
+        .setClient(new RpcClient())
         .setPublicKey(solUsdcPublicKey)
         .setRetrieveOrderBooks(true)
         .build();

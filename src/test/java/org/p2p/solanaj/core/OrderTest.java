@@ -48,6 +48,7 @@ public class OrderTest {
         // Get SOL/USDC market
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(SOL_USDC_MARKET_V3)
+                .setClient(client)
                 .build();
 
         final Order order = new Order(1337000L, 1L, 1, 0.0f, 0.0f, null);
@@ -201,11 +202,10 @@ public class OrderTest {
         // Create account from private key
         final Account account = new Account(Base58.decode(new String(data)));
 
-        // Get SOL/USDC market
-        final Market solUsdcMarket = new MarketBuilder()
-                .setPublicKey(SOL_USDC_MARKET_V3)
-                .setRetrieveOrderBooks(false)
-                .build();
+        // Get SOL/USDC market        final Market solUsdcMarket = new MarketBuilder()
+        //                .setPublicKey(SOL_USDC_MARKET_V3)
+        //                .setRetrieveOrderBooks(false)
+        //                .build();
         // Place order
         //String transactionId = serumManager.consumeEvents(solUsdcMarket, account);
 

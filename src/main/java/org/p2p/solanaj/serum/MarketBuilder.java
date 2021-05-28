@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  */
 public class MarketBuilder {
 
-    private RpcClient client = new RpcClient(Cluster.MAINNET);
+    private RpcClient client;
     private PublicKey publicKey;
     private boolean retrieveOrderbooks = false;
     private boolean retrieveEventQueue = false;
