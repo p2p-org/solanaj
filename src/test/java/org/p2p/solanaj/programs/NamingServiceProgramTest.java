@@ -9,9 +9,6 @@ import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.types.AccountInfo;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -53,12 +50,6 @@ public class NamingServiceProgramTest extends AccountBasedTest {
 
         LOGGER.info(String.format("parentName = %s, owner = %s, nameClass = %s", parentName, owner, nameClass));
         LOGGER.info(String.format("data = %s", Arrays.toString(nameData)));
-
-        try {
-            Files.write(Path.of("namingaccountinfo.dat"), data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
@@ -74,6 +65,5 @@ public class NamingServiceProgramTest extends AccountBasedTest {
         PublicKey pubkey = namingManager.getPublicKey("SBF_Alameda");
 
         LOGGER.info(pubkey.toBase58());
-        //assertTrue(skynetMainnetPubkey.toBase58().equalsIgnoreCase(pubkey.toBase58()));
     }
 }

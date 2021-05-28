@@ -5,11 +5,8 @@ import org.p2p.solanaj.core.AccountMeta;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,12 +60,6 @@ public class NamingServiceProgram extends Program {
         }
 
         byte[] instructionData = buffer.array();
-
-        try {
-            Files.write(Path.of("namingdata.dat"), instructionData);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         return createTransactionInstruction(
                 nameProgramId,
