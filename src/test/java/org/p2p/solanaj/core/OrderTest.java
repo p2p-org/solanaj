@@ -1,17 +1,13 @@
 package org.p2p.solanaj.core;
 
 import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.Utils;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
-import org.p2p.solanaj.rpc.types.AccountInfo;
 import org.p2p.solanaj.rpc.types.ConfigObjects;
 import org.p2p.solanaj.rpc.types.ProgramAccount;
 import org.p2p.solanaj.serum.*;
-import org.p2p.solanaj.utils.ByteUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,10 +25,23 @@ public class OrderTest {
     private final SerumManager serumManager = new SerumManager(client);
     private static final PublicKey SOL_USDC_MARKET_V3 = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
 
+    /**
+     * Places a sell order for 0.1 SOL on SOL/USDC and a buy order for 0.001 USDC on SOL/USDC.
+     * This test does NOT cancel the orders, you'll need to do that manually.
+     *
+     * Requires open orders accounts to already be manually created beforehand.
+     *
+     * You'll need to configure your USDC wallet's pubkey in the "usdcPayer" variable.
+     * The SOL wallet will have it's SOL wrapped automatically.
+     *
+     */
     @Test
     @Ignore
     public void placeOrderTest() {
         LOGGER.info("Placing order");
+
+        // Replace with the public key of your USDC wallet
+        final PublicKey usdcPayer = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
 
         // Build account from secretkey.dat
         byte[] data = new byte[0];
@@ -69,15 +78,12 @@ public class OrderTest {
         assertNotNull(transactionId);
         LOGGER.info("Successfully placed offer for 0.1 SOL on SOL/USDC market.");
 
-
         final Order usdcOrder = new Order(1, 1L, 1, 0.0f, 0.0f, null);
         usdcOrder.setMaxQuoteQuantity(100L);
         usdcOrder.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
         usdcOrder.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
         usdcOrder.setClientId(0L);
         usdcOrder.setBuy(true);
-
-        final PublicKey usdcPayer = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
 
         // Place order
         String usdcTransactionId = serumManager.placeOrder(
@@ -92,7 +98,6 @@ public class OrderTest {
 
     }
 
-    // TODO - fix this
     @Test
     @Ignore
     public void testOpenOrdersAccounts() {
@@ -186,6 +191,7 @@ public class OrderTest {
         assertTrue(true);
     }
 
+    // Doesn't work yet
     @Test
     @Ignore
     public void consumeEventsTest() {
