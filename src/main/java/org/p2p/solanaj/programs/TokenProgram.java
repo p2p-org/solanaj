@@ -16,6 +16,7 @@ public class TokenProgram extends Program {
 
     private static final int INITIALIZE_METHOD_ID = 1;
     private static final int TRANSFER_METHOD_ID = 3;
+    private static final int CLOSE_ACCOUNT_METHOD_ID = 9;
     private static final int TRANSFER_CHECKED_METHOD_ID = 12;
 
     /**
@@ -77,6 +78,24 @@ public class TokenProgram extends Program {
         ByteBuffer buffer = ByteBuffer.allocate(1);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.put((byte) INITIALIZE_METHOD_ID);
+
+        return createTransactionInstruction(
+                PROGRAM_ID,
+                keys,
+                buffer.array()
+        );
+    }
+
+    public static TransactionInstruction closeAccount(final PublicKey source, final PublicKey destination, final PublicKey owner) {
+        final List<AccountMeta> keys = new ArrayList<>();
+
+        keys.add(new AccountMeta(source,false, true));
+        keys.add(new AccountMeta(destination, false, true));
+        keys.add(new AccountMeta(owner,true, false));
+
+        ByteBuffer buffer = ByteBuffer.allocate(1);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer.put((byte) CLOSE_ACCOUNT_METHOD_ID);
 
         return createTransactionInstruction(
                 PROGRAM_ID,

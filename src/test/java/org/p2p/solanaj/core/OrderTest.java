@@ -44,9 +44,6 @@ public class OrderTest {
                 .setPublicKey(SOL_USDC_MARKET_V3)
                 .build();
 
-        // Get Open Orders account for market - Hardcode this for the test's account - take from explorer
-        final Account openOrders = new Account();
-
         final Order order = new Order(1337000L, 1L, 1, 0.0f, 0.0f, null);
         order.setMaxQuoteQuantity(1337000000L);
         order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
@@ -57,14 +54,35 @@ public class OrderTest {
         // Place order
         String transactionId = serumManager.placeOrder(
                 account,
+                null,
                 solUsdcMarket,
                 order
         );
 
-        // Verify we got a txId
         assertNotNull(transactionId);
-
         LOGGER.info("Successfully placed offer for 0.1 SOL on SOL/USDC market.");
+
+
+        final Order usdcOrder = new Order(1, 1L, 1, 0.0f, 0.0f, null);
+        usdcOrder.setMaxQuoteQuantity(100L);
+        usdcOrder.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+        usdcOrder.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+        usdcOrder.setClientId(0L);
+        usdcOrder.setBuy(true);
+
+        final PublicKey usdcPayer = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+
+        // Place order
+        String usdcTransactionId = serumManager.placeOrder(
+                account,
+                usdcPayer,
+                solUsdcMarket,
+                usdcOrder
+        );
+
+        assertNotNull(usdcTransactionId);
+        LOGGER.info("Successfully placed bid for 0.1 SOL on SOL/USDC market.");
+
     }
 
     // TODO - fix this

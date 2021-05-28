@@ -1,6 +1,7 @@
 package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.core.*;
+import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.programs.SerumProgram;
 import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.programs.TokenProgram;
@@ -29,7 +30,7 @@ public class SerumManager {
      * @param order Buy or sell order with quantity and price
      * @return true if the order succeeded
      */
-    public String placeOrder(Account account, Market market, Order order) {
+    public String placeOrder(Account account, PublicKey payer, Market market, Order order) {
         /*
           Placing orders: A user funds an intermediary account (their OpenOrders account) from their SPL token
           account (wallet) and adds an order placement request to the Request Queue
@@ -37,42 +38,93 @@ public class SerumManager {
          */
 
         final Transaction transaction = new Transaction();
-
-        // Create payer account
-        final Account payerAccount = new Account();
         final PublicKey openOrders = SerumUtils.findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
 
         // 0.11 SOL
         long lamports = 110000000L;
         long space = 165L;
+        int matchOrdersLimit = 5;
 
         transaction.addInstruction(
-                SystemProgram.createAccount(
-                        account.getPublicKey(),
-                        payerAccount.getPublicKey(),
-                        lamports,
-                        space,
-                        TokenProgram.PROGRAM_ID
+                SerumProgram.matchOrders(
+                        market,
+                        matchOrdersLimit
                 )
         );
-        transaction.addInstruction(
-                TokenProgram.initializeAccount(
-                        payerAccount.getPublicKey(),
-                        SerumUtils.WRAPPED_SOL_MINT,
-                        account.getPublicKey()
-                )
-        );
+
+        // Create payer account (only used if shouldWrapSol)
+        Account payerAccount = null;
+
+        boolean shouldWrapSol = (order.isBuy() && market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT)) ||
+                (!order.isBuy() && market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT));
+
+        if (shouldWrapSol) {
+            payerAccount = new Account();
+        }
+
+        final PublicKey payerPublicKey = shouldWrapSol ? payerAccount.getPublicKey() : payer;
+
+        if (shouldWrapSol) {
+            transaction.addInstruction(
+                    SystemProgram.createAccount(
+                            account.getPublicKey(),
+                            payerAccount.getPublicKey(),
+                            lamports,
+                            space,
+                            TokenProgram.PROGRAM_ID
+                    )
+            );
+
+            transaction.addInstruction(
+                    TokenProgram.initializeAccount(
+                            payerAccount.getPublicKey(),
+                            SerumUtils.WRAPPED_SOL_MINT,
+                            account.getPublicKey()
+                    )
+            );
+        }
+
         transaction.addInstruction(
                 SerumProgram.placeOrder(
                         account,
-                        payerAccount,
+                        payerPublicKey,
                         openOrders,
                         market,
                         order
                 )
         );
 
-        final List<Account> signers = List.of(account, payerAccount);
+        if (shouldWrapSol) {
+            transaction.addInstruction(
+                    TokenProgram.closeAccount(
+                            payerAccount.getPublicKey(),
+                            account.getPublicKey(),
+                            account.getPublicKey()
+                    )
+            );
+        }
+
+        transaction.addInstruction(
+                SerumProgram.matchOrders(
+                        market,
+                        matchOrdersLimit
+                )
+        );
+
+        transaction.addInstruction(
+                MemoProgram.writeUtf8(
+                        account,
+                        "Order placed by SolanaJ"
+                )
+        );
+
+
+        List<Account> signers;
+        if (shouldWrapSol) {
+            signers = List.of(account, payerAccount);
+        } else {
+            signers = List.of(account);
+        }
 
         String result = null;
         try {

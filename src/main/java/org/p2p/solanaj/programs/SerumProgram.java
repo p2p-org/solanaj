@@ -65,7 +65,42 @@ public class SerumProgram extends Program {
         return result.array();
     }
 
-    public static TransactionInstruction placeOrder(Account account, Account payer, PublicKey openOrders, Market market, Order order) {
+    public static TransactionInstruction matchOrders(Market market, int limit) {
+        List<AccountMeta> accountMetas = new ArrayList<>();
+
+        accountMetas.add(new AccountMeta(market.getOwnAddress(), false, true));
+        accountMetas.add(new AccountMeta(market.getRequestQueue(), false, true));
+        accountMetas.add(new AccountMeta(market.getEventQueueKey(), false, true));
+        accountMetas.add(new AccountMeta(market.getBids(), false, true));
+        accountMetas.add(new AccountMeta(market.getAsks(), false, true));
+        accountMetas.add(new AccountMeta(market.getBaseVault(), false, true));
+        accountMetas.add(new AccountMeta(market.getQuoteVault(), false, true));
+
+
+        byte[] transactionData = encodeMatchOrdersTransactionData(
+                limit
+        );
+
+        LOGGER.info("Match Orders hex = " + ByteUtils.bytesToHex(transactionData));
+
+        return createTransactionInstruction(
+                SerumUtils.SERUM_PROGRAM_ID_V3,
+                accountMetas,
+                transactionData
+        );
+    }
+
+    private static byte[] encodeMatchOrdersTransactionData(int limit) {
+        ByteBuffer result = ByteBuffer.allocate(7);
+        result.order(ByteOrder.LITTLE_ENDIAN);
+
+        result.put(1, (byte) 2);
+        result.putShort(5, (short) limit);
+
+        return result.array();
+    }
+
+    public static TransactionInstruction placeOrder(Account account, PublicKey payer, PublicKey openOrders, Market market, Order order) {
         /*
         See: https://github.com/project-serum/serum-ts/blob/e51e3d9af0ab7026155b76a1824cea6507fc7ef7/packages/serum/src/instructions.js#L118
         */
@@ -117,7 +152,7 @@ public class SerumProgram extends Program {
 
         // pubkey: payer
         // TODO - fix this to create a new account each time - and has an initialize instruction after the createaccount instruction
-        final AccountMeta payerKey = new AccountMeta(payer.getPublicKey(), true, true);
+        final AccountMeta payerKey = new AccountMeta(payer, false, true);
 
         // pubkey: owner
         final AccountMeta ownerKey = new AccountMeta(account.getPublicKey(), true, false);
