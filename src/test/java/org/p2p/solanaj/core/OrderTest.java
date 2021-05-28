@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -96,61 +97,90 @@ public class OrderTest {
     public void testOpenOrdersAccounts() {
         final PublicKey skynetMainnetTestAccount = PublicKey.valueOf("F459S1MFG2whWbznzULPkYff6TFe2QjoKhgHXpRfDyCj");
 
-        final Market market = new MarketBuilder()
-                .setPublicKey(PublicKey.valueOf("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT"))
-                .setRetrieveOrderBooks(false)
-                .setRetrieveEventQueue(false)
-                .build();
+        List<PublicKey> marketsToSearch = List.of(
+                PublicKey.valueOf("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT"),
+                PublicKey.valueOf("HWHvQhFmJB3NUcu1aihKmrKegfVxBEHzwVX6yZCKEsi1"),
+                PublicKey.valueOf("jyei9Fpj2GtHLDDGgcuhDacxYLLiSyxU4TY7KxB2xai"),
+                PublicKey.valueOf("C6tp2RVZnxBPFbnAsfTjis8BN9tycESAT4SgDQgbbrsA"),
+                PublicKey.valueOf("HCyhGnC77f7DaxQEvzj59g9ve7eJJXjsMYFWo4t7shcj")
 
-        // get open orders account for a known pubkey
-        int dataSize = 3228;
+        );
 
-        List<ProgramAccount> programAccounts = null;
+        LOGGER.info(
+                String.format(
+                        "Pubkey: %s\nSearching markets: %s",
+                        skynetMainnetTestAccount.toBase58(),
+                        marketsToSearch
+                                .stream()
+                                .map(PublicKey::toBase58)
+                                .collect(Collectors.joining(", "))
+                )
+        );
 
-        ConfigObjects.Memcmp marketFilter = new ConfigObjects.Memcmp(SerumUtils.OWN_ADDRESS_OFFSET, market.getOwnAddress().toBase58());
-        ConfigObjects.Memcmp ownerFilter = new ConfigObjects.Memcmp(45, skynetMainnetTestAccount.toBase58());
+        marketsToSearch.forEach(market -> {
+            // get open orders account for a known pubkey
+            int dataSize = 3228;
 
-        List<ConfigObjects.Memcmp> memcmpList = List.of(marketFilter, ownerFilter);
+            List<ProgramAccount> programAccounts = null;
 
-        try {
-            programAccounts = client.getApi().getProgramAccounts(SerumUtils.SERUM_PROGRAM_ID_V3, memcmpList, dataSize);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
+            ConfigObjects.Memcmp marketFilter = new ConfigObjects.Memcmp(SerumUtils.OWN_ADDRESS_OFFSET, market.toBase58());
+            ConfigObjects.Memcmp ownerFilter = new ConfigObjects.Memcmp(45, skynetMainnetTestAccount.toBase58());
 
-        if (programAccounts != null) {
-            programAccounts.forEach(programAccount -> {
-                // Get balance
-                LOGGER.info("Open orders data = " + programAccount.getAccount().getData());
+            List<ConfigObjects.Memcmp> memcmpList = List.of(marketFilter, ownerFilter);
 
-                byte[] data = programAccount.getAccount().getDecodedData();
-                OpenOrdersAccount openOrdersAccount = OpenOrdersAccount.readOpenOrdersAccount(data);
+            try {
+                programAccounts = client.getApi().getProgramAccounts(SerumUtils.SERUM_PROGRAM_ID_V3, memcmpList, dataSize);
+            } catch (RpcException e) {
+                e.printStackTrace();
+            }
 
-                boolean hasUnsettledFunds = false;
+            if (programAccounts != null) {
+                programAccounts.forEach(programAccount -> {
+                    // Get balance
+                    // LOGGER.info("Open orders data = " + programAccount.getAccount().getData());
 
-                if (openOrdersAccount.getBaseTokenTotal() > 0 || openOrdersAccount.getQuoteTokenTotal() > 0) {
-                    LOGGER.info(String.format("Found orders on %s market, cancelling before settlement.", openOrdersAccount.getMarket()));
+                    byte[] data = programAccount.getAccount().getDecodedData();
+                    OpenOrdersAccount openOrdersAccount = OpenOrdersAccount.readOpenOrdersAccount(data);
 
-                    // cancel orders before settlement
-                    boolean isOrdersCancelled = false;
+                    boolean hasUnsettledFunds = false;
 
-                    // cancel orders, set the bool
-                    if (isOrdersCancelled) {
+                    if (openOrdersAccount.getBaseTokenTotal() > 0 || openOrdersAccount.getQuoteTokenTotal() > 0) {
+                        LOGGER.info(
+                                String.format(
+                                        "Found amount: %d on Market %s",
+                                        openOrdersAccount.getBaseTokenTotal() + openOrdersAccount.getQuoteTokenTotal(),
+                                        openOrdersAccount.getMarket()
+                                )
+                        );
+
+                        // cancel orders before settlement
+                        boolean isOrdersCancelled = false;
+
+                        // cancel orders, set the bool
+                        if (isOrdersCancelled) {
+                            hasUnsettledFunds = true;
+                        }
+                    }
+
+                    if (openOrdersAccount.getBaseTokenFree() > 0|| openOrdersAccount.getQuoteTokenFree() > 0) {
+                        // settle funds
                         hasUnsettledFunds = true;
                     }
-                }
 
-                if (openOrdersAccount.getBaseTokenFree() > 0|| openOrdersAccount.getQuoteTokenFree() > 0) {
-                    // settle funds
-                    hasUnsettledFunds = true;
-                }
+                    if (hasUnsettledFunds) {
+                        LOGGER.info(String.format("Settling funds on market %s.", openOrdersAccount.getMarket()));
+                    }
 
-                if (hasUnsettledFunds) {
-                    LOGGER.info(String.format("Settling funds on market %s.", openOrdersAccount.getMarket()));
-                }
+                    // Sleep so we don't get rate limited
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
-            });
-        }
+                });
+            }
+        });
 
         assertTrue(true);
     }
