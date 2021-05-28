@@ -124,22 +124,29 @@ public class OrderTest {
                 LOGGER.info("Open orders data = " + programAccount.getAccount().getData());
 
                 byte[] data = programAccount.getAccount().getDecodedData();
-                PublicKey marketPubkey = PublicKey.readPubkey(data, 13);
-                PublicKey ownerPubkey = PublicKey.readPubkey(data, 13 + 32);
+                OpenOrdersAccount openOrdersAccount = OpenOrdersAccount.readOpenOrdersAccount(data);
 
-                // baseTokenFree = unsettled balance
-                long baseTokenFree = Utils.readInt64(data, 13 + 32 + 32);
-                long baseTokenTotal = Utils.readInt64(data, 13 + 32 + 32 + 8);
-                long quoteTokenFree = Utils.readInt64(data, 13 + 32 + 32 + 8 + 8);
-                long quoteTokenTotal = Utils.readInt64(data, 13 + 32 + 32 + 8 + 8 + 8);
+                boolean hasUnsettledFunds = false;
 
-                LOGGER.info("Market = " + marketPubkey.toBase58());
-                LOGGER.info("Owner = " + ownerPubkey.toBase58());
-                LOGGER.info(String.format("Unsettled base balance = %d, Total base balance = %d", baseTokenFree, baseTokenTotal));
-                LOGGER.info(String.format("Unsettled quote balance = %d, Total quote balance = %d", quoteTokenFree, quoteTokenTotal));
+                if (openOrdersAccount.getBaseTokenTotal() > 0 || openOrdersAccount.getQuoteTokenTotal() > 0) {
+                    LOGGER.info(String.format("Found orders on %s market, cancelling before settlement.", openOrdersAccount.getMarket()));
 
-                if (baseTokenFree > 0|| quoteTokenFree > 0) {
+                    // cancel orders before settlement
+                    boolean isOrdersCancelled = false;
+
+                    // cancel orders, set the bool
+                    if (isOrdersCancelled) {
+                        hasUnsettledFunds = true;
+                    }
+                }
+
+                if (openOrdersAccount.getBaseTokenFree() > 0|| openOrdersAccount.getQuoteTokenFree() > 0) {
                     // settle funds
+                    hasUnsettledFunds = true;
+                }
+
+                if (hasUnsettledFunds) {
+                    LOGGER.info(String.format("Settling funds on market %s.", openOrdersAccount.getMarket()));
                 }
 
             });

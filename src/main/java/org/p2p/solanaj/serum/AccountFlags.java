@@ -54,6 +54,10 @@ public class AccountFlags {
         return new AccountFlags(Arrays.copyOfRange(data, 5, 12)[0]);
     }
 
+    public static AccountFlags readAccountFlags(byte[] data, int offset) {
+        return new AccountFlags(Arrays.copyOfRange(data, offset, offset + 7)[0]);
+    }
+
     @Override
     public String toString() {
         return "AccountFlags{" +
