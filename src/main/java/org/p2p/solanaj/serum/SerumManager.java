@@ -26,9 +26,11 @@ public class SerumManager {
      * TODO: Currently, an open orders account is required to already exist for the given market. fix this.
      *
      * @param account Solana account to pay for the order
-     * @param market Market to trade on
-     * @param order Buy or sell order with quantity and price
-     * @return true if the order succeeded
+     * @param payer Pubkey of token wallet that will be funding the order
+     * @param market Market to trade on, built by a {@link MarketBuilder}
+     * @param order Order, soon to be built by OrderBuilder
+     *
+     * @return transaction ID for the order
      */
     public String placeOrder(Account account, PublicKey payer, Market market, Order order) {
         /*

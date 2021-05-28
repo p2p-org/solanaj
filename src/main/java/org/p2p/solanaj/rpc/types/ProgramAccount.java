@@ -51,7 +51,7 @@ public class ProgramAccount {
         }
 
         public byte[] getDecodedData() {
-            if (encoding.equals(Encoding.base64.toString())) {
+            if (encoding != null && encoding.equals(Encoding.base64.toString())) {
                 return Base64.getDecoder().decode(data);
             }
 
