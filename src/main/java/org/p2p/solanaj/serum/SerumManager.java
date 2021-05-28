@@ -42,8 +42,13 @@ public class SerumManager {
         final Transaction transaction = new Transaction();
         final OpenOrdersAccount openOrders = SerumUtils.findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
 
-        // 0.11 SOL
-        long lamports = 110000000L;
+        long lamports = SerumUtils.getLamportsNeededForSolWrapping(
+                order.getFloatPrice(),
+                order.getFloatQuantity(),
+                order.isBuy(),
+                openOrders
+        );
+
         long space = 165L;
         int matchOrdersLimit = 5;
 

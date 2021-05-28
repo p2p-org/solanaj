@@ -53,6 +53,7 @@ public class SerumUtils {
     private static final String PADDING = "serum";
 
     // Market
+    public static final long LAMPORTS_PER_SOL = 1000000000L;
     public static final int OWN_ADDRESS_OFFSET = 13;
     private static final int VAULT_SIGNER_NONCE_OFFSET = 28;
     private static final int BASE_MINT_OFFSET = 53;
@@ -290,5 +291,19 @@ public class SerumUtils {
         }
 
         return openOrdersAccount;
+    }
+
+    public static long getLamportsNeededForSolWrapping(float price, float size, boolean isBuy, OpenOrdersAccount openOrdersAccount) {
+        long lamports;
+
+        if (isBuy) {
+            lamports = Math.round(price * size * 1.01 * LAMPORTS_PER_SOL);
+            lamports -= openOrdersAccount.getQuoteTokenFree();
+        } else {
+            lamports = (long) (size * LAMPORTS_PER_SOL);
+            lamports -= openOrdersAccount.getBaseTokenFree();
+        }
+
+        return Math.max(lamports, 0) + 10000000;
     }
 }

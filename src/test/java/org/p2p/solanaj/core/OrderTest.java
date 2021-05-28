@@ -60,7 +60,7 @@ public class OrderTest {
                 .setClient(client)
                 .build();
 
-        final Order order = new Order(1337000L, 1L, 1, 0.0f, 0.0f, null);
+        final Order order = new Order(1337000L, 1L, 1, 1337, 0.1f, null);
         order.setMaxQuoteQuantity(1337000000L);
         order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
         order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
