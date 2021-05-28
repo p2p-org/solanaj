@@ -40,7 +40,7 @@ public class SerumManager {
          */
 
         final Transaction transaction = new Transaction();
-        final PublicKey openOrders = SerumUtils.findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
+        final OpenOrdersAccount openOrders = SerumUtils.findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
 
         // 0.11 SOL
         long lamports = 110000000L;
@@ -90,7 +90,7 @@ public class SerumManager {
                 SerumProgram.placeOrder(
                         account,
                         payerPublicKey,
-                        openOrders,
+                        openOrders.getOwnPubkey(),
                         market,
                         order
                 )

@@ -9,6 +9,7 @@ import org.p2p.solanaj.rpc.types.ProgramAccount;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -259,7 +260,7 @@ public class SerumUtils {
 
     }
 
-    public static PublicKey findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress) {
+    public static OpenOrdersAccount findOpenOrdersAccountForOwner(RpcClient client, PublicKey marketAddress, PublicKey ownerAddress) {
         int dataSize = 3228;
 
         List<ProgramAccount> programAccounts = null;
@@ -275,16 +276,19 @@ public class SerumUtils {
             e.printStackTrace();
         }
 
-        // TODO - handle failed lookup more cleaner than null
-        String base58Pubkey = null;
+        OpenOrdersAccount openOrdersAccount = null;
+
         if (programAccounts != null) {
-            base58Pubkey = programAccounts.stream().map(ProgramAccount::getPubkey).findFirst().orElse(null);
+            Optional<ProgramAccount> optionalAccount = programAccounts.stream()
+                    .findFirst();
+            if (optionalAccount.isPresent()) {
+                ProgramAccount openOrdersProgramAccount = optionalAccount.get();
+                byte[] data = openOrdersProgramAccount.getAccount().getDecodedData();
+                openOrdersAccount = OpenOrdersAccount.readOpenOrdersAccount(data);
+                openOrdersAccount.setOwnPubkey(PublicKey.valueOf(openOrdersProgramAccount.getPubkey()));
+            }
         }
 
-        if (base58Pubkey == null) {
-            return null;
-        }
-
-        return new PublicKey(base58Pubkey);
+        return openOrdersAccount;
     }
 }

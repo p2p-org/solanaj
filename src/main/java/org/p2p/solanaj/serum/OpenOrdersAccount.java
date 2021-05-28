@@ -28,6 +28,9 @@ public class OpenOrdersAccount {
     private List<byte[]> clientIds;
     private long referrerRebatesAccrued;
 
+    // set manually
+    private PublicKey ownPubkey;
+
     public OpenOrdersAccount() {
         this.orders = new ArrayList<>(128);
         this.clientIds = new ArrayList<>(128);
@@ -155,5 +158,13 @@ public class OpenOrdersAccount {
 
     public void setReferrerRebatesAccrued(long referrerRebatesAccrued) {
         this.referrerRebatesAccrued = referrerRebatesAccrued;
+    }
+
+    public PublicKey getOwnPubkey() {
+        return ownPubkey;
+    }
+
+    public void setOwnPubkey(PublicKey ownPubkey) {
+        this.ownPubkey = ownPubkey;
     }
 }
