@@ -137,6 +137,12 @@ public class OrderTest {
         LOGGER.info("USDC Cancellation TX = " + cancelTransactionId);
         LOGGER.info("Successfully cancelled order by ID " + usdcOrderId);
 
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         // Settle transaction
         LOGGER.info("Settling funds");
         final PublicKey baseWallet = account.getPublicKey();
@@ -144,6 +150,93 @@ public class OrderTest {
 
         String settlementTransactionId = serumManager.settleFunds(
                 solUsdcMarket,
+                account,
+                baseWallet,
+                quoteWallet
+        );
+
+        assertNotNull(settlementTransactionId);
+        LOGGER.info("Settlement TX = " + settlementTransactionId);
+    }
+
+    @Test
+    @Ignore
+    public void placeOrderOxyTest() {
+        // Replace with the public key of your OXY and USDC wallet
+        final PublicKey oxyWallet = PublicKey.valueOf("DoecacoZMpqHT8RGusoJYcjDFZjZauaLrDQh8BxQUVdU");
+        final PublicKey usdcPayer = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create account from private key
+        final Account account = new Account(Base58.decode(new String(data)));
+
+        // Get OXY/USDC market
+        final Market oxyUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("GZ3WBFsqntmERPwumFEYgrX2B7J7G11MzNZAy7Hje27X"))
+                .setClient(client)
+                .setRetrieveEventQueue(true)
+                .build();
+
+        long orderId = 11133711L;
+
+        // 1 oxy bid @ $0.01
+        final Order order = new Order(
+                0.01f,
+                1f,
+                orderId
+        );
+
+        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+        order.setBuy(true);
+
+        // Place order
+        String transactionId = serumManager.placeOrder(
+                account,
+                usdcPayer,
+                oxyUsdcMarket,
+                order
+        );
+
+        assertNotNull(transactionId);
+
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Cancel the order
+        String cancelTransactionId = serumManager.cancelOrderByClientId(
+                oxyUsdcMarket,
+                account,
+                orderId
+        );
+
+        assertNotNull(cancelTransactionId);
+        LOGGER.info("Cancellation TX = " + cancelTransactionId);
+        LOGGER.info("Successfully cancelled order by ID " + orderId);
+
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Settle transaction
+        LOGGER.info("Settling funds");
+        final PublicKey baseWallet = oxyWallet;
+        final PublicKey quoteWallet = usdcPayer;
+
+        String settlementTransactionId = serumManager.settleFunds(
+                oxyUsdcMarket,
                 account,
                 baseWallet,
                 quoteWallet
