@@ -8,8 +8,6 @@ import org.p2p.solanaj.programs.TokenProgram;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -27,6 +25,7 @@ public class SerumManager {
      * Places order at the specified {@link Market} with the given {@link Order}
      *
      * TODO: Currently, an open orders account is required to already exist for the given market. fix this.
+     * TODO: Add SRM fee discount support
      *
      * @param account Solana account to pay for the order
      * @param market Market to trade on, built by a {@link MarketBuilder}
@@ -220,7 +219,6 @@ public class SerumManager {
                 SerumProgram.cancelOrderByClientId(
                         market,
                         openOrdersAccount.getOwnPubkey(),
-                        market.getRequestQueue(),
                         owner.getPublicKey(),
                         clientId
                 )

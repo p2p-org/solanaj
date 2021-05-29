@@ -5,13 +5,11 @@ import org.p2p.solanaj.core.AccountMeta;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
 import org.p2p.solanaj.serum.*;
-import org.p2p.solanaj.utils.ByteUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -19,52 +17,24 @@ import java.util.stream.Collectors;
  */
 public class SerumProgram extends Program {
 
+    private static final PublicKey TOKEN_PROGRAM_ID =
+            PublicKey.valueOf("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+    private static final PublicKey SYSVAR_RENT_PUBKEY =
+            PublicKey.valueOf("SysvarRent111111111111111111111111111111111");
 
-    private static final Logger LOGGER = Logger.getLogger(SerumProgram.class.getName());
-    private static final PublicKey TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
-    private static final PublicKey SYSVAR_RENT_PUBKEY = new PublicKey("SysvarRent111111111111111111111111111111111");
+    private static final int MATCH_ORDERS_METHOD_ID = 2;
+    private static final int CONSUME_EVENTS_METHOD_ID = 4;
+    private static final int SETTLE_ORDERS_METHOD_ID = 5;
+    private static final int CANCEL_ORDER_BY_CLIENT_ID_V2_METHOD_ID = 12;
 
-    public static TransactionInstruction consumeEvents(List<PublicKey> openOrdersAccounts, Account payerAccount, Market market) {
-        List<AccountMeta> accountMetas = new ArrayList<>();
-
-        // 0 fee payer + signer => your account
-        accountMetas.add(new AccountMeta(payerAccount.getPublicKey(), true, true));
-
-        // 1 - 5 = 5 open orders accounts
-        accountMetas.addAll(openOrdersAccounts.stream()
-                .map(publicKey -> new AccountMeta(publicKey, false, true)).collect(Collectors.toList()));
-
-        // 6 = market's event queue
-        accountMetas.add(new AccountMeta(market.getEventQueueKey(), false, true));
-
-
-        // 7 dummy key (just me)
-
-        accountMetas.add(new AccountMeta(market.getOwnAddress(), false, false));
-
-
-        int limit = 5;
-        byte[] transactionData = encodeConsumeEventsTransactionData(
-                limit
-        );
-
-        return createTransactionInstruction(
-                SerumUtils.SERUM_PROGRAM_ID_V3,
-                accountMetas,
-                transactionData
-        );
-    }
-
-    private static byte[] encodeConsumeEventsTransactionData(int limit) {
-        ByteBuffer result = ByteBuffer.allocate(3);
-        result.order(ByteOrder.LITTLE_ENDIAN);
-
-        result.put((byte) 4);
-        result.putShort((short) limit);
-
-        return result.array();
-    }
-
+    /**
+     * Builds a {@link TransactionInstruction} to match orders for a given Market and limit.
+     * Might not be needed in Serum v3, since request queue handling changed.
+     *
+     * @param market market to crank
+     * @param limit number of orders to match
+     * @return {@link TransactionInstruction} for the matchOrders call
+     */
     public static TransactionInstruction matchOrders(Market market, int limit) {
         List<AccountMeta> accountMetas = new ArrayList<>();
 
@@ -76,12 +46,9 @@ public class SerumProgram extends Program {
         accountMetas.add(new AccountMeta(market.getBaseVault(), false, true));
         accountMetas.add(new AccountMeta(market.getQuoteVault(), false, true));
 
-
         byte[] transactionData = encodeMatchOrdersTransactionData(
                 limit
         );
-
-        LOGGER.info("Match Orders hex = " + ByteUtils.bytesToHex(transactionData));
 
         return createTransactionInstruction(
                 SerumUtils.SERUM_PROGRAM_ID_V3,
@@ -90,48 +57,37 @@ public class SerumProgram extends Program {
         );
     }
 
+    /**
+     * Encodes the limit parameter used in match orders instructions into a byte array
+     *
+     * @param limit number of orders to match
+     * @return transaction data
+     */
     private static byte[] encodeMatchOrdersTransactionData(int limit) {
         ByteBuffer result = ByteBuffer.allocate(7);
         result.order(ByteOrder.LITTLE_ENDIAN);
 
-        result.put(1, (byte) 2);
+        result.put(1, (byte) MATCH_ORDERS_METHOD_ID);
         result.putShort(5, (short) limit);
 
         return result.array();
     }
 
-    public static TransactionInstruction placeOrder(Account account, PublicKey payer, PublicKey openOrders, Market market, Order order) {
-        /*
-        See: https://github.com/project-serum/serum-ts/blob/e51e3d9af0ab7026155b76a1824cea6507fc7ef7/packages/serum/src/instructions.js#L118
-        */
-
-        // TODO - handle feeDiscountPubkey
-        /* (if (feeDiscountPubkey) {
-            keys.push({
-                    pubkey: feeDiscountPubkey,
-                    isSigner: false,
-                    isWritable: false,
-            });
-        }
-        */
-        /*
-        open_order_accounts = self.find_open_orders_accounts_for_owner(owner.public_key())
-        if not open_order_accounts:
-        new_open_orders_account = Account()
-        place_order_open_order_account = new_open_orders_account.public_key()
-        mbfre_resp = self._conn.get_minimum_balance_for_rent_exemption(OPEN_ORDERS_LAYOUT.sizeof())
-        balanced_needed = mbfre_resp["result"]
-        transaction.add(
-            make_create_account_instruction(
-                owner_address=owner.public_key(),
-                new_account_address=new_open_orders_account.public_key(),
-                lamports=balanced_needed,
-                program_id=self.state.program_id(),
-            )
-        )
-        signers.append(new_open_orders_account)
-         */
-
+    /**
+     * Builds a {@link TransactionInstruction} to place a new v3 Serum order.
+     *
+     * @param account Account from private key which owns payer and openOrders
+     * @param payer token pubkey funding the order. could be your USDC wallet for example.
+     * @param openOrders open orders pubkey associated with this Account and market - look up using {@link SerumUtils}
+     * @param market loaded market that we are trading on. this must be built by a {@link MarketBuilder}
+     * @param order order we are placing
+     * @return {@link TransactionInstruction} for the placeOrder call
+     */
+    public static TransactionInstruction placeOrder(Account account,
+                                                    PublicKey payer,
+                                                    PublicKey openOrders,
+                                                    Market market,
+                                                    Order order) {
         // pubkey: market
         final AccountMeta marketKey = new AccountMeta(market.getOwnAddress(), false, true);
 
@@ -151,7 +107,6 @@ public class SerumProgram extends Program {
         final AccountMeta asksKey = new AccountMeta(market.getAsks(), false, true);
 
         // pubkey: payer
-        // TODO - fix this to create a new account each time - and has an initialize instruction after the createaccount instruction
         final AccountMeta payerKey = new AccountMeta(payer, false, true);
 
         // pubkey: owner
@@ -191,8 +146,12 @@ public class SerumProgram extends Program {
         return createTransactionInstruction(SerumUtils.SERUM_PROGRAM_ID_V3, keys, transactionData);
     }
 
-    // Using some constant data for testing at the moment
-    // Going to be testing a Post-Only sell order of 1 SOL at the SOL/USDC market
+    /**
+     * Encodes the {@link Order} object into a byte array usable with newOrderV3 instructions
+     *
+     * @param order {@link Order} object containing all required details
+     * @return transaction data
+     */
     public static byte[] buildNewOrderv3InstructionData(Order order) {
         ByteBuffer result = ByteBuffer.allocate(51);
         result.order(ByteOrder.LITTLE_ENDIAN);
@@ -225,12 +184,23 @@ public class SerumProgram extends Program {
         SerumUtils.writeLimit(result);
 
         byte[] arrayResult = result.array();
-        LOGGER.info("newOrderV3 instruction hex = " + ByteUtils.bytesToHex(arrayResult));
 
         return arrayResult;
     }
 
-    public static TransactionInstruction cancelOrderByClientId(Market market, PublicKey openOrders, PublicKey requestQueue, PublicKey owner, long clientId) {
+    /**
+     * Builds a {@link TransactionInstruction} to cancel an existing Serum order by client ID.
+     *
+     * @param market loaded market that we are trading on. this must be built by a {@link MarketBuilder}
+     * @param openOrders open orders pubkey associated with this Account and market - look up using {@link SerumUtils}
+     * @param owner pubkey of your SOL wallet
+     * @param clientId identifier created before order creation that is associated with this order
+     * @return {@link TransactionInstruction} for the cancelOrderByClientIdV2 call
+     */
+    public static TransactionInstruction cancelOrderByClientId(Market market,
+                                                               PublicKey openOrders,
+                                                               PublicKey owner,
+                                                               long clientId) {
         List<AccountMeta> accountMetas = new ArrayList<>();
 
         accountMetas.add(new AccountMeta(market.getOwnAddress(), false, false));
@@ -244,8 +214,6 @@ public class SerumProgram extends Program {
                 clientId
         );
 
-        LOGGER.info("cancelOrderByClientId = " + ByteUtils.bytesToHex(transactionData));
-
         return createTransactionInstruction(
                 SerumUtils.SERUM_PROGRAM_ID_V3,
                 accountMetas,
@@ -253,17 +221,35 @@ public class SerumProgram extends Program {
         );
     }
 
+    /**
+     * Encodes the clientId parameter used in cancelOrderByClientIdV2 instructions into a byte array
+     *
+     * @param clientId user-generated identifier associated with the order
+     * @return transaction data
+     */
     private static byte[] encodeCancelOrderByClientIdTransactionData(long clientId) {
         ByteBuffer result = ByteBuffer.allocate(13);
         result.order(ByteOrder.LITTLE_ENDIAN);
 
-        result.put(1, (byte) 12);
+        result.put(1, (byte) CANCEL_ORDER_BY_CLIENT_ID_V2_METHOD_ID);
         result.putLong(5, clientId);
 
         return result.array();
     }
 
-    public static TransactionInstruction settleFunds(Market market, OpenOrdersAccount openOrdersAccount, PublicKey baseWallet, PublicKey quoteWallet) {
+    /**
+     * Builds a {@link TransactionInstruction} used to settle funds on a given Serum {@link Market}
+     *
+     * @param market loaded market that we are trading on. this must be built by a {@link MarketBuilder}
+     * @param openOrdersAccount open orders pubkey associated with this Account and market - use {@link SerumUtils}
+     * @param baseWallet destination base wallet to settle funds to
+     * @param quoteWallet destination quote wallet to settle funds to
+     * @return {@link TransactionInstruction} for the settleFunds call
+     */
+    public static TransactionInstruction settleFunds(Market market,
+                                                     OpenOrdersAccount openOrdersAccount,
+                                                     PublicKey baseWallet,
+                                                     PublicKey quoteWallet) {
         List<AccountMeta> accountMetas = new ArrayList<>();
 
         accountMetas.add(new AccountMeta(market.getOwnAddress(), false, true));
@@ -276,10 +262,7 @@ public class SerumProgram extends Program {
         accountMetas.add(new AccountMeta(SerumUtils.getVaultSigner(market), false, false));
         accountMetas.add(new AccountMeta(TOKEN_PROGRAM_ID, false, false));
 
-
         byte[] transactionData = encodeSettleOrdersTransactionData();
-
-        LOGGER.info("settleOrders hex = " + ByteUtils.bytesToHex(transactionData));
 
         return createTransactionInstruction(
                 SerumUtils.SERUM_PROGRAM_ID_V3,
@@ -288,10 +271,63 @@ public class SerumProgram extends Program {
         );
     }
 
+    /**
+     * Encodes the default SettleFunds transaction data
+     *
+     * @return transaction data
+     */
     private static byte[] encodeSettleOrdersTransactionData() {
         ByteBuffer result = ByteBuffer.allocate(5);
         result.order(ByteOrder.LITTLE_ENDIAN);
-        result.put(1, (byte) 5);
+        result.put(1, (byte) SETTLE_ORDERS_METHOD_ID);
+        return result.array();
+    }
+
+    // TODO: fix this, doesn't work yet
+    public static TransactionInstruction consumeEvents(List<PublicKey> openOrdersAccounts,
+                                                       Account payerAccount,
+                                                       Market market) {
+        List<AccountMeta> accountMetas = new ArrayList<>();
+
+        // 0 fee payer + signer => your account
+        accountMetas.add(new AccountMeta(payerAccount.getPublicKey(), true, true));
+
+        // 1 - 5 = 5 open orders accounts
+        accountMetas.addAll(openOrdersAccounts.stream()
+                .map(publicKey -> new AccountMeta(publicKey, false, true))
+                .collect(Collectors.toList()));
+
+        // 6 = market's event queue
+        accountMetas.add(new AccountMeta(market.getEventQueueKey(), false, true));
+
+        // 7 dummy key (just me)
+        accountMetas.add(new AccountMeta(market.getOwnAddress(), false, false));
+
+        int limit = 5;
+        byte[] transactionData = encodeConsumeEventsTransactionData(
+                limit
+        );
+
+        return createTransactionInstruction(
+                SerumUtils.SERUM_PROGRAM_ID_V3,
+                accountMetas,
+                transactionData
+        );
+    }
+
+    /**
+     * Encodes the limit parameter used in ConsumeEvents instructions into a byte array
+     *
+     * @param limit number of events to consume
+     * @return transaction data
+     */
+    private static byte[] encodeConsumeEventsTransactionData(int limit) {
+        ByteBuffer result = ByteBuffer.allocate(3);
+        result.order(ByteOrder.LITTLE_ENDIAN);
+
+        result.put((byte) CONSUME_EVENTS_METHOD_ID);
+        result.putShort((short) limit);
+
         return result.array();
     }
 }
