@@ -56,7 +56,7 @@ public class OrderTest {
         final Market solUsdcMarket = new MarketBuilder()
                 .setPublicKey(SOL_USDC_MARKET_V3)
                 .setClient(client)
-                .setRetrieveEventQueue(true)
+                .setRetrieveDecimalsOnly(true)
                 .build();
 
         long orderId = 11133711L;
@@ -179,7 +179,7 @@ public class OrderTest {
         final Market oxyUsdcMarket = new MarketBuilder()
                 .setPublicKey(PublicKey.valueOf("GZ3WBFsqntmERPwumFEYgrX2B7J7G11MzNZAy7Hje27X"))
                 .setClient(client)
-                .setRetrieveEventQueue(true)
+                .setRetrieveDecimalsOnly(true)
                 .build();
 
         long orderId = 11133711L;
@@ -266,7 +266,7 @@ public class OrderTest {
         final Market oxyUsdcMarket = new MarketBuilder()
                 .setPublicKey(PublicKey.valueOf("HhvDWug3ftYNx5148ZmrQxzvEmohN2pKVNiRT4TVoekF")) // MER/USDC
                 .setClient(client)
-                .setRetrieveEventQueue(true)
+                .setRetrieveDecimalsOnly(true)
                 .build();
 
         long orderId = 11133711L;

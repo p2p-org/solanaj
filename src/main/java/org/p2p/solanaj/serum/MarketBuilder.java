@@ -20,6 +20,7 @@ public class MarketBuilder {
     private PublicKey publicKey;
     private boolean retrieveOrderbooks = false;
     private boolean retrieveEventQueue = false;
+    private boolean retrieveDecimalsOnly = false;
     private boolean built = false;
     private byte[] base64AccountInfo;
     private static final Logger LOGGER = Logger.getLogger(MarketBuilder.class.getName());
@@ -44,8 +45,17 @@ public class MarketBuilder {
         return retrieveEventQueue;
     }
 
+    public boolean isRetrieveDecimalsOnly() {
+        return retrieveDecimalsOnly;
+    }
+
     public MarketBuilder setRetrieveEventQueue(boolean retrieveEventQueue) {
         this.retrieveEventQueue = retrieveEventQueue;
+        return this;
+    }
+
+    public MarketBuilder setRetrieveDecimalsOnly(boolean retrieveDecimalsOnly) {
+        this.retrieveDecimalsOnly = retrieveDecimalsOnly;
         return this;
     }
 
@@ -153,6 +163,33 @@ public class MarketBuilder {
 
             EventQueue eventQueue = EventQueue.readEventQueue(base64EventQueue, baseDecimals, quoteDecimals, baseLotSize, quoteLotSize);
             market.setEventQueue(eventQueue);
+        }
+
+        // Used by SerumManager for most lightweight lookup possible
+        if (!retrieveEventQueue && !retrieveOrderbooks && retrieveDecimalsOnly) {
+            byte baseDecimals;
+            byte quoteDecimals;
+
+            if (decimalsCache.containsKey(market.getBaseMint())) {
+                //LOGGER.info("Using cache to get decimal for " + market.getBaseMint().toBase58());
+                baseDecimals = decimalsCache.get(market.getBaseMint());
+            } else {
+                //LOGGER.info("Looking up mint for " + market.getBaseMint().toBase58());
+                baseDecimals = getMintDecimals(market.getBaseMint());
+                decimalsCache.put(market.getBaseMint(), baseDecimals);
+            }
+
+            if (decimalsCache.containsKey(market.getQuoteMint())) {
+                //LOGGER.info("Using cache to get decimal for " + market.getQuoteMint().toBase58());
+                quoteDecimals = decimalsCache.get(market.getQuoteMint());
+            } else {
+                //LOGGER.info("Looking up mint for " + market.getQuoteMint().toBase58());
+                quoteDecimals = getMintDecimals(market.getQuoteMint());
+                decimalsCache.put(market.getQuoteMint(), quoteDecimals);
+            }
+
+            market.setBaseDecimals(baseDecimals);
+            market.setQuoteDecimals(quoteDecimals);
         }
 
         built = true;
