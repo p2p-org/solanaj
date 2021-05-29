@@ -23,7 +23,7 @@ public class SerumProgram extends Program {
             PublicKey.valueOf("SysvarRent111111111111111111111111111111111");
 
     private static final int MATCH_ORDERS_METHOD_ID = 2;
-    private static final int CONSUME_EVENTS_METHOD_ID = 4;
+    private static final int CONSUME_EVENTS_METHOD_ID = 3;
     private static final int SETTLE_ORDERS_METHOD_ID = 5;
     private static final int CANCEL_ORDER_BY_CLIENT_ID_V2_METHOD_ID = 12;
 
@@ -285,23 +285,19 @@ public class SerumProgram extends Program {
 
     // TODO: fix this, doesn't work yet
     public static TransactionInstruction consumeEvents(List<PublicKey> openOrdersAccounts,
-                                                       PublicKey payer,
-                                                       Market market) {
+                                                       Market market,
+                                                       PublicKey baseWallet,
+                                                       PublicKey quoteWallet) {
         List<AccountMeta> accountMetas = new ArrayList<>();
 
-        // 0 fee payer + signer => your account
-        accountMetas.add(new AccountMeta(payer, true, true));
-
-        // 1 - 5 = 5 open orders accounts
         accountMetas.addAll(openOrdersAccounts.stream()
                 .map(publicKey -> new AccountMeta(publicKey, false, true))
                 .collect(Collectors.toList()));
 
-        // 6 = market's event queue
+        accountMetas.add(new AccountMeta(market.getOwnAddress(), false, true));
         accountMetas.add(new AccountMeta(market.getEventQueueKey(), false, true));
-
-        // 7 dummy key (just me)
-        accountMetas.add(new AccountMeta(market.getOwnAddress(), false, false));
+        accountMetas.add(new AccountMeta(baseWallet, false, true));
+        accountMetas.add(new AccountMeta(quoteWallet, false, true));
 
         int limit = 5;
         byte[] transactionData = encodeConsumeEventsTransactionData(
@@ -322,11 +318,11 @@ public class SerumProgram extends Program {
      * @return transaction data
      */
     private static byte[] encodeConsumeEventsTransactionData(int limit) {
-        ByteBuffer result = ByteBuffer.allocate(3);
+        ByteBuffer result = ByteBuffer.allocate(7);
         result.order(ByteOrder.LITTLE_ENDIAN);
 
-        result.put((byte) CONSUME_EVENTS_METHOD_ID);
-        result.putShort((short) limit);
+        result.put(1, (byte) CONSUME_EVENTS_METHOD_ID);
+        result.put(5, (byte) limit);
 
         return result.array();
     }

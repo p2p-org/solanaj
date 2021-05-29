@@ -498,15 +498,41 @@ public class OrderTest {
         final Account account = new Account(Base58.decode(new String(data)));
 
         // Get SOL/USDC market
-        Market solUsdcMarket = new MarketBuilder()
-            .setPublicKey(SOL_USDC_MARKET_V3)
-            .setRetrieveOrderBooks(false)
-            .build();
+        final Market solUsdcMarket = new MarketBuilder()
+                .setPublicKey(SOL_USDC_MARKET_V3)
+                .setRetrieveOrderBooks(false)
+                .setClient(client)
+                .build();
 
-        // Consumeevents
-        //String transactionId = serumManager.consumeEvents(solUsdcMarket, account);
+        final PublicKey baseWallet = PublicKey.valueOf("Dc9tWM7oSgKDWcThGCnYhwQxLwnQ3e2J2WkyC6E2F1AG"); //wrapped sol
+        final PublicKey quoteWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+
+        final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                solUsdcMarket.getOwnAddress(),
+                account.getPublicKey()
+        );
+
+        final PublicKey openOrdersPubkey = openOrdersAccount.getOwnPubkey();
+
+        // ConsumeEvents with our pubkey 5 times
+        String transactionId = serumManager.consumeEvents(
+                account,
+                solUsdcMarket,
+                List.of(
+                        openOrdersPubkey,
+                        openOrdersPubkey,
+                        openOrdersPubkey,
+                        openOrdersPubkey,
+                        openOrdersPubkey
+                ),
+                baseWallet,
+                quoteWallet
+        );
+
+        LOGGER.info("Consume Events TX = " + transactionId);
 
         // Verify we got a txId
-        //assertNotNull(transactionId);
+        assertNotNull(transactionId);
     }
 }

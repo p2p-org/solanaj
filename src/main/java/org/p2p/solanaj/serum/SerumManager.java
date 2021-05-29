@@ -167,15 +167,27 @@ public class SerumManager {
      * @param market market to run crank against
      * @return transaction id of ConsumeEvents call
      */
-    public String consumeEvents(Account account, Market market, List<PublicKey> openOrdersAccounts) {
+    public String consumeEvents(Account account,
+                                Market market,
+                                List<PublicKey> openOrdersAccounts,
+                                PublicKey baseWallet,
+                                PublicKey quoteWallet) {
         // Get all open orders accounts
         final Transaction transaction = new Transaction();
 
         transaction.addInstruction(
                 SerumProgram.consumeEvents(
                         openOrdersAccounts,
+                        market,
+                        baseWallet,
+                        quoteWallet
+                )
+        );
+
+        transaction.addInstruction(
+                MemoProgram.writeUtf8(
                         account.getPublicKey(),
-                        market
+                        "Consumed events from SolanaJ"
                 )
         );
 
