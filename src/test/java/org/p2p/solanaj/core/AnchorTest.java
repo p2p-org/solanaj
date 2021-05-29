@@ -31,7 +31,7 @@ public class AnchorTest extends AccountBasedTest {
         );
 
         transaction.addInstruction(
-                MemoProgram.writeUtf8(feePayer, "I just called an Anchor program from SolanaJ.")
+                MemoProgram.writeUtf8(feePayer.getPublicKey(), "I just called an Anchor program from SolanaJ.")
         );
 
         final List<Account> signers = List.of(feePayer);

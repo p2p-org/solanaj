@@ -142,7 +142,7 @@ public class SerumManager {
 
         transaction.addInstruction(
                 MemoProgram.writeUtf8(
-                        account,
+                        account.getPublicKey(),
                         "Order placed by SolanaJ"
                 )
         );
@@ -217,7 +217,7 @@ public class SerumManager {
 
         transaction.addInstruction(
                 MemoProgram.writeUtf8(
-                        owner,
+                        owner.getPublicKey(),
                         "Order " + clientId + " cancelled by SolanaJ"
                 )
         );
@@ -334,7 +334,7 @@ public class SerumManager {
 
         transaction.addInstruction(
                 MemoProgram.writeUtf8(
-                        account,
+                        account.getPublicKey(),
                         "Orders settled by SolanaJ"
                 )
         );
