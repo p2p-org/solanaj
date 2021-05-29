@@ -29,13 +29,12 @@ public class SerumManager {
      * TODO: Currently, an open orders account is required to already exist for the given market. fix this.
      *
      * @param account Solana account to pay for the order
-     * @param payer Pubkey of token wallet that will be funding the order
      * @param market Market to trade on, built by a {@link MarketBuilder}
      * @param order Order, soon to be built by OrderBuilder
      *
      * @return transaction ID for the order
      */
-    public String placeOrder(Account account, PublicKey payer, Market market, Order order, PublicKey baseWallet, PublicKey quoteWallet) {
+    public String placeOrder(Account account, Market market, Order order, PublicKey baseWallet, PublicKey quoteWallet) {
         if (order.getFloatPrice() <= 0 || order.getFloatQuantity() <= 0) {
             throw new RuntimeException("Invalid floatPrice or floatQuantity");
         }
@@ -91,7 +90,7 @@ public class SerumManager {
             payerAccount = new Account();
         }
 
-        final PublicKey payerPublicKey = shouldWrapSol ? payerAccount.getPublicKey() : payer;
+        final PublicKey payerPublicKey = shouldWrapSol ? payerAccount.getPublicKey() : (order.isBuy() ? quoteWallet : baseWallet);
 
         if (shouldWrapSol) {
             transaction.addInstruction(

@@ -74,7 +74,6 @@ public class OrderTest {
         // Place order
         String transactionId = serumManager.placeOrder(
                 account,
-                null, //only can be null for wrapped sol
                 solUsdcMarket,
                 order,
                 account.getPublicKey(), //base wallet, sol address
@@ -101,7 +100,6 @@ public class OrderTest {
         // Place order
         String usdcTransactionId = serumManager.placeOrder(
                 account,
-                usdcPayer,
                 solUsdcMarket,
                 usdcOrder,
                 account.getPublicKey(),
@@ -202,7 +200,6 @@ public class OrderTest {
         // Place order
         String transactionId = serumManager.placeOrder(
                 account,
-                usdcPayer,
                 oxyUsdcMarket,
                 order,
                 oxyWallet,
@@ -293,7 +290,6 @@ public class OrderTest {
         // Place order
         String transactionId = serumManager.placeOrder(
                 account,
-                usdcPayer,
                 oxyUsdcMarket,
                 order,
                 oxyWallet,
@@ -344,7 +340,6 @@ public class OrderTest {
         // Place order
         String transactionId = serumManager.placeOrder(
                 account,
-                merWallet,
                 oxyUsdcMarket,
                 order,
                 merWallet,
