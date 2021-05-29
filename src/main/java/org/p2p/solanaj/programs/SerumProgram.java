@@ -253,12 +253,12 @@ public class SerumProgram extends Program {
         );
     }
 
-    private static byte[] encodeCancelOrderByClientIdTransactionData(long limit) {
+    private static byte[] encodeCancelOrderByClientIdTransactionData(long clientId) {
         ByteBuffer result = ByteBuffer.allocate(13);
         result.order(ByteOrder.LITTLE_ENDIAN);
 
         result.put(1, (byte) 12);
-        result.putLong(5, limit);
+        result.putLong(5, clientId);
 
         return result.array();
     }
