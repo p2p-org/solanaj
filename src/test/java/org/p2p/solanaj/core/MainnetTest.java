@@ -128,7 +128,7 @@ public class MainnetTest extends AccountBasedTest {
         byte[] data = new byte[0];
 
         try {
-            data = Files.readAllBytes(Paths.get("src/test/resources/orderbook.dat"));
+            data = Files.readAllBytes(Paths.get("src/test/resources/orderbook.bin"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -152,7 +152,7 @@ public class MainnetTest extends AccountBasedTest {
      */
     @Test
     public void testPriceDeserialization() {
-        /* C:\apps\solanaj\lqidusdc.dat (1/12/2021 8:55:59 AM)
+        /* C:\apps\solanaj\lqidusdc.bin (1/12/2021 8:55:59 AM)
    StartOffset(d): 00001277, EndOffset(d): 00001292, Length(d): 00000016 */
 
         byte[] rawData = {

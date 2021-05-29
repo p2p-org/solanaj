@@ -19,7 +19,7 @@ public class OrderbookTest {
         byte[] data = new byte[0];
 
         try {
-            data = Files.readAllBytes(Paths.get("src/test/resources/lqidusdc.dat"));  // LQID/USDC
+            data = Files.readAllBytes(Paths.get("src/test/resources/lqidusdc.bin"));  // LQID/USDC
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -30,7 +30,7 @@ public class OrderbookTest {
 
         assertNotNull(slab);
 
-        /* C:\apps\solanaj\lqidusdc.dat (1/12/2021 8:55:59 AM)
+        /* C:\apps\solanaj\lqidusdc.bin (1/12/2021 8:55:59 AM)
             StartOffset(d): 00001709, EndOffset(d): 00001724, Length(d): 00000016 */
 
         // this rawData = key bytes for a 477.080 quantity bid at 0.0510 cents
