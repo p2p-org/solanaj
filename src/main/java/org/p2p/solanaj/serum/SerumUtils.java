@@ -55,7 +55,7 @@ public class SerumUtils {
     // Market
     public static final long LAMPORTS_PER_SOL = 1000000000L;
     public static final int OWN_ADDRESS_OFFSET = 13;
-    private static final int VAULT_SIGNER_NONCE_OFFSET = 28;
+    private static final int VAULT_SIGNER_NONCE_OFFSET = 45;
     private static final int BASE_MINT_OFFSET = 53;
     private static final int QUOTE_MINT_OFFSET = 85;
     private static final int BASE_VAULT_OFFSET = 117;

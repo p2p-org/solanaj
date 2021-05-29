@@ -262,4 +262,36 @@ public class SerumProgram extends Program {
 
         return result.array();
     }
+
+    public static TransactionInstruction settleFunds(Market market, OpenOrdersAccount openOrdersAccount, PublicKey vaultSigner, PublicKey baseWallet, PublicKey quoteWallet) {
+        List<AccountMeta> accountMetas = new ArrayList<>();
+
+        accountMetas.add(new AccountMeta(market.getOwnAddress(), false, true));
+        accountMetas.add(new AccountMeta(openOrdersAccount.getOwnPubkey(), false, true));
+        accountMetas.add(new AccountMeta(openOrdersAccount.getOwner(), true, false));
+        accountMetas.add(new AccountMeta(market.getBaseVault(), false, true));
+        accountMetas.add(new AccountMeta(market.getQuoteVault(), false, true));
+        accountMetas.add(new AccountMeta(baseWallet, false, true));
+        accountMetas.add(new AccountMeta(quoteWallet, false, true));
+        accountMetas.add(new AccountMeta(vaultSigner, false, false));
+        accountMetas.add(new AccountMeta(TOKEN_PROGRAM_ID, false, false));
+
+
+        byte[] transactionData = encodeSettleOrdersTransactionData();
+
+        LOGGER.info("settleOrders hex = " + ByteUtils.bytesToHex(transactionData));
+
+        return createTransactionInstruction(
+                SerumUtils.SERUM_PROGRAM_ID_V3,
+                accountMetas,
+                transactionData
+        );
+    }
+
+    private static byte[] encodeSettleOrdersTransactionData() {
+        ByteBuffer result = ByteBuffer.allocate(5);
+        result.order(ByteOrder.LITTLE_ENDIAN);
+        result.put(1, (byte) 5);
+        return result.array();
+    }
 }

@@ -8,6 +8,9 @@ import org.p2p.solanaj.programs.TokenProgram;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -233,5 +236,116 @@ public class SerumManager {
     }
 
 
+    // TODO - create base and quote wallets if they dont exist like serum-dex-ui
+    public String settleFunds(Market market, Account account, PublicKey baseWallet, PublicKey quoteWallet) {
+        final Transaction transaction = new Transaction();
 
+        // Get Open orders public key
+        final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                market.getOwnAddress(),
+                account.getPublicKey()
+        );
+
+        if (openOrdersAccount == null) {
+            throw new RuntimeException("Unable to find open orders account.");
+        }
+
+        // vault signer nonce
+        final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer.putLong(market.getVaultSignerNonce());
+        byte[] vaultSignerNonce = buffer.array();
+
+        final PublicKey vaultSigner = PublicKey.createProgramAddress(
+                List.of(
+                        market.getOwnAddress().toByteArray(),
+                        vaultSignerNonce
+                ),
+                SerumUtils.SERUM_PROGRAM_ID_V3
+        );
+
+        LOGGER.info("Vault Signer = " + vaultSigner.toBase58());
+
+        final List<Account> signers = new ArrayList<>();
+        signers.add(account);
+
+        boolean shouldWrapSol = market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) ||
+                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT);
+
+        Account wrappedSolAccount = null;
+
+        if (shouldWrapSol) {
+            long minimumRentBalance = 2039280L; // TODO - add option to call API for this value. put somewhere common
+            long space = 165L; // TODO - put this somewhere common
+
+            wrappedSolAccount = new Account();
+            signers.add(wrappedSolAccount);
+
+            // Create account
+            transaction.addInstruction(
+                    SystemProgram.createAccount(
+                            account.getPublicKey(),
+                            wrappedSolAccount.getPublicKey(),
+                            minimumRentBalance,
+                            space,
+                            TokenProgram.PROGRAM_ID
+                    )
+            );
+
+            // Initialize account
+            transaction.addInstruction(
+                    TokenProgram.initializeAccount(
+                            wrappedSolAccount.getPublicKey(),
+                            SerumUtils.WRAPPED_SOL_MINT,
+                            account.getPublicKey()
+                    )
+            );
+        }
+
+        // Settle funds instruction
+        transaction.addInstruction(
+                SerumProgram.settleFunds(
+                        market,
+                        openOrdersAccount,
+                        vaultSigner,
+                        (
+                                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
+                                        wrappedSolAccount.getPublicKey() :
+                                        baseWallet
+                        ),
+                        (
+                                market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
+                                        wrappedSolAccount.getPublicKey() :
+                                        quoteWallet
+                        )
+                )
+        );
+
+        if (shouldWrapSol) {
+            transaction.addInstruction(
+                    TokenProgram.closeAccount(
+                            wrappedSolAccount.getPublicKey(),
+                            account.getPublicKey(),
+                            account.getPublicKey()
+                    )
+            );
+        }
+
+        transaction.addInstruction(
+                MemoProgram.writeUtf8(
+                        account,
+                        "Orders settled by SolanaJ"
+                )
+        );
+
+        String result = null;
+        try {
+            result = client.getApi().sendTransaction(transaction, signers, null);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 }

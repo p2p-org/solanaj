@@ -38,8 +38,8 @@ public class OrderTest {
     @Test
     @Ignore
     public void placeOrderTest() {
-        LOGGER.info("Placing order");
-
+//        LOGGER.info("Placing order");
+//
         // Replace with the public key of your USDC wallet
         final PublicKey usdcPayer = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
 
@@ -109,6 +109,12 @@ public class OrderTest {
         assertNotNull(usdcTransactionId);
         LOGGER.info("Successfully placed bid for 0.1 SOL on SOL/USDC market.");
 
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         // Cancel the SOL order
         String cancelTransactionId = serumManager.cancelOrderByClientId(
                 solUsdcMarket,
@@ -131,6 +137,20 @@ public class OrderTest {
         LOGGER.info("USDC Cancellation TX = " + cancelTransactionId);
         LOGGER.info("Successfully cancelled order by ID " + usdcOrderId);
 
+        // Settle transaction
+        LOGGER.info("Settling funds");
+        final PublicKey baseWallet = account.getPublicKey();
+        final PublicKey quoteWallet = usdcPayer;
+
+        String settlementTransactionId = serumManager.settleFunds(
+                solUsdcMarket,
+                account,
+                baseWallet,
+                quoteWallet
+        );
+
+        assertNotNull(settlementTransactionId);
+        LOGGER.info("Settlement TX = " + settlementTransactionId);
     }
 
     @Test

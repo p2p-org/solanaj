@@ -76,7 +76,7 @@ public class PublicKey {
         return toBase58();
     }
 
-    public static PublicKey createProgramAddress(List<byte[]> seeds, PublicKey programId) throws Exception {
+    public static PublicKey createProgramAddress(List<byte[]> seeds, PublicKey programId) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
         for (byte[] seed : seeds) {
@@ -93,7 +93,7 @@ public class PublicKey {
         byte[] hash = Sha256Hash.hash(buffer.toByteArray());
 
         if (TweetNaclFast.is_on_curve(hash) != 0) {
-            throw new Exception("Invalid seeds, address must fall off the curve");
+            throw new RuntimeException("Invalid seeds, address must fall off the curve");
         }
 
         return new PublicKey(hash);
