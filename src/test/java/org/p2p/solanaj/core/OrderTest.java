@@ -23,7 +23,7 @@ public class OrderTest {
     private static final Logger LOGGER = Logger.getLogger(OrderTest.class.getName());
     private final RpcClient client = new RpcClient("https://solana-api.projectserum.com");
     private final SerumManager serumManager = new SerumManager(client);
-    private static final PublicKey SOL_USDC_MARKET_V3 = new PublicKey("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
+    private static final PublicKey SOL_USDC_MARKET_V3 = PublicKey.valueOf("9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT");
 
     /**
      * Places a sell order for 0.1 SOL on SOL/USDC and a buy order for 0.001 USDC on SOL/USDC.
@@ -38,8 +38,6 @@ public class OrderTest {
     @Test
     @Ignore
     public void placeOrderTest() {
-//        LOGGER.info("Placing order");
-//
         // Replace with the public key of your USDC wallet
         final PublicKey usdcPayer = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
 
@@ -234,6 +232,93 @@ public class OrderTest {
         LOGGER.info("Settling funds");
         final PublicKey baseWallet = oxyWallet;
         final PublicKey quoteWallet = usdcPayer;
+
+        String settlementTransactionId = serumManager.settleFunds(
+                oxyUsdcMarket,
+                account,
+                baseWallet,
+                quoteWallet
+        );
+
+        assertNotNull(settlementTransactionId);
+        LOGGER.info("Settlement TX = " + settlementTransactionId);
+    }
+
+    @Test
+    @Ignore
+    public void placeOrderSellMerTest() {
+        // Replace with the public key of your OXY and USDC wallet
+        final PublicKey merWallet = PublicKey.valueOf("FqZv3vNbLMcVXvV7yH8LmPKitn5nhLcpnd981JSFF7jf"); // needs 0.1 mer
+        final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create account from private key
+        final Account account = new Account(Base58.decode(new String(data)));
+
+        // Get OXY/USDC market
+        final Market oxyUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("HhvDWug3ftYNx5148ZmrQxzvEmohN2pKVNiRT4TVoekF")) // MER/USDC
+                .setClient(client)
+                .setRetrieveEventQueue(true)
+                .build();
+
+        long orderId = 11133711L;
+
+        // 0.1 mer offer @ $1337
+        final Order order = new Order(
+                1337,
+                0.1f,
+                orderId
+        );
+
+        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+        order.setBuy(false);
+
+        // Place order
+        String transactionId = serumManager.placeOrder(
+                account,
+                merWallet,
+                oxyUsdcMarket,
+                order
+        );
+
+        assertNotNull(transactionId);
+
+        try {
+            Thread.sleep(100L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Cancel the order
+        String cancelTransactionId = serumManager.cancelOrderByClientId(
+                oxyUsdcMarket,
+                account,
+                orderId
+        );
+
+        assertNotNull(cancelTransactionId);
+        LOGGER.info("Cancellation TX = " + cancelTransactionId);
+        LOGGER.info("Successfully cancelled order by ID " + orderId);
+
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Settle transaction
+        LOGGER.info("Settling funds");
+        final PublicKey baseWallet = merWallet;
+        final PublicKey quoteWallet = usdcWallet;
 
         String settlementTransactionId = serumManager.settleFunds(
                 oxyUsdcMarket,
