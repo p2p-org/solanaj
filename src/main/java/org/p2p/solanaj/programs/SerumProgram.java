@@ -240,21 +240,18 @@ public class SerumProgram extends Program {
     /**
      * Builds a {@link TransactionInstruction} used to settle funds on a given Serum {@link Market}
      *
-     * @param market loaded market that we are trading on. this must be built by a {@link MarketBuilder}
-     * @param openOrdersAccount open orders pubkey associated with this Account and market - use {@link SerumUtils}
-     * @param baseWallet destination base wallet to settle funds to
-     * @param quoteWallet destination quote wallet to settle funds to
      * @return {@link TransactionInstruction} for the settleFunds call
      */
     public static TransactionInstruction settleFunds(Market market,
-                                                     OpenOrdersAccount openOrdersAccount,
+                                                     PublicKey openOrdersPubkey,
+                                                     PublicKey owner,
                                                      PublicKey baseWallet,
                                                      PublicKey quoteWallet) {
         List<AccountMeta> accountMetas = new ArrayList<>();
 
         accountMetas.add(new AccountMeta(market.getOwnAddress(), false, true));
-        accountMetas.add(new AccountMeta(openOrdersAccount.getOwnPubkey(), false, true));
-        accountMetas.add(new AccountMeta(openOrdersAccount.getOwner(), true, false));
+        accountMetas.add(new AccountMeta(openOrdersPubkey, false, true));
+        accountMetas.add(new AccountMeta(owner, true, false));
         accountMetas.add(new AccountMeta(market.getBaseVault(), false, true));
         accountMetas.add(new AccountMeta(market.getQuoteVault(), false, true));
         accountMetas.add(new AccountMeta(baseWallet, false, true));
