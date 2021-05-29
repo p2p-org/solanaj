@@ -61,10 +61,12 @@ public class OrderTest {
                 .setRetrieveEventQueue(true)
                 .build();
 
+        long orderId = 11133711L;
+
         final Order order = new Order(
                 1337,
                 0.1f,
-                1
+                orderId
         );
 
         order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
@@ -82,10 +84,14 @@ public class OrderTest {
         assertNotNull(transactionId);
         LOGGER.info("Successfully placed offer for 0.1 SOL on SOL/USDC market.");
 
+        // USDC order
+
+        long usdcOrderId = 12321L;
+
         final Order usdcOrder = new Order(
                 0.001f,
                 0.1f,
-                1
+                usdcOrderId
         );
 
         usdcOrder.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
@@ -102,6 +108,28 @@ public class OrderTest {
 
         assertNotNull(usdcTransactionId);
         LOGGER.info("Successfully placed bid for 0.1 SOL on SOL/USDC market.");
+
+        // Cancel the SOL order
+        String cancelTransactionId = serumManager.cancelOrderByClientId(
+                solUsdcMarket,
+                account,
+                orderId
+        );
+
+        assertNotNull(cancelTransactionId);
+        LOGGER.info("Cancellation TX = " + cancelTransactionId);
+        LOGGER.info("Successfully cancelled order by ID " + orderId);
+
+        // Cancel the USDC order
+        String usdcCancelTransactionId = serumManager.cancelOrderByClientId(
+                solUsdcMarket,
+                account,
+                usdcOrderId
+        );
+
+        assertNotNull(usdcCancelTransactionId);
+        LOGGER.info("USDC Cancellation TX = " + cancelTransactionId);
+        LOGGER.info("Successfully cancelled order by ID " + usdcOrderId);
 
     }
 

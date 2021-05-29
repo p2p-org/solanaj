@@ -4,7 +4,9 @@ import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class OpenOrdersAccount {
 
@@ -60,6 +62,21 @@ public class OpenOrdersAccount {
 
         final long quoteTokenTotal = Utils.readInt64(data, QUOTE_TOKEN_TOTAL_OFFSET);
         openOrdersAccount.setQuoteTokenTotal(quoteTokenTotal);
+
+        byte[] freeSlotBits = Arrays.copyOfRange(data, QUOTE_TOKEN_TOTAL_OFFSET + 8, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16);
+        byte[] isBidBits = Arrays.copyOfRange(data, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16);
+
+        // orders = 128 * 16 = 2048 bytes of orders
+
+        byte[] orders = Arrays.copyOfRange(data, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16 + 2048);
+        byte[] clientIds = Arrays.copyOfRange(data, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16 + 2048, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16 + 2048 + 1024);
+
+        long firstClientId = Utils.readInt64(clientIds, 0);
+        long secondClientId = Utils.readInt64(clientIds, 8);
+        long thirdClientId = Utils.readInt64(clientIds, 16);
+        long fourthClientId = Utils.readInt64(clientIds, 24);
+
+        Logger.getAnonymousLogger().info(String.format("Order IDs: %d, %d, %d, %d", firstClientId, secondClientId, thirdClientId, fourthClientId));
 
         return openOrdersAccount;
     }

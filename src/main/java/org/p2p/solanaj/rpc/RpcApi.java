@@ -22,7 +22,7 @@ public class RpcApi {
     public String getRecentBlockhash() throws RpcException {
         List<Object> params = new ArrayList<>();
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("commitment", "max");
+        parameterMap.put("commitment", "processed");
         params.add(parameterMap);
 
         return client.call("getRecentBlockhash", params, RecentBlockhash.class).getRecentBlockhash();

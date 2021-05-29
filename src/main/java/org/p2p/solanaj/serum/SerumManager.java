@@ -192,6 +192,46 @@ public class SerumManager {
         return result;
     }
 
+    public String cancelOrderByClientId(Market market, Account owner, long clientId) {
+        final Transaction transaction = new Transaction();
+
+        // Get Open orders public key
+        final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                market.getOwnAddress(),
+                owner.getPublicKey()
+        );
+
+        transaction.addInstruction(
+                SerumProgram.cancelOrderByClientId(
+                        market,
+                        openOrdersAccount.getOwnPubkey(),
+                        market.getRequestQueue(),
+                        owner.getPublicKey(),
+                        clientId
+                )
+        );
+
+        transaction.addInstruction(
+                MemoProgram.writeUtf8(
+                        owner,
+                        "Order " + clientId + " cancelled by SolanaJ"
+                )
+        );
+
+        String result = null;
+        while (result == null) {
+            try {
+                result = client.getApi().sendTransaction(transaction, owner);
+            } catch (RpcException e) {
+                LOGGER.warning("Cancel order failed, trying again in 1 second");
+                cancelOrderByClientId(market, owner, clientId);
+            }
+        }
+
+        return result;
+    }
+
 
 
 }

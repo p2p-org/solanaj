@@ -68,6 +68,8 @@ public class ConfigObjects {
         private Encoding encoding = null;
         @Json(name = "filters")
         private List<Object> filters = null;
+        @Json(name="commitment")
+        private String commitment = "processed";
 
         public ProgramAccountConfig() {
         }

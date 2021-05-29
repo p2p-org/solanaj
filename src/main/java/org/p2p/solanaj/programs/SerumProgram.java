@@ -219,7 +219,7 @@ public class SerumProgram extends Program {
         SerumUtils.writeOrderType(result, order.getOrderTypeLayout());
 
         // clientId - uint64
-        SerumUtils.writeClientId(result, order.getClientId());
+        SerumUtils.writeClientId(result, order.getClientOrderId());
 
         // "limit" - uint16 - might always be static equal to 65535
         SerumUtils.writeLimit(result);
@@ -230,4 +230,36 @@ public class SerumProgram extends Program {
         return arrayResult;
     }
 
+    public static TransactionInstruction cancelOrderByClientId(Market market, PublicKey openOrders, PublicKey requestQueue, PublicKey owner, long clientId) {
+        List<AccountMeta> accountMetas = new ArrayList<>();
+
+        accountMetas.add(new AccountMeta(market.getOwnAddress(), false, false));
+        accountMetas.add(new AccountMeta(market.getBids(), false, true));
+        accountMetas.add(new AccountMeta(market.getAsks(), false, true));
+        accountMetas.add(new AccountMeta(openOrders, false, true));
+        accountMetas.add(new AccountMeta(owner, true, false));
+        accountMetas.add(new AccountMeta(market.getEventQueueKey(), false, true));
+
+        byte[] transactionData = encodeCancelOrderByClientIdTransactionData(
+                clientId
+        );
+
+        LOGGER.info("cancelOrderByClientId = " + ByteUtils.bytesToHex(transactionData));
+
+        return createTransactionInstruction(
+                SerumUtils.SERUM_PROGRAM_ID_V3,
+                accountMetas,
+                transactionData
+        );
+    }
+
+    private static byte[] encodeCancelOrderByClientIdTransactionData(long limit) {
+        ByteBuffer result = ByteBuffer.allocate(13);
+        result.order(ByteOrder.LITTLE_ENDIAN);
+
+        result.put(1, (byte) 12);
+        result.putLong(5, limit);
+
+        return result.array();
+    }
 }
