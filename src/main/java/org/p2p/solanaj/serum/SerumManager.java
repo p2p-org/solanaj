@@ -70,14 +70,6 @@ public class SerumManager {
         );
 
         long space = 165L;
-        int matchOrdersLimit = 5;
-
-        transaction.addInstruction(
-                SerumProgram.matchOrders(
-                        market,
-                        matchOrdersLimit
-                )
-        );
 
         // Create payer account (only used if shouldWrapSol)
         Account payerAccount = null;
@@ -131,13 +123,6 @@ public class SerumManager {
             );
         }
 
-        transaction.addInstruction(
-                SerumProgram.matchOrders(
-                        market,
-                        matchOrdersLimit
-                )
-        );
-
         // Instant settlement if IoC
         if (order.getOrderTypeLayout().getValue() == OrderTypeLayout.IOC.getValue()) {
             transaction.addInstruction(
@@ -182,19 +167,19 @@ public class SerumManager {
      * @param market market to run crank against
      * @return transaction id of ConsumeEvents call
      */
-    public String consumeEvents(Market market, Account payerAccount, List<PublicKey> openOrdersAccounts) {
+    public String consumeEvents(Account account, Market market, List<PublicKey> openOrdersAccounts) {
         // Get all open orders accounts
         final Transaction transaction = new Transaction();
 
         transaction.addInstruction(
                 SerumProgram.consumeEvents(
                         openOrdersAccounts,
-                        payerAccount,
+                        account.getPublicKey(),
                         market
                 )
         );
 
-        final List<Account> signers = List.of(payerAccount);
+        final List<Account> signers = List.of(account);
         String result = null;
         try {
             result = client.getApi().sendTransaction(transaction, signers, null);
@@ -205,7 +190,7 @@ public class SerumManager {
         return result;
     }
 
-    public String cancelOrderByClientId(Market market, Account owner, long clientId) {
+    public String cancelOrderByClientId(Account owner, Market market, long clientId) {
         final Transaction transaction = new Transaction();
 
         // Get Open orders public key
@@ -237,7 +222,7 @@ public class SerumManager {
                 result = client.getApi().sendTransaction(transaction, owner);
             } catch (RpcException e) {
                 LOGGER.warning("Cancel order failed, trying again in 1 second");
-                cancelOrderByClientId(market, owner, clientId);
+                cancelOrderByClientId(owner, market, clientId);
             }
         }
 

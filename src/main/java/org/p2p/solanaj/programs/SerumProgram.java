@@ -285,12 +285,12 @@ public class SerumProgram extends Program {
 
     // TODO: fix this, doesn't work yet
     public static TransactionInstruction consumeEvents(List<PublicKey> openOrdersAccounts,
-                                                       Account payerAccount,
+                                                       PublicKey payer,
                                                        Market market) {
         List<AccountMeta> accountMetas = new ArrayList<>();
 
         // 0 fee payer + signer => your account
-        accountMetas.add(new AccountMeta(payerAccount.getPublicKey(), true, true));
+        accountMetas.add(new AccountMeta(payer, true, true));
 
         // 1 - 5 = 5 open orders accounts
         accountMetas.addAll(openOrdersAccounts.stream()

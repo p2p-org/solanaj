@@ -117,8 +117,8 @@ public class OrderTest {
 
         // Cancel the SOL order
         String cancelTransactionId = serumManager.cancelOrderByClientId(
-                solUsdcMarket,
                 account,
+                solUsdcMarket,
                 orderId
         );
 
@@ -128,8 +128,8 @@ public class OrderTest {
 
         // Cancel the USDC order
         String usdcCancelTransactionId = serumManager.cancelOrderByClientId(
-                solUsdcMarket,
                 account,
+                solUsdcMarket,
                 usdcOrderId
         );
 
@@ -216,8 +216,8 @@ public class OrderTest {
 
         // Cancel the order
         String cancelTransactionId = serumManager.cancelOrderByClientId(
-                oxyUsdcMarket,
                 account,
+                oxyUsdcMarket,
                 orderId
         );
 
@@ -356,8 +356,8 @@ public class OrderTest {
 
         // Cancel the order
         String cancelTransactionId = serumManager.cancelOrderByClientId(
-                oxyUsdcMarket,
                 account,
+                oxyUsdcMarket,
                 orderId
         );
 
@@ -497,11 +497,13 @@ public class OrderTest {
         // Create account from private key
         final Account account = new Account(Base58.decode(new String(data)));
 
-        // Get SOL/USDC market        final Market solUsdcMarket = new MarketBuilder()
-        //                .setPublicKey(SOL_USDC_MARKET_V3)
-        //                .setRetrieveOrderBooks(false)
-        //                .build();
-        // Place order
+        // Get SOL/USDC market
+        Market solUsdcMarket = new MarketBuilder()
+            .setPublicKey(SOL_USDC_MARKET_V3)
+            .setRetrieveOrderBooks(false)
+            .build();
+
+        // Consumeevents
         //String transactionId = serumManager.consumeEvents(solUsdcMarket, account);
 
         // Verify we got a txId
