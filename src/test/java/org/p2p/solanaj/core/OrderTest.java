@@ -74,9 +74,11 @@ public class OrderTest {
         // Place order
         String transactionId = serumManager.placeOrder(
                 account,
-                null,
+                null, //only can be null for wrapped sol
                 solUsdcMarket,
-                order
+                order,
+                account.getPublicKey(), //base wallet, sol address
+                usdcPayer
         );
 
         assertNotNull(transactionId);
@@ -101,7 +103,9 @@ public class OrderTest {
                 account,
                 usdcPayer,
                 solUsdcMarket,
-                usdcOrder
+                usdcOrder,
+                account.getPublicKey(),
+                usdcPayer
         );
 
         assertNotNull(usdcTransactionId);
@@ -200,7 +204,9 @@ public class OrderTest {
                 account,
                 usdcPayer,
                 oxyUsdcMarket,
-                order
+                order,
+                oxyWallet,
+                usdcPayer
         );
 
         assertNotNull(transactionId);
@@ -242,6 +248,59 @@ public class OrderTest {
 
         assertNotNull(settlementTransactionId);
         LOGGER.info("Settlement TX = " + settlementTransactionId);
+    }
+
+
+    // 1 oxy bid @ $2.5
+    // 1 oxy is currently less than $2.5, so this will be instant when IoC'd
+    // have at least $2.5 you dont mind losing
+    @Test
+    @Ignore
+    public void iocPlaceOrderOxyTest() {
+        // Replace with the public key of your OXY and USDC wallet
+        final PublicKey oxyWallet = PublicKey.valueOf("DoecacoZMpqHT8RGusoJYcjDFZjZauaLrDQh8BxQUVdU");
+        final PublicKey usdcPayer = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create account from private key
+        final Account account = new Account(Base58.decode(new String(data)));
+
+        // Get OXY/USDC market
+        final Market oxyUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("GZ3WBFsqntmERPwumFEYgrX2B7J7G11MzNZAy7Hje27X"))
+                .setClient(client)
+                .setRetrieveDecimalsOnly(true)
+                .build();
+
+        long orderId = 11133711L;
+        final Order order = new Order(
+                2.5f,
+                1f,
+                orderId
+        );
+
+        order.setOrderTypeLayout(OrderTypeLayout.IOC);
+        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+        order.setBuy(true);
+
+        // Place order
+        String transactionId = serumManager.placeOrder(
+                account,
+                usdcPayer,
+                oxyUsdcMarket,
+                order,
+                oxyWallet,
+                usdcPayer
+        );
+
+        assertNotNull(transactionId);
     }
 
     @Test
@@ -287,7 +346,9 @@ public class OrderTest {
                 account,
                 merWallet,
                 oxyUsdcMarket,
-                order
+                order,
+                merWallet,
+                usdcWallet
         );
 
         assertNotNull(transactionId);

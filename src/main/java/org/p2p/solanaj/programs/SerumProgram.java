@@ -263,7 +263,7 @@ public class SerumProgram extends Program {
         return result.array();
     }
 
-    public static TransactionInstruction settleFunds(Market market, OpenOrdersAccount openOrdersAccount, PublicKey vaultSigner, PublicKey baseWallet, PublicKey quoteWallet) {
+    public static TransactionInstruction settleFunds(Market market, OpenOrdersAccount openOrdersAccount, PublicKey baseWallet, PublicKey quoteWallet) {
         List<AccountMeta> accountMetas = new ArrayList<>();
 
         accountMetas.add(new AccountMeta(market.getOwnAddress(), false, true));
@@ -273,7 +273,7 @@ public class SerumProgram extends Program {
         accountMetas.add(new AccountMeta(market.getQuoteVault(), false, true));
         accountMetas.add(new AccountMeta(baseWallet, false, true));
         accountMetas.add(new AccountMeta(quoteWallet, false, true));
-        accountMetas.add(new AccountMeta(vaultSigner, false, false));
+        accountMetas.add(new AccountMeta(SerumUtils.getVaultSigner(market), false, false));
         accountMetas.add(new AccountMeta(TOKEN_PROGRAM_ID, false, false));
 
 

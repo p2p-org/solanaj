@@ -8,6 +8,7 @@ import org.p2p.solanaj.rpc.types.ConfigObjects;
 import org.p2p.solanaj.rpc.types.ProgramAccount;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -319,5 +320,22 @@ public class SerumUtils {
         return market.getQuoteLotSize() *
                 baseSizeNumberToLots(size, market.getBaseDecimals(), market.getBaseLotSize()) *
                 priceNumberToLots(price, market);
+    }
+
+    public static PublicKey getVaultSigner(Market market){
+        final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer.putLong(market.getVaultSignerNonce());
+        byte[] vaultSignerNonce = buffer.array();
+
+        final PublicKey vaultSigner = PublicKey.createProgramAddress(
+                List.of(
+                        market.getOwnAddress().toByteArray(),
+                        vaultSignerNonce
+                ),
+                SerumUtils.SERUM_PROGRAM_ID_V3
+        );
+
+        return vaultSigner;
     }
 }

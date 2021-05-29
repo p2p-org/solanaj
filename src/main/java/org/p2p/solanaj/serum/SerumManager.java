@@ -35,7 +35,7 @@ public class SerumManager {
      *
      * @return transaction ID for the order
      */
-    public String placeOrder(Account account, PublicKey payer, Market market, Order order) {
+    public String placeOrder(Account account, PublicKey payer, Market market, Order order, PublicKey baseWallet, PublicKey quoteWallet) {
         if (order.getFloatPrice() <= 0 || order.getFloatQuantity() <= 0) {
             throw new RuntimeException("Invalid floatPrice or floatQuantity");
         }
@@ -139,6 +139,18 @@ public class SerumManager {
                         matchOrdersLimit
                 )
         );
+
+        // Instant settlement if IoC
+        if (order.getOrderTypeLayout().getValue() == OrderTypeLayout.IOC.getValue()) {
+            transaction.addInstruction(
+                    SerumProgram.settleFunds(
+                            market,
+                            openOrders,
+                            baseWallet,
+                            quoteWallet
+                    )
+            );
+        }
 
         transaction.addInstruction(
                 MemoProgram.writeUtf8(
@@ -251,22 +263,6 @@ public class SerumManager {
             throw new RuntimeException("Unable to find open orders account.");
         }
 
-        // vault signer nonce
-        final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.putLong(market.getVaultSignerNonce());
-        byte[] vaultSignerNonce = buffer.array();
-
-        final PublicKey vaultSigner = PublicKey.createProgramAddress(
-                List.of(
-                        market.getOwnAddress().toByteArray(),
-                        vaultSignerNonce
-                ),
-                SerumUtils.SERUM_PROGRAM_ID_V3
-        );
-
-        LOGGER.info("Vault Signer = " + vaultSigner.toBase58());
-
         final List<Account> signers = new ArrayList<>();
         signers.add(account);
 
@@ -308,7 +304,6 @@ public class SerumManager {
                 SerumProgram.settleFunds(
                         market,
                         openOrdersAccount,
-                        vaultSigner,
                         (
                                 market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
                                         wrappedSolAccount.getPublicKey() :
