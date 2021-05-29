@@ -9,7 +9,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 /**
  * Builds a {@link Market} object, which can have polled data including bid/ask {@link OrderBook}s
@@ -23,7 +22,6 @@ public class MarketBuilder {
     private boolean retrieveDecimalsOnly = false;
     private boolean built = false;
     private byte[] base64AccountInfo;
-    private static final Logger LOGGER = Logger.getLogger(MarketBuilder.class.getName());
 
     private Map<PublicKey, Byte> decimalsCache = new ConcurrentHashMap<>();
 
@@ -62,10 +60,7 @@ public class MarketBuilder {
     public Market build() {
         // Only lookup account info one time since it never changes (except for fees accrued, not important imo)
         if (!built) {
-            //LOGGER.info("Retrieving market data once for " + publicKey.toBase58());
             base64AccountInfo = retrieveAccountData();
-        } else {
-            //LOGGER.info("Already built for " + publicKey.toBase58() + ", using cached data");
         }
 
         // Read market
@@ -78,25 +73,20 @@ public class MarketBuilder {
         // Get Order books
         if (retrieveOrderbooks) {
             // Data from the token mints
-
             // first, check the cache for the byte. otherwise, make a request for it
             byte baseDecimals;
             byte quoteDecimals;
 
             if (decimalsCache.containsKey(market.getBaseMint())) {
-                //LOGGER.info("Using cache to get decimal for " + market.getBaseMint().toBase58());
                 baseDecimals = decimalsCache.get(market.getBaseMint());
             } else {
-                //LOGGER.info("Looking up mint for " + market.getBaseMint().toBase58());
                 baseDecimals = getMintDecimals(market.getBaseMint());
                 decimalsCache.put(market.getBaseMint(), baseDecimals);
             }
 
             if (decimalsCache.containsKey(market.getQuoteMint())) {
-                //LOGGER.info("Using cache to get decimal for " + market.getQuoteMint().toBase58());
                 quoteDecimals = decimalsCache.get(market.getQuoteMint());
             } else {
-                //LOGGER.info("Looking up mint for " + market.getQuoteMint().toBase58());
                 quoteDecimals = getMintDecimals(market.getQuoteMint());
                 decimalsCache.put(market.getQuoteMint(), quoteDecimals);
             }
@@ -129,7 +119,6 @@ public class MarketBuilder {
         }
 
         if (retrieveEventQueue) {
-            // retrieveEventQueue
             byte[] base64EventQueue = retrieveAccountData(market.getEventQueueKey());
 
             // first, check the cache for the byte. otherwise, make a request for it
@@ -138,19 +127,15 @@ public class MarketBuilder {
             byte quoteDecimals;
 
             if (decimalsCache.containsKey(market.getBaseMint())) {
-                //LOGGER.info("Using cache to get decimal for " + market.getBaseMint().toBase58());
                 baseDecimals = decimalsCache.get(market.getBaseMint());
             } else {
-                //LOGGER.info("Looking up mint for " + market.getBaseMint().toBase58());
                 baseDecimals = getMintDecimals(market.getBaseMint());
                 decimalsCache.put(market.getBaseMint(), baseDecimals);
             }
 
             if (decimalsCache.containsKey(market.getQuoteMint())) {
-                //LOGGER.info("Using cache to get decimal for " + market.getQuoteMint().toBase58());
                 quoteDecimals = decimalsCache.get(market.getQuoteMint());
             } else {
-                //LOGGER.info("Looking up mint for " + market.getQuoteMint().toBase58());
                 quoteDecimals = getMintDecimals(market.getQuoteMint());
                 decimalsCache.put(market.getQuoteMint(), quoteDecimals);
             }
@@ -171,19 +156,15 @@ public class MarketBuilder {
             byte quoteDecimals;
 
             if (decimalsCache.containsKey(market.getBaseMint())) {
-                //LOGGER.info("Using cache to get decimal for " + market.getBaseMint().toBase58());
                 baseDecimals = decimalsCache.get(market.getBaseMint());
             } else {
-                //LOGGER.info("Looking up mint for " + market.getBaseMint().toBase58());
                 baseDecimals = getMintDecimals(market.getBaseMint());
                 decimalsCache.put(market.getBaseMint(), baseDecimals);
             }
 
             if (decimalsCache.containsKey(market.getQuoteMint())) {
-                //LOGGER.info("Using cache to get decimal for " + market.getQuoteMint().toBase58());
                 quoteDecimals = decimalsCache.get(market.getQuoteMint());
             } else {
-                //LOGGER.info("Looking up mint for " + market.getQuoteMint().toBase58());
                 quoteDecimals = getMintDecimals(market.getQuoteMint());
                 decimalsCache.put(market.getQuoteMint(), quoteDecimals);
             }
