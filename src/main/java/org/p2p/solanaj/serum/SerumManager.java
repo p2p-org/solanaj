@@ -1,7 +1,6 @@
 package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.core.*;
-import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.programs.SerumProgram;
 import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.programs.TokenProgram;
@@ -10,13 +9,15 @@ import org.p2p.solanaj.rpc.RpcException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 @SuppressWarnings("DuplicatedCode")
 public class SerumManager {
 
-    private static final Logger LOGGER = Logger.getLogger(SerumManager.class.getName());
     private final RpcClient client;
+
+    // getMinimumBalanceForRentExemption(165) = 2039280
+    private static final long MINIMUM_BALANCE_FOR_RENT_EXEMPTION_165 = 2039280L;
+    private static final long REQUIRED_ACCOUNT_SPACE = 165L;
 
     public SerumManager(final RpcClient client) {
         this.client = client;
@@ -36,13 +37,15 @@ public class SerumManager {
      * @return transaction ID for the order
      */
     public String placeOrder(Account account, Market market, Order order, PublicKey baseWallet, PublicKey quoteWallet) {
-        if (order.getFloatPrice() <= 0 || order.getFloatQuantity() <= 0) {
-            throw new RuntimeException("Invalid floatPrice or floatQuantity");
-        }
+        validateOrder(order);
 
-        final Transaction transaction = new Transaction();
         final OpenOrdersAccount openOrders = SerumUtils.findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
+        validateOpenOrdersAccount(openOrders);
 
+        return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrders);
+    }
+
+    private void setOrderPrices(Order order, Market market) {
         long longPrice = SerumUtils.priceNumberToLots(
                 order.getFloatPrice(),
                 market
@@ -63,101 +66,6 @@ public class SerumManager {
         order.setPrice(longPrice);
         order.setQuantity(longQuantity);
         order.setMaxQuoteQuantity(maxQuoteQuantity);
-
-        boolean shouldWrapSol = (order.isBuy() && market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT)) ||
-                (!order.isBuy() && market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT));
-
-        long lamports = -1L;
-
-        if (shouldWrapSol) {
-            lamports = SerumUtils.getLamportsNeededForSolWrapping(
-                    order.getFloatPrice(),
-                    order.getFloatQuantity(),
-                    order.isBuy(),
-                    openOrders
-            );
-        }
-
-        long space = 165L;
-
-        // Create payer account (only used if shouldWrapSol)
-        Account payerAccount = null;
-
-        if (shouldWrapSol) {
-            payerAccount = new Account();
-        }
-
-        final PublicKey payerPublicKey = shouldWrapSol ? payerAccount.getPublicKey() : (order.isBuy() ? quoteWallet : baseWallet);
-
-        if (shouldWrapSol) {
-            transaction.addInstruction(
-                    SystemProgram.createAccount(
-                            account.getPublicKey(),
-                            payerAccount.getPublicKey(),
-                            lamports,
-                            space,
-                            TokenProgram.PROGRAM_ID
-                    )
-            );
-
-            transaction.addInstruction(
-                    TokenProgram.initializeAccount(
-                            payerAccount.getPublicKey(),
-                            SerumUtils.WRAPPED_SOL_MINT,
-                            account.getPublicKey()
-                    )
-            );
-        }
-
-        transaction.addInstruction(
-                SerumProgram.placeOrder(
-                        account,
-                        payerPublicKey,
-                        openOrders.getOwnPubkey(),
-                        market,
-                        order
-                )
-        );
-
-        if (shouldWrapSol) {
-            transaction.addInstruction(
-                    TokenProgram.closeAccount(
-                            payerAccount.getPublicKey(),
-                            account.getPublicKey(),
-                            account.getPublicKey()
-                    )
-            );
-        }
-
-        // Instant settlement if IoC
-        // TODO - fix this if wrapped sol is used - determine which base/quote is wrapped, do the open/close account thing
-        if (order.getOrderTypeLayout().getValue() == OrderTypeLayout.IOC.getValue()) {
-            transaction.addInstruction(
-                    SerumProgram.settleFunds(
-                            market,
-                            openOrders.getOwnPubkey(),
-                            openOrders.getOwner(),
-                            baseWallet,
-                            quoteWallet
-                    )
-            );
-        }
-
-        List<Account> signers;
-        if (shouldWrapSol) {
-            signers = List.of(account, payerAccount);
-        } else {
-            signers = List.of(account);
-        }
-
-        String result = null;
-        try {
-            result = client.getApi().sendTransaction(transaction, signers, null);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-
-        return result;
     }
 
     /**
@@ -172,32 +80,20 @@ public class SerumManager {
                              PublicKey baseWallet,
                              PublicKey quoteWallet,
                              OpenOrdersAccount openOrdersAccount) {
-        if (order.getFloatPrice() <= 0 || order.getFloatQuantity() <= 0) {
-            throw new RuntimeException("Invalid floatPrice or floatQuantity");
-        }
+        validateOrder(order);
+        validateOpenOrdersAccount(openOrdersAccount);
 
+        return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrdersAccount);
+    }
+
+    private String placeOrderInternal(Account account,
+                                      Market market,
+                                      Order order,
+                                      PublicKey baseWallet,
+                                      PublicKey quoteWallet,
+                                      OpenOrdersAccount openOrdersAccount) {
         final Transaction transaction = new Transaction();
-
-        long longPrice = SerumUtils.priceNumberToLots(
-                order.getFloatPrice(),
-                market
-        );
-
-        long longQuantity = SerumUtils.baseSizeNumberToLots(
-                order.getFloatQuantity(),
-                market.getBaseDecimals(),
-                market.getBaseLotSize()
-        );
-
-        long maxQuoteQuantity = SerumUtils.getMaxQuoteQuantity(
-                order.getFloatPrice(),
-                order.getFloatQuantity(),
-                market
-        );
-
-        order.setPrice(longPrice);
-        order.setQuantity(longQuantity);
-        order.setMaxQuoteQuantity(maxQuoteQuantity);
+        setOrderPrices(order, market);
 
         boolean shouldWrapSol = (order.isBuy() && market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT)) ||
                 (!order.isBuy() && market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT));
@@ -213,8 +109,6 @@ public class SerumManager {
             );
         }
 
-        long space = 165L;
-
         // Create payer account (only used if shouldWrapSol)
         Account payerAccount = null;
 
@@ -230,7 +124,7 @@ public class SerumManager {
                             account.getPublicKey(),
                             payerAccount.getPublicKey(),
                             lamports,
-                            space,
+                            REQUIRED_ACCOUNT_SPACE,
                             TokenProgram.PROGRAM_ID
                     )
             );
@@ -295,6 +189,73 @@ public class SerumManager {
         return result;
     }
 
+    private String settleFundsInternal(Market market, Account account, PublicKey baseWallet, PublicKey quoteWallet, OpenOrdersAccount openOrdersAccount) {
+        final Transaction transaction = new Transaction();
+        final List<Account> signers = new ArrayList<>();
+        signers.add(account);
+
+        boolean shouldWrapSol = market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) ||
+                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT);
+
+        Account wrappedSolAccount = null;
+
+        if (shouldWrapSol) {
+            wrappedSolAccount = new Account();
+            signers.add(wrappedSolAccount);
+
+            // Create account
+            transaction.addInstruction(
+                    SystemProgram.createAccount(
+                            account.getPublicKey(),
+                            wrappedSolAccount.getPublicKey(),
+                            MINIMUM_BALANCE_FOR_RENT_EXEMPTION_165,
+                            REQUIRED_ACCOUNT_SPACE,
+                            TokenProgram.PROGRAM_ID
+                    )
+            );
+
+            // Initialize account
+            transaction.addInstruction(
+                    TokenProgram.initializeAccount(
+                            wrappedSolAccount.getPublicKey(),
+                            SerumUtils.WRAPPED_SOL_MINT,
+                            account.getPublicKey()
+                    )
+            );
+        }
+
+        // Settle funds instruction
+        transaction.addInstruction(
+                SerumProgram.settleFunds(
+                        market,
+                        openOrdersAccount.getOwnPubkey(),
+                        openOrdersAccount.getOwner(),
+                        (
+                                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
+                                        wrappedSolAccount.getPublicKey() :
+                                        baseWallet
+                        ),
+                        (
+                                market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
+                                        wrappedSolAccount.getPublicKey() :
+                                        quoteWallet
+                        )
+                )
+        );
+
+        if (shouldWrapSol) {
+            transaction.addInstruction(
+                    TokenProgram.closeAccount(
+                            wrappedSolAccount.getPublicKey(),
+                            account.getPublicKey(),
+                            account.getPublicKey()
+                    )
+            );
+        }
+
+        return sendTransactionWithSigners(transaction, signers);
+    }
+
     /**
      * Cranks a given market with the ConsumeEvents instruction.
      *
@@ -307,9 +268,9 @@ public class SerumManager {
                                 PublicKey baseWallet,
                                 PublicKey quoteWallet) {
         final Transaction transaction = new Transaction();
-
         transaction.addInstruction(
                 SerumProgram.consumeEvents(
+                        account.getPublicKey(),
                         openOrdersAccounts,
                         market,
                         baseWallet,
@@ -317,14 +278,16 @@ public class SerumManager {
                 )
         );
 
-        final List<Account> signers = List.of(account);
+        return sendTransactionWithSigners(transaction, List.of(account));
+    }
+
+    private String sendTransactionWithSigners(Transaction transaction, List<Account> signers) {
         String result = null;
         try {
             result = client.getApi().sendTransaction(transaction, signers, null);
         } catch (RpcException e) {
             e.printStackTrace();
         }
-
         return result;
     }
 
@@ -344,11 +307,9 @@ public class SerumManager {
                                                  OpenOrdersAccount openOrdersAccount,
                                                  PublicKey baseWallet,
                                                  PublicKey quoteWallet) {
-        final Transaction transaction = new Transaction();
+        validateOpenOrdersAccount(openOrdersAccount);
 
-        if (openOrdersAccount == null) {
-            throw new RuntimeException("Unable to find open orders account.");
-        }
+        final Transaction transaction = new Transaction();
 
         final List<Account> signers = new ArrayList<>();
         signers.add(owner);
@@ -359,9 +320,6 @@ public class SerumManager {
         Account wrappedSolAccount = null;
 
         if (shouldWrapSol) {
-            long minimumRentBalance = 2039280L; // TODO - add option to call API for this value. put somewhere common
-            long space = 165L; // TODO - put this somewhere common
-
             wrappedSolAccount = new Account();
             signers.add(wrappedSolAccount);
 
@@ -370,8 +328,8 @@ public class SerumManager {
                     SystemProgram.createAccount(
                             owner.getPublicKey(),
                             wrappedSolAccount.getPublicKey(),
-                            minimumRentBalance,
-                            space,
+                            MINIMUM_BALANCE_FOR_RENT_EXEMPTION_165,
+                            REQUIRED_ACCOUNT_SPACE,
                             TokenProgram.PROGRAM_ID
                     )
             );
@@ -388,6 +346,7 @@ public class SerumManager {
 
         transaction.addInstruction(
                 SerumProgram.consumeEvents(
+                        owner.getPublicKey(),
                         List.of(openOrdersAccount.getOwnPubkey()),
                         market,
                         baseWallet,
@@ -407,6 +366,7 @@ public class SerumManager {
 
         transaction.addInstruction(
                 SerumProgram.consumeEvents(
+                        owner.getPublicKey(),
                         List.of(openOrdersAccount.getOwnPubkey()),
                         market,
                         baseWallet,
@@ -443,17 +403,7 @@ public class SerumManager {
             );
         }
 
-        String result = null;
-        while (result == null) {
-            try {
-                result = client.getApi().sendTransaction(transaction, owner);
-            } catch (RpcException e) {
-                LOGGER.warning("Cancel order failed, trying again in 1 second");
-                cancelOrderByClientId(owner, market, clientId);
-            }
-        }
-
-        return result;
+        return sendTransactionWithSigners(transaction, List.of(owner));
     }
 
     /**
@@ -468,7 +418,6 @@ public class SerumManager {
      */
     public String cancelOrderByClientId(Account owner, Market market, long clientId, OpenOrdersAccount openOrdersAccount) {
         final Transaction transaction = new Transaction();
-
         transaction.addInstruction(
                 SerumProgram.cancelOrderByClientId(
                         market,
@@ -478,17 +427,7 @@ public class SerumManager {
                 )
         );
 
-        String result = null;
-        while (result == null) {
-            try {
-                result = client.getApi().sendTransaction(transaction, owner);
-            } catch (RpcException e) {
-                LOGGER.warning("Cancel order failed, trying again in 1 second");
-                cancelOrderByClientId(owner, market, clientId);
-            }
-        }
-
-        return result;
+        return sendTransactionWithSigners(transaction, List.of(owner));
     }
 
     public String cancelOrderByClientId(Account owner, Market market, long clientId) {
@@ -510,17 +449,7 @@ public class SerumManager {
                 )
         );
 
-        String result = null;
-        while (result == null) {
-            try {
-                result = client.getApi().sendTransaction(transaction, owner);
-            } catch (RpcException e) {
-                LOGGER.warning("Cancel order failed, trying again in 1 second");
-                cancelOrderByClientId(owner, market, clientId);
-            }
-        }
-
-        return result;
+        return sendTransactionWithSigners(transaction, List.of(owner));
     }
 
     /**
@@ -535,175 +464,32 @@ public class SerumManager {
      * @return
      */
     public String settleFunds(Market market, Account account, PublicKey baseWallet, PublicKey quoteWallet, OpenOrdersAccount openOrdersAccount) {
-        final Transaction transaction = new Transaction();
-
-        if (openOrdersAccount == null) {
-            throw new RuntimeException("Unable to find open orders account.");
-        }
-
-        final List<Account> signers = new ArrayList<>();
-        signers.add(account);
-
-        boolean shouldWrapSol = market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) ||
-                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT);
-
-        Account wrappedSolAccount = null;
-
-        if (shouldWrapSol) {
-            long minimumRentBalance = 2039280L; // TODO - add option to call API for this value. put somewhere common
-            long space = 165L; // TODO - put this somewhere common
-
-            wrappedSolAccount = new Account();
-            signers.add(wrappedSolAccount);
-
-            // Create account
-            transaction.addInstruction(
-                    SystemProgram.createAccount(
-                            account.getPublicKey(),
-                            wrappedSolAccount.getPublicKey(),
-                            minimumRentBalance,
-                            space,
-                            TokenProgram.PROGRAM_ID
-                    )
-            );
-
-            // Initialize account
-            transaction.addInstruction(
-                    TokenProgram.initializeAccount(
-                            wrappedSolAccount.getPublicKey(),
-                            SerumUtils.WRAPPED_SOL_MINT,
-                            account.getPublicKey()
-                    )
-            );
-        }
-
-        // Settle funds instruction
-        transaction.addInstruction(
-                SerumProgram.settleFunds(
-                        market,
-                        openOrdersAccount.getOwnPubkey(),
-                        openOrdersAccount.getOwner(),
-                        (
-                                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
-                                        wrappedSolAccount.getPublicKey() :
-                                        baseWallet
-                        ),
-                        (
-                                market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
-                                        wrappedSolAccount.getPublicKey() :
-                                        quoteWallet
-                        )
-                )
-        );
-
-        if (shouldWrapSol) {
-            transaction.addInstruction(
-                    TokenProgram.closeAccount(
-                            wrappedSolAccount.getPublicKey(),
-                            account.getPublicKey(),
-                            account.getPublicKey()
-                    )
-            );
-        }
-
-        String result = null;
-        try {
-            result = client.getApi().sendTransaction(transaction, signers, null);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-
-        return result;
+        validateOpenOrdersAccount(openOrdersAccount);
+        return settleFundsInternal(market, account, baseWallet, quoteWallet, openOrdersAccount);
     }
 
 
     // TODO - create base and quote wallets if they dont exist like serum-dex-ui
     public String settleFunds(Market market, Account account, PublicKey baseWallet, PublicKey quoteWallet) {
-        final Transaction transaction = new Transaction();
-
-        // Get Open orders public key
         final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
                 client,
                 market.getOwnAddress(),
                 account.getPublicKey()
         );
 
+        validateOpenOrdersAccount(openOrdersAccount);
+        return settleFundsInternal(market, account, baseWallet, quoteWallet, openOrdersAccount);
+    }
+
+    private void validateOrder(Order order) {
+        if (order.getFloatPrice() <= 0 || order.getFloatQuantity() <= 0) {
+            throw new RuntimeException("Invalid floatPrice or floatQuantity");
+        }
+    }
+
+    private void validateOpenOrdersAccount(OpenOrdersAccount openOrdersAccount) {
         if (openOrdersAccount == null) {
             throw new RuntimeException("Unable to find open orders account.");
         }
-
-        final List<Account> signers = new ArrayList<>();
-        signers.add(account);
-
-        boolean shouldWrapSol = market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) ||
-                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT);
-
-        Account wrappedSolAccount = null;
-
-        if (shouldWrapSol) {
-            long minimumRentBalance = 2039280L; // TODO - add option to call API for this value. put somewhere common
-            long space = 165L; // TODO - put this somewhere common
-
-            wrappedSolAccount = new Account();
-            signers.add(wrappedSolAccount);
-
-            // Create account
-            transaction.addInstruction(
-                    SystemProgram.createAccount(
-                            account.getPublicKey(),
-                            wrappedSolAccount.getPublicKey(),
-                            minimumRentBalance,
-                            space,
-                            TokenProgram.PROGRAM_ID
-                    )
-            );
-
-            // Initialize account
-            transaction.addInstruction(
-                    TokenProgram.initializeAccount(
-                            wrappedSolAccount.getPublicKey(),
-                            SerumUtils.WRAPPED_SOL_MINT,
-                            account.getPublicKey()
-                    )
-            );
-        }
-
-        // Settle funds instruction
-        transaction.addInstruction(
-                SerumProgram.settleFunds(
-                        market,
-                        openOrdersAccount.getOwnPubkey(),
-                        openOrdersAccount.getOwner(),
-                        (
-                                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
-                                        wrappedSolAccount.getPublicKey() :
-                                        baseWallet
-                        ),
-                        (
-                                market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
-                                        wrappedSolAccount.getPublicKey() :
-                                        quoteWallet
-                        )
-                )
-        );
-
-        if (shouldWrapSol) {
-            transaction.addInstruction(
-                    TokenProgram.closeAccount(
-                            wrappedSolAccount.getPublicKey(),
-                            account.getPublicKey(),
-                            account.getPublicKey()
-                    )
-            );
-        }
-
-        String result = null;
-        try {
-            result = client.getApi().sendTransaction(transaction, signers, null);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-
-        return result;
     }
 }

@@ -280,13 +280,14 @@ public class SerumProgram extends Program {
         return result.array();
     }
 
-    // TODO: fix this, doesn't work yet
-    public static TransactionInstruction consumeEvents(List<PublicKey> openOrdersAccounts,
+    public static TransactionInstruction consumeEvents(PublicKey signer,
+                                                       List<PublicKey> openOrdersAccounts,
                                                        Market market,
                                                        PublicKey baseWallet,
                                                        PublicKey quoteWallet) {
         List<AccountMeta> accountMetas = new ArrayList<>();
 
+        accountMetas.add(new AccountMeta(signer, true, false));
         accountMetas.addAll(openOrdersAccounts.stream()
                 .map(publicKey -> new AccountMeta(publicKey, false, true))
                 .collect(Collectors.toList()));
