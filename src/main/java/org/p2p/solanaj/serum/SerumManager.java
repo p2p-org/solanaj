@@ -28,15 +28,13 @@ public class SerumManager {
     /**
      * Places order at the specified {@link Market} with the given {@link Order}
      * This method looks up the open orders account each time, which slows it down.
-     * For speed, use the overloaded version of this which allows a pre-queried {@link OpenOrdersAccount}
      *
-     * TODO: Add SRM fee discount support
-     *
-     * @param account Solana account to pay for the order
-     * @param market Market to trade on, built by a {@link MarketBuilder}
-     * @param order Order, soon to be built by OrderBuilder
-     *
-     * @return transaction ID for the order
+     * @param account private key for the signer
+     * @param market market being traded on
+     * @param order order containing all required details
+     * @param baseWallet base wallet to settle funds, used in IoC orders
+     * @param quoteWallet quote wallet to settle funds, used in IoC orders
+     * @return Solana transaction ID
      */
     public String placeOrder(Account account, Market market, Order order, PublicKey baseWallet, PublicKey quoteWallet) {
         validateOrder(order);
@@ -51,34 +49,17 @@ public class SerumManager {
         return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrders);
     }
 
-    private void setOrderPrices(Order order, Market market) {
-        long longPrice = SerumUtils.priceNumberToLots(
-                order.getFloatPrice(),
-                market
-        );
-
-        long longQuantity = SerumUtils.baseSizeNumberToLots(
-                order.getFloatQuantity(),
-                market.getBaseDecimals(),
-                market.getBaseLotSize()
-        );
-
-        long maxQuoteQuantity = SerumUtils.getMaxQuoteQuantity(
-                order.getFloatPrice(),
-                order.getFloatQuantity(),
-                market
-        );
-
-        order.setPrice(longPrice);
-        order.setQuantity(longQuantity);
-        order.setMaxQuoteQuantity(maxQuoteQuantity);
-    }
-
     /**
      * Places order at the specified {@link Market} with the given {@link Order}
-     * This overloaded method allows a predetermined openorders pubkey, so we don't do the lookup everytime.
+     * This overloaded version takes in an {@link OpenOrdersAccount}, to skip the lookup step
      *
-     * @return transaction ID for the order
+     * @param account private key for the signer
+     * @param market market being traded on
+     * @param order order containing all required details
+     * @param baseWallet base wallet to settle funds, used in IoC orders
+     * @param quoteWallet quote wallet to settle funds, used in IoC orders
+     * @param openOrdersAccount pre-determined open orders account, use {@link SerumUtils} to determine
+     * @return Solana transaction ID
      */
     public String placeOrder(Account account,
                              Market market,
@@ -92,6 +73,17 @@ public class SerumManager {
         return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrdersAccount);
     }
 
+    /**
+     * Internal logic for the overloaded placeOrder methods
+     *
+     * @param account private key for the signer
+     * @param market market being traded on
+     * @param order order containing all required details
+     * @param baseWallet base wallet to settle funds, used in IoC orders
+     * @param quoteWallet quote wallet to settle funds, used in IoC orders
+     * @param openOrdersAccount open orders account that has already been looked up
+     * @return Solana transaction ID
+     */
     private String placeOrderInternal(Account account,
                                       Market market,
                                       Order order,
@@ -196,6 +188,15 @@ public class SerumManager {
         return result;
     }
 
+    /**
+     * Internal logic for the overloaded settleFunds method
+     * @param market market being traded on
+     * @param account private key for the signer
+     * @param baseWallet base wallet to settle funds, used in IoC orders
+     * @param quoteWallet quote wallet to settle funds, used in IoC orders
+     * @param openOrdersAccount open orders account that has already been looked up
+     * @return Solana transaction ID
+     */
     private String settleFundsInternal(Market market,
                                        Account account,
                                        PublicKey baseWallet,
@@ -270,8 +271,12 @@ public class SerumManager {
     /**
      * Cranks a given market with the ConsumeEvents instruction.
      *
-     * @param market market to run crank against
-     * @return transaction id of ConsumeEvents call
+     * @param account private key for the signer
+     * @param market market being traded on
+     * @param openOrdersAccounts pubkeys of open orders accounts to consume
+     * @param baseWallet coin fee receivable account (?)
+     * @param quoteWallet pc fee receivable account (?)
+     * @return Solana transaction ID
      */
     public String consumeEvents(Account account,
                                 Market market,
@@ -292,25 +297,16 @@ public class SerumManager {
         return sendTransactionWithSigners(transaction, List.of(account));
     }
 
-    private String sendTransactionWithSigners(Transaction transaction, List<Account> signers) {
-        String result = null;
-        try {
-            result = client.getApi().sendTransaction(transaction, signers, null);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
     /**
      * Cancels and settles an order by client id, with a pre-determined openOrdersAccount
-     * Use this for speed
      *
-     * @param owner
-     * @param market
-     * @param clientId
-     * @param openOrdersAccount
-     * @return
+     * @param owner private key for the signer
+     * @param market market being traded on
+     * @param clientId clientId of the order we are cancelling
+     * @param openOrdersAccount open orders account that has already been looked up using {@link SerumUtils}
+     * @param baseWallet base wallet used for consume events/settling
+     * @param quoteWallet quote wallet used for consume events/settling
+     * @return Solana transaction ID
      */
     public String cancelOrderByClientIdAndSettle(Account owner,
                                                  Market market,
@@ -418,14 +414,13 @@ public class SerumManager {
     }
 
     /**
-     * Cancels an order by client id, with a pre-determined openOrdersAccount
-     * Use this for speed
+     * Cancels a Serum {@link Order} by clientId with a pre-determined open orders account
      *
-     * @param owner
-     * @param market
-     * @param clientId
-     * @param openOrdersAccount
-     * @return
+     * @param owner private key of the signer
+     * @param market market we are trading on
+     * @param clientId clientId for the order we are cancelling
+     * @param openOrdersAccount pre-determined open orders account
+     * @return Solana transaction ID
      */
     public String cancelOrderByClientId(Account owner,
                                         Market market,
@@ -444,6 +439,14 @@ public class SerumManager {
         return sendTransactionWithSigners(transaction, List.of(owner));
     }
 
+    /**
+     * Cancels a Serum {@link Order} by clientId
+     *
+     * @param owner private key of the signer
+     * @param market market we are trading on
+     * @param clientId clientId for the order we are cancelling
+     * @return Solana transaction ID
+     */
     public String cancelOrderByClientId(Account owner, Market market, long clientId) {
         final Transaction transaction = new Transaction();
 
@@ -467,15 +470,14 @@ public class SerumManager {
     }
 
     /**
-     * This version takes in a pre-determined open orders account
-     * Use this for speed.
+     * Settle funds for a given market
      *
-     * @param market
-     * @param account
-     * @param baseWallet
-     * @param quoteWallet
-     * @param openOrdersAccount
-     * @return
+     * @param market market we are settling funds on
+     * @param account payer private key
+     * @param baseWallet base destination wallet for settled funds
+     * @param quoteWallet quote destination wallet for settled funds
+     * @param openOrdersAccount pre-determined open orders account
+     * @return Solana transaction ID
      */
     public String settleFunds(Market market,
                               Account account,
@@ -487,7 +489,15 @@ public class SerumManager {
     }
 
 
-    // TODO - create base and quote wallets if they dont exist like serum-dex-ui
+    /**
+     * Settle funds for a given market
+     *
+     * @param market market we are settling funds on
+     * @param account payer private key
+     * @param baseWallet base destination wallet for settled funds
+     * @param quoteWallet quote destination wallet for settled funds
+     * @return Solana transaction ID
+     */
     public String settleFunds(Market market, Account account, PublicKey baseWallet, PublicKey quoteWallet) {
         final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
                 client,
@@ -509,5 +519,39 @@ public class SerumManager {
         if (openOrdersAccount == null) {
             throw new RuntimeException("Unable to find open orders account.");
         }
+    }
+
+    private void setOrderPrices(Order order, Market market) {
+        long longPrice = SerumUtils.priceNumberToLots(
+                order.getFloatPrice(),
+                market
+        );
+
+        long longQuantity = SerumUtils.baseSizeNumberToLots(
+                order.getFloatQuantity(),
+                market.getBaseDecimals(),
+                market.getBaseLotSize()
+        );
+
+        long maxQuoteQuantity = SerumUtils.getMaxQuoteQuantity(
+                order.getFloatPrice(),
+                order.getFloatQuantity(),
+                market
+        );
+
+        order.setPrice(longPrice);
+        order.setQuantity(longQuantity);
+        order.setMaxQuoteQuantity(maxQuoteQuantity);
+    }
+
+
+    private String sendTransactionWithSigners(Transaction transaction, List<Account> signers) {
+        String result = null;
+        try {
+            result = client.getApi().sendTransaction(transaction, signers, null);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
