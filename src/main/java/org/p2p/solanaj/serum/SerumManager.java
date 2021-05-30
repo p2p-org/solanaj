@@ -403,7 +403,7 @@ public class SerumManager {
             );
         }
 
-        return sendTransactionWithSigners(transaction, List.of(owner));
+        return sendTransactionWithSigners(transaction, signers);
     }
 
     /**
