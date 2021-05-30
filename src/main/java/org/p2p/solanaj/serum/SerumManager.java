@@ -288,7 +288,6 @@ public class SerumManager {
         String result = null;
         try {
             result = client.getApi().sendTransaction(transaction, signers, null);
-            LOGGER.info("placeOrder Signature = " + result);
         } catch (RpcException e) {
             e.printStackTrace();
         }
@@ -324,6 +323,134 @@ public class SerumManager {
             result = client.getApi().sendTransaction(transaction, signers, null);
         } catch (RpcException e) {
             e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    /**
+     * Cancels and settles an order by client id, with a pre-determined openOrdersAccount
+     * Use this for speed
+     *
+     * @param owner
+     * @param market
+     * @param clientId
+     * @param openOrdersAccount
+     * @return
+     */
+    public String cancelOrderByClientIdAndSettle(Account owner,
+                                                 Market market,
+                                                 long clientId,
+                                                 OpenOrdersAccount openOrdersAccount,
+                                                 PublicKey baseWallet,
+                                                 PublicKey quoteWallet) {
+        final Transaction transaction = new Transaction();
+
+        if (openOrdersAccount == null) {
+            throw new RuntimeException("Unable to find open orders account.");
+        }
+
+        final List<Account> signers = new ArrayList<>();
+        signers.add(owner);
+
+        boolean shouldWrapSol = market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) ||
+                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT);
+
+        Account wrappedSolAccount = null;
+
+        if (shouldWrapSol) {
+            long minimumRentBalance = 2039280L; // TODO - add option to call API for this value. put somewhere common
+            long space = 165L; // TODO - put this somewhere common
+
+            wrappedSolAccount = new Account();
+            signers.add(wrappedSolAccount);
+
+            // Create account
+            transaction.addInstruction(
+                    SystemProgram.createAccount(
+                            owner.getPublicKey(),
+                            wrappedSolAccount.getPublicKey(),
+                            minimumRentBalance,
+                            space,
+                            TokenProgram.PROGRAM_ID
+                    )
+            );
+
+            // Initialize account
+            transaction.addInstruction(
+                    TokenProgram.initializeAccount(
+                            wrappedSolAccount.getPublicKey(),
+                            SerumUtils.WRAPPED_SOL_MINT,
+                            owner.getPublicKey()
+                    )
+            );
+        }
+
+        transaction.addInstruction(
+                SerumProgram.consumeEvents(
+                        List.of(openOrdersAccount.getOwnPubkey()),
+                        market,
+                        baseWallet,
+                        quoteWallet
+                )
+        );
+
+
+        transaction.addInstruction(
+                SerumProgram.cancelOrderByClientId(
+                        market,
+                        openOrdersAccount.getOwnPubkey(),
+                        owner.getPublicKey(),
+                        clientId
+                )
+        );
+
+        transaction.addInstruction(
+                SerumProgram.consumeEvents(
+                        List.of(openOrdersAccount.getOwnPubkey()),
+                        market,
+                        baseWallet,
+                        quoteWallet
+                )
+        );
+
+        // Settle funds instruction
+        transaction.addInstruction(
+                SerumProgram.settleFunds(
+                        market,
+                        openOrdersAccount.getOwnPubkey(),
+                        openOrdersAccount.getOwner(),
+                        (
+                                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
+                                        wrappedSolAccount.getPublicKey() :
+                                        baseWallet
+                        ),
+                        (
+                                market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
+                                        wrappedSolAccount.getPublicKey() :
+                                        quoteWallet
+                        )
+                )
+        );
+
+        if (shouldWrapSol) {
+            transaction.addInstruction(
+                    TokenProgram.closeAccount(
+                            wrappedSolAccount.getPublicKey(),
+                            owner.getPublicKey(),
+                            owner.getPublicKey()
+                    )
+            );
+        }
+
+        String result = null;
+        while (result == null) {
+            try {
+                result = client.getApi().sendTransaction(transaction, owner);
+            } catch (RpcException e) {
+                LOGGER.warning("Cancel order failed, trying again in 1 second");
+                cancelOrderByClientId(owner, market, clientId);
+            }
         }
 
         return result;
