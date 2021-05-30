@@ -477,6 +477,77 @@ public class OrderTest {
         assertNotNull(transactionId);
     }
 
+    @Test
+    @Ignore
+    public void cancelOrderByClientIdAndSettleLoopedTest() {
+        final PublicKey lqidWallet = PublicKey.valueOf("5uRbRHoVD6EeBM3MLjx7GadMxbprvNvABZGfmS1hVVGG");
+        final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        final Account account = new Account(Base58.decode(new String(data)));
+
+        final Market lqidUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("4FPFh1iAiitKYMCPDBmEQrZVgA1DVMKHZBU2R7wjQWuu")) // LQID/USDC
+                .setClient(client)
+                .setRetrieveDecimalsOnly(true)
+                .build();
+
+        final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                lqidUsdcMarket.getOwnAddress(),
+                account.getPublicKey()
+        );
+
+        for (int i = 1; i <= 15; i++) {
+            long orderId = 10000L + i;
+
+            final Order order = new Order(
+                    0.18f - (i * .001f),
+                    0.01f,
+                    orderId
+            );
+
+            order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+            order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+            order.setBuy(true);
+
+            // Place order 1
+            String transactionId = serumManager.placeOrder(
+                    account,
+                    lqidUsdcMarket,
+                    order,
+                    lqidWallet,
+                    usdcWallet,
+                    openOrdersAccount
+            );
+
+            LOGGER.info(String.format("TX %d: %s", orderId, transactionId));
+            assertNotNull(transactionId);
+        }
+
+        for (int i = 1; i <= 15; i++) {
+            long orderId = 10000L + i;
+
+            String cancelTransactionId = serumManager.cancelOrderByClientIdAndSettle(
+                    account,
+                    lqidUsdcMarket,
+                    orderId,
+                    openOrdersAccount,
+                    lqidWallet,
+                    usdcWallet
+            );
+
+            LOGGER.info(String.format("Cancel TX %d: %s", orderId, cancelTransactionId));
+            assertNotNull(cancelTransactionId);
+        }
+    }
+
     // Requires 0.1 MER to offer
     @Test
     @Ignore
@@ -509,58 +580,50 @@ public class OrderTest {
                 account.getPublicKey()
         );
 
-        for (int i = 1; i <= 10; i++) {
-            long orderId = 10000L + i;
+        long orderId = 10000L;
 
-            // 0.1 mer offer @ $1337
-            final Order order = new Order(
-                    i * 1000f,
-                    0.1f,
-                    orderId
-            );
+        // 0.1 mer offer @ $1337
+        final Order order = new Order(
+                1000f,
+                0.1f,
+                orderId
+        );
 
-            order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-            order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-            order.setBuy(false);
+        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+        order.setBuy(false);
 
-            // Place order 1
-            String transactionId = serumManager.placeOrder(
-                    account,
-                    oxyUsdcMarket,
-                    order,
-                    merWallet,
-                    usdcWallet,
-                    openOrdersAccount
-            );
+        // Place order 1
+        String transactionId = serumManager.placeOrder(
+                account,
+                oxyUsdcMarket,
+                order,
+                merWallet,
+                usdcWallet,
+                openOrdersAccount
+        );
 
-            LOGGER.info(String.format("TX %d: %s", i, transactionId));
+        LOGGER.info(String.format("TX %d: %s", orderId, transactionId));
 
-            try {
-                Thread.sleep(500L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            // Cancel order 1
-            String cancelTransactionId = serumManager.cancelOrderByClientIdAndSettle(
-                    account,
-                    oxyUsdcMarket,
-                    orderId,
-                    openOrdersAccount,
-                    merWallet,
-                    usdcWallet
-            );
-
-            LOGGER.info(String.format("Cancel TX %d: %s", i, cancelTransactionId));
-
-            assertNotNull(transactionId);
-
-            try {
-                Thread.sleep(500L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            Thread.sleep(500L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
+        // Cancel order 1
+        String cancelTransactionId = serumManager.cancelOrderByClientIdAndSettle(
+                account,
+                oxyUsdcMarket,
+                orderId,
+                openOrdersAccount,
+                merWallet,
+                usdcWallet
+        );
+
+        LOGGER.info(String.format("Cancel TX %d: %s", orderId, cancelTransactionId));
+
+        assertNotNull(transactionId);
     }
 
     @Test
