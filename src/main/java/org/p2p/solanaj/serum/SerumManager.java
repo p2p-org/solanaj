@@ -10,7 +10,9 @@ import org.p2p.solanaj.rpc.RpcException;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("DuplicatedCode")
+/**
+ * Used to send Serum-related Solana transactions with a specified {@link RpcClient}
+ */
 public class SerumManager {
 
     private final RpcClient client;
@@ -39,7 +41,11 @@ public class SerumManager {
     public String placeOrder(Account account, Market market, Order order, PublicKey baseWallet, PublicKey quoteWallet) {
         validateOrder(order);
 
-        final OpenOrdersAccount openOrders = SerumUtils.findOpenOrdersAccountForOwner(client, market.getOwnAddress(), account.getPublicKey());
+        final OpenOrdersAccount openOrders = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                market.getOwnAddress(),
+                account.getPublicKey()
+        );
         validateOpenOrdersAccount(openOrders);
 
         return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrders);
@@ -116,7 +122,8 @@ public class SerumManager {
             payerAccount = new Account();
         }
 
-        final PublicKey payerPublicKey = shouldWrapSol ? payerAccount.getPublicKey() : (order.isBuy() ? quoteWallet : baseWallet);
+        final PublicKey payerPublicKey = shouldWrapSol ? payerAccount.getPublicKey()
+                : (order.isBuy() ? quoteWallet : baseWallet);
 
         if (shouldWrapSol) {
             transaction.addInstruction(
@@ -189,7 +196,11 @@ public class SerumManager {
         return result;
     }
 
-    private String settleFundsInternal(Market market, Account account, PublicKey baseWallet, PublicKey quoteWallet, OpenOrdersAccount openOrdersAccount) {
+    private String settleFundsInternal(Market market,
+                                       Account account,
+                                       PublicKey baseWallet,
+                                       PublicKey quoteWallet,
+                                       OpenOrdersAccount openOrdersAccount) {
         final Transaction transaction = new Transaction();
         final List<Account> signers = new ArrayList<>();
         signers.add(account);
@@ -416,7 +427,10 @@ public class SerumManager {
      * @param openOrdersAccount
      * @return
      */
-    public String cancelOrderByClientId(Account owner, Market market, long clientId, OpenOrdersAccount openOrdersAccount) {
+    public String cancelOrderByClientId(Account owner,
+                                        Market market,
+                                        long clientId,
+                                        OpenOrdersAccount openOrdersAccount) {
         final Transaction transaction = new Transaction();
         transaction.addInstruction(
                 SerumProgram.cancelOrderByClientId(
@@ -463,7 +477,11 @@ public class SerumManager {
      * @param openOrdersAccount
      * @return
      */
-    public String settleFunds(Market market, Account account, PublicKey baseWallet, PublicKey quoteWallet, OpenOrdersAccount openOrdersAccount) {
+    public String settleFunds(Market market,
+                              Account account,
+                              PublicKey baseWallet,
+                              PublicKey quoteWallet,
+                              OpenOrdersAccount openOrdersAccount) {
         validateOpenOrdersAccount(openOrdersAccount);
         return settleFundsInternal(market, account, baseWallet, quoteWallet, openOrdersAccount);
     }

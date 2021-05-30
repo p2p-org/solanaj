@@ -240,17 +240,22 @@ public class SerumProgram extends Program {
     /**
      * Builds a {@link TransactionInstruction} used to settle funds on a given Serum {@link Market}
      *
+     * @param market loaded market that we are trading on. this must be built by a {@link MarketBuilder}
+     * @param openOrders open orders pubkey associated with this Account and market - look up using {@link SerumUtils}
+     * @param owner pubkey of your SOL wallet / the signer
+     * @param baseWallet coin fee receivable account
+     * @param quoteWallet pc fee receivable account
      * @return {@link TransactionInstruction} for the settleFunds call
      */
     public static TransactionInstruction settleFunds(Market market,
-                                                     PublicKey openOrdersPubkey,
+                                                     PublicKey openOrders,
                                                      PublicKey owner,
                                                      PublicKey baseWallet,
                                                      PublicKey quoteWallet) {
         List<AccountMeta> accountMetas = new ArrayList<>();
 
         accountMetas.add(new AccountMeta(market.getOwnAddress(), false, true));
-        accountMetas.add(new AccountMeta(openOrdersPubkey, false, true));
+        accountMetas.add(new AccountMeta(openOrders, false, true));
         accountMetas.add(new AccountMeta(owner, true, false));
         accountMetas.add(new AccountMeta(market.getBaseVault(), false, true));
         accountMetas.add(new AccountMeta(market.getQuoteVault(), false, true));
@@ -280,6 +285,16 @@ public class SerumProgram extends Program {
         return result.array();
     }
 
+    /**
+     * Builds a {@link TransactionInstruction} to call Consume Events for a given market and {@link PublicKey}s
+     *
+     * @param signer pubkey of account signing the transaction
+     * @param openOrdersAccounts list of all open orders accounts to consume in the event queue
+     * @param market market with the event queue we want to process
+     * @param baseWallet coin fee receivable account (?)
+     * @param quoteWallet pc fee receivable account (?)
+     * @return {@link TransactionInstruction} for the Consume Events call
+     */
     public static TransactionInstruction consumeEvents(PublicKey signer,
                                                        List<PublicKey> openOrdersAccounts,
                                                        Market market,
