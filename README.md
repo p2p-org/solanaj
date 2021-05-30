@@ -3,6 +3,8 @@
 Solana blockchain client, written in pure Java.
 Solanaj is an API for integrating with Solana blockchain using the [Solana RPC API](https://docs.solana.com/apps/jsonrpc-api)
 
+This fork includes functionality for multiple Solana programs, including the Serum DEX.
+
 ## Requirements
 - Java 11+
 
@@ -11,7 +13,19 @@ Solanaj is an API for integrating with Solana blockchain using the [Solana RPC A
 - OkHttp
 - Moshi
 
-### Example
+## Installation
+1. Build SolanaJ:
+   `mvn clean install -DskipTests`
+2. To use in another project, add this dependency to Maven:
+    ```xml
+    <dependency>
+            <groupId>org.p2p</groupId>
+            <artifactId>solanaj</artifactId>
+            <version>1.1-SNAPSHOT</version>
+    </dependency>
+    ```
+
+## Example
 
 ### Required properties (for testing)
 secretkey.dat is required to be in the root directory.
