@@ -3,6 +3,9 @@ package org.p2p.solanaj.serum;
 import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +19,10 @@ public class OpenOrdersAccount {
     private static final int BASE_TOKEN_TOTAL_OFFSET = BASE_TOKEN_FREE_OFFSET + 8;
     private static final int QUOTE_TOKEN_FREE_OFFSET = BASE_TOKEN_TOTAL_OFFSET + 8;
     private static final int QUOTE_TOKEN_TOTAL_OFFSET = QUOTE_TOKEN_FREE_OFFSET + 8;
+    private static final int FREE_SLOT_BITS_OFFSET = QUOTE_TOKEN_TOTAL_OFFSET + 8;
+    private static final int IS_BID_BITS_OFFSET = FREE_SLOT_BITS_OFFSET + 16;
+    private static final int ORDERS_OFFSET = IS_BID_BITS_OFFSET + 16;
+    private static final int CLIENT_IDS_OFFSET = ORDERS_OFFSET + 2048;
 
     private AccountFlags accountFlags;
     private PublicKey market;
@@ -33,9 +40,14 @@ public class OpenOrdersAccount {
     // set manually
     private PublicKey ownPubkey;
 
+    // deserialized
+    private List<Long> longPrices;
+    private List<Long> orderIds;
+
     public OpenOrdersAccount() {
         this.orders = new ArrayList<>(128);
         this.clientIds = new ArrayList<>(128);
+        this.longPrices = new ArrayList<>(128);
     }
 
     public static OpenOrdersAccount readOpenOrdersAccount(byte[] data) {
@@ -63,18 +75,34 @@ public class OpenOrdersAccount {
         final long quoteTokenTotal = Utils.readInt64(data, QUOTE_TOKEN_TOTAL_OFFSET);
         openOrdersAccount.setQuoteTokenTotal(quoteTokenTotal);
 
-        byte[] freeSlotBits = Arrays.copyOfRange(data, QUOTE_TOKEN_TOTAL_OFFSET + 8, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16);
-        byte[] isBidBits = Arrays.copyOfRange(data, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16);
+        byte[] freeSlotBits = Arrays.copyOfRange(data, FREE_SLOT_BITS_OFFSET, IS_BID_BITS_OFFSET);
+        byte[] isBidBits = Arrays.copyOfRange(data, IS_BID_BITS_OFFSET, ORDERS_OFFSET);
 
         // orders = 128 * 16 = 2048 bytes of orders
 
-        byte[] orders = Arrays.copyOfRange(data, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16 + 2048);
-        byte[] clientIds = Arrays.copyOfRange(data, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16 + 2048, QUOTE_TOKEN_TOTAL_OFFSET + 8 + 16 + 16 + 2048 + 1024);
+        byte[] orders = Arrays.copyOfRange(data, ORDERS_OFFSET, CLIENT_IDS_OFFSET);
+        byte[] clientIds = Arrays.copyOfRange(data, CLIENT_IDS_OFFSET, CLIENT_IDS_OFFSET + 1024);
 
         long firstClientId = Utils.readInt64(clientIds, 0);
         long secondClientId = Utils.readInt64(clientIds, 8);
         long thirdClientId = Utils.readInt64(clientIds, 16);
         long fourthClientId = Utils.readInt64(clientIds, 24);
+
+        final List<Long> orderIds = new ArrayList<>();
+        for (int i = 0; i < 128; i++) {
+            orderIds.add(Utils.readInt64(clientIds, i * 8));
+        }
+
+        openOrdersAccount.setOrderIds(orderIds);
+
+        // Prices (as longs)
+        final List<Long> prices = new ArrayList<>();
+        for (int i = 0; i < 128; i++) {
+            int offset = (i * 16) + 8;
+            prices.add(Utils.readInt64(orders, offset));
+        }
+
+        openOrdersAccount.setLongPrices(prices);
 
         Logger.getAnonymousLogger().info(String.format("Order IDs: %d, %d, %d, %d", firstClientId, secondClientId, thirdClientId, fourthClientId));
 
@@ -183,5 +211,21 @@ public class OpenOrdersAccount {
 
     public void setOwnPubkey(PublicKey ownPubkey) {
         this.ownPubkey = ownPubkey;
+    }
+
+    public List<Long> getLongPrices() {
+        return longPrices;
+    }
+
+    public void setLongPrices(List<Long> longPrices) {
+        this.longPrices = longPrices;
+    }
+
+    public List<Long> getOrderIds() {
+        return orderIds;
+    }
+
+    public void setOrderIds(List<Long> orderIds) {
+        this.orderIds = orderIds;
     }
 }

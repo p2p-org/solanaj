@@ -12,6 +12,7 @@ import org.p2p.solanaj.serum.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -157,6 +158,51 @@ public class OrderTest {
 
         assertNotNull(settlementTransactionId);
         LOGGER.info("Settlement TX = " + settlementTransactionId);
+    }
+
+    @Test
+    @Ignore
+    public void openOrdersTest() {
+        // Get SOL/USDC market
+        final Market lqidUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("4FPFh1iAiitKYMCPDBmEQrZVgA1DVMKHZBU2R7wjQWuu"))
+                .setRetrieveDecimalsOnly(true)
+                .setClient(client)
+                .build();
+
+
+        final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                PublicKey.valueOf("4FPFh1iAiitKYMCPDBmEQrZVgA1DVMKHZBU2R7wjQWuu"),
+                PublicKey.valueOf("F459S1MFG2whWbznzULPkYff6TFe2QjoKhgHXpRfDyCj")
+        );
+
+        final List<Float> floatPrices = new ArrayList<>();
+
+        openOrdersAccount.getLongPrices().forEach(price -> {
+            float floatPrice = SerumUtils.priceLotsToNumber(
+                    price,
+                    lqidUsdcMarket.getBaseDecimals(),
+                    lqidUsdcMarket.getQuoteDecimals(),
+                    lqidUsdcMarket.getBaseLotSize(),
+                    lqidUsdcMarket.getQuoteLotSize()
+            );
+
+            floatPrices.add(floatPrice);
+        });
+
+        final List<Long> orderIds = openOrdersAccount.getOrderIds();
+
+        for (int i = 0; i < floatPrices.size(); i++) {
+            float value = floatPrices.get(i);
+
+            if (value > 0 ) {
+                LOGGER.info(String.format("Order %d, price %.4f, orderId %d", i, floatPrices.get(i), orderIds.get(i)));
+            }
+        }
+
+
+        LOGGER.info("openOrdersAccount = " + openOrdersAccount.toString());
     }
 
     @Test

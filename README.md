@@ -83,7 +83,7 @@ final Transaction transaction = new Transaction();
 
 // Add instruction to write memo
 transaction.addInstruction(
-        MemoProgram.writeUtf8(feePayer,"Hello from SolanaJ :)")
+        MemoProgram.writeUtf8(feePayer.getPublicKey(),"Hello from SolanaJ :)")
 );
 
 String response = result = client.getApi().sendTransaction(transaction, feePayer);
