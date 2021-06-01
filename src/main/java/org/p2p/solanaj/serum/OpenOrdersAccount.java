@@ -3,9 +3,6 @@ package org.p2p.solanaj.serum;
 import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,11 +40,13 @@ public class OpenOrdersAccount {
     // deserialized
     private List<Long> longPrices;
     private List<Long> orderIds;
+    private List<byte[]> clientOrderIds;
 
     public OpenOrdersAccount() {
         this.orders = new ArrayList<>(128);
         this.clientIds = new ArrayList<>(128);
         this.longPrices = new ArrayList<>(128);
+        this.clientOrderIds = new ArrayList<>(128);
     }
 
     public static OpenOrdersAccount readOpenOrdersAccount(byte[] data) {
@@ -89,20 +88,22 @@ public class OpenOrdersAccount {
         long fourthClientId = Utils.readInt64(clientIds, 24);
 
         final List<Long> orderIds = new ArrayList<>();
+        final List<Long> prices = new ArrayList<>();
+        // ?
+        final List<byte[]> clientOrderIds = new ArrayList<>();
+
         for (int i = 0; i < 128; i++) {
+            // read clientId
             orderIds.add(Utils.readInt64(clientIds, i * 8));
+            clientOrderIds.add(Arrays.copyOfRange(orders, i * 16, (i * 16) + 16));
+
+            // read price
+            prices.add(Utils.readInt64(orders, (i * 16) + 8));
         }
 
         openOrdersAccount.setOrderIds(orderIds);
-
-        // Prices (as longs)
-        final List<Long> prices = new ArrayList<>();
-        for (int i = 0; i < 128; i++) {
-            int offset = (i * 16) + 8;
-            prices.add(Utils.readInt64(orders, offset));
-        }
-
         openOrdersAccount.setLongPrices(prices);
+        openOrdersAccount.setClientOrderIds(clientOrderIds);
 
         Logger.getAnonymousLogger().info(String.format("Order IDs: %d, %d, %d, %d", firstClientId, secondClientId, thirdClientId, fourthClientId));
 
@@ -227,5 +228,13 @@ public class OpenOrdersAccount {
 
     public void setOrderIds(List<Long> orderIds) {
         this.orderIds = orderIds;
+    }
+
+    public List<byte[]> getClientOrderIds() {
+        return clientOrderIds;
+    }
+
+    public void setClientOrderIds(List<byte[]> clientOrderIds) {
+        this.clientOrderIds = clientOrderIds;
     }
 }

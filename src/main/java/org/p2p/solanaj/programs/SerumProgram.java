@@ -238,6 +238,62 @@ public class SerumProgram extends Program {
     }
 
     /**
+     * Builds a {@link TransactionInstruction} to cancel an existing Serum order by client ID.
+     *
+     * @param market loaded market that we are trading on. this must be built by a {@link MarketBuilder}
+     * @param openOrders open orders pubkey associated with this Account and market - look up using {@link SerumUtils}
+     * @param owner pubkey of your SOL wallet
+     * @param side side of the order - buy or sell
+     * @param clientOrderId byte array containing the clientOrderId - retrieved from an {@link OpenOrdersAccount}
+     * @return {@link TransactionInstruction} for the cancelOrderByClientIdV2 call
+     */
+    public static TransactionInstruction cancelOrder(Market market,
+                                                     PublicKey openOrders,
+                                                     PublicKey owner,
+                                                     SideLayout side,
+                                                     byte[] clientOrderId) {
+        List<AccountMeta> accountMetas = new ArrayList<>();
+
+        accountMetas.add(new AccountMeta(market.getOwnAddress(), false, false));
+        accountMetas.add(new AccountMeta(market.getBids(), false, true));
+        accountMetas.add(new AccountMeta(market.getAsks(), false, true));
+        accountMetas.add(new AccountMeta(openOrders, false, true));
+        accountMetas.add(new AccountMeta(owner, true, false));
+        accountMetas.add(new AccountMeta(market.getEventQueueKey(), false, true));
+
+        byte[] transactionData = encodeCancelOrderTransactionData(
+                side,
+                clientOrderId
+        );
+
+        return createTransactionInstruction(
+                SerumUtils.SERUM_PROGRAM_ID_V3,
+                accountMetas,
+                transactionData
+        );
+    }
+
+    /**
+     * Encodes the clientOrderId and SideLayout params used in cancelOrderV2 instructions into a byte array
+     *
+     * @param side side of the order - buy or sell
+     * @param clientOrderId byte array containing the clientOrderId
+     * @return transaction data
+     */
+    private static byte[] encodeCancelOrderTransactionData(SideLayout side, byte[] clientOrderId) {
+        ByteBuffer result = ByteBuffer.allocate(25);
+        result.order(ByteOrder.LITTLE_ENDIAN);
+
+        result.put(1, (byte) 11);
+        result.put(5, (byte) side.getValue());
+        for (int i = 0; i < 15; i++) {
+            result.put(9 + i, clientOrderId[i]);
+        }
+
+        return result.array();
+    }
+
+    /**
      * Builds a {@link TransactionInstruction} used to settle funds on a given Serum {@link Market}
      *
      * @param market loaded market that we are trading on. this must be built by a {@link MarketBuilder}

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -158,6 +159,52 @@ public class OrderTest {
 
         assertNotNull(settlementTransactionId);
         LOGGER.info("Settlement TX = " + settlementTransactionId);
+    }
+
+    @Test
+    @Ignore
+    public void cancelOrderV2Test() {
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create account from private key
+        final Account account = new Account(Base58.decode(new String(data)));
+
+        final Market lqidUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("4FPFh1iAiitKYMCPDBmEQrZVgA1DVMKHZBU2R7wjQWuu"))
+                .setRetrieveDecimalsOnly(true)
+                .setClient(client)
+                .build();
+
+
+        final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                lqidUsdcMarket.getOwnAddress(),
+                PublicKey.valueOf("F459S1MFG2whWbznzULPkYff6TFe2QjoKhgHXpRfDyCj")
+        );
+
+        if (openOrdersAccount.getClientOrderIds().size() > 0) {
+            openOrdersAccount.getClientOrderIds().forEach(clientOrderId -> {
+                if (clientOrderId[0] != 0) {
+                    LOGGER.info("Cancelling order: " + Arrays.toString(clientOrderId));
+
+                    String transactionId = serumManager.cancelOrder(
+                            account,
+                            lqidUsdcMarket,
+                            SideLayout.BUY,
+                            clientOrderId,
+                            openOrdersAccount
+                    );
+
+                    LOGGER.info("Cancel TX: " + transactionId);
+                }
+            });
+        }
     }
 
     @Test

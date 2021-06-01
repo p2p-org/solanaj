@@ -470,6 +470,37 @@ public class SerumManager {
     }
 
     /**
+     * Cancels a Serum {@link Order} by clientOrderId
+     * clientOrderId is a unique byte array retrieved from an {@link OpenOrdersAccount}
+     *
+     * @param owner private key of the signer
+     * @param market market we are trading on
+     * @param side side of the order - buy or sell
+     * @param clientOrderId byte array retrieved from an {@link OpenOrdersAccount}
+     * @param openOrdersAccount pre-determined open orders account
+     * @return Solana transaction ID
+     */
+    public String cancelOrder(Account owner,
+                              Market market,
+                              SideLayout side,
+                              byte[] clientOrderId,
+                              OpenOrdersAccount openOrdersAccount) {
+        final Transaction transaction = new Transaction();
+
+        transaction.addInstruction(
+                SerumProgram.cancelOrder(
+                        market,
+                        openOrdersAccount.getOwnPubkey(),
+                        owner.getPublicKey(),
+                        side,
+                        clientOrderId
+                )
+        );
+
+        return sendTransactionWithSigners(transaction, List.of(owner));
+    }
+
+    /**
      * Settle funds for a given market
      *
      * @param market market we are settling funds on
