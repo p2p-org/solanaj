@@ -21,7 +21,7 @@ This fork includes functionality for multiple Solana programs, including the Ser
     <dependency>
             <groupId>org.p2p</groupId>
             <artifactId>solanaj</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
     </dependency>
     ```
 
