@@ -295,7 +295,6 @@ public class OrderTest {
     @Test
     @Ignore
     public void openOrdersTest() {
-        // Get SOL/USDC market
         final Market lqidUsdcMarket = new MarketBuilder()
                 .setPublicKey(PublicKey.valueOf("4FPFh1iAiitKYMCPDBmEQrZVgA1DVMKHZBU2R7wjQWuu"))
                 .setRetrieveDecimalsOnly(true)
@@ -303,10 +302,11 @@ public class OrderTest {
                 .build();
 
 
+        final PublicKey owner = PublicKey.valueOf("F459S1MFG2whWbznzULPkYff6TFe2QjoKhgHXpRfDyCj");
         final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
                 client,
-                PublicKey.valueOf("4FPFh1iAiitKYMCPDBmEQrZVgA1DVMKHZBU2R7wjQWuu"),
-                PublicKey.valueOf("F459S1MFG2whWbznzULPkYff6TFe2QjoKhgHXpRfDyCj")
+                lqidUsdcMarket.getOwnAddress(),
+                owner
         );
 
         final List<OpenOrdersAccount.Order> orders = openOrdersAccount.getOrders();
