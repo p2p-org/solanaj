@@ -222,66 +222,24 @@ public class OrderTest {
         // Create account from private key
         final Account account = new Account(Base58.decode(new String(data)));
 
-        final Market lqidUsdcMarket = new MarketBuilder()
-                .setPublicKey(PublicKey.valueOf("4FPFh1iAiitKYMCPDBmEQrZVgA1DVMKHZBU2R7wjQWuu"))
+        final Market xrpBearUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("G2aPyW7r3gfW8GnRumiXXp1567XzMZsfwvbgxDiaNR4U"))
                 .setRetrieveDecimalsOnly(true)
                 .setClient(client)
                 .build();
 
-        final PublicKey lqidWallet = PublicKey.valueOf("5uRbRHoVD6EeBM3MLjx7GadMxbprvNvABZGfmS1hVVGG");
+        final PublicKey lqidWallet = PublicKey.valueOf("3Hbga31dmqqLauAUtHXyemNYXB1jYnS4t1ExmSdfe4sD");
         final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
 
         final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
                 client,
-                lqidUsdcMarket.getOwnAddress(),
+                xrpBearUsdcMarket.getOwnAddress(),
                 PublicKey.valueOf("F459S1MFG2whWbznzULPkYff6TFe2QjoKhgHXpRfDyCj")
         );
 
         String transactionId = serumManager.cancelAllOrdersAndSettle(
                 account,
-                lqidUsdcMarket,
-                openOrdersAccount,
-                lqidWallet,
-                usdcWallet
-        );
-
-        LOGGER.info("Cancel all TX: " + transactionId);
-
-        assertNotNull(transactionId);
-    }
-
-    @Test
-    @Ignore
-    public void cancelAllOrdersAndSettleLoopedTest() {
-        // Build account from secretkey.dat
-        byte[] data = new byte[0];
-        try {
-            data = Files.readAllBytes(Paths.get("secretkey.dat"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Create account from private key
-        final Account account = new Account(Base58.decode(new String(data)));
-
-        final Market lqidUsdcMarket = new MarketBuilder()
-                .setPublicKey(PublicKey.valueOf("4FPFh1iAiitKYMCPDBmEQrZVgA1DVMKHZBU2R7wjQWuu"))
-                .setRetrieveDecimalsOnly(true)
-                .setClient(client)
-                .build();
-
-        final PublicKey lqidWallet = PublicKey.valueOf("5uRbRHoVD6EeBM3MLjx7GadMxbprvNvABZGfmS1hVVGG");
-        final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
-
-        final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
-                client,
-                lqidUsdcMarket.getOwnAddress(),
-                PublicKey.valueOf("F459S1MFG2whWbznzULPkYff6TFe2QjoKhgHXpRfDyCj")
-        );
-
-        String transactionId = serumManager.cancelAllOrdersAndSettle(
-                account,
-                lqidUsdcMarket,
+                xrpBearUsdcMarket,
                 openOrdersAccount,
                 lqidWallet,
                 usdcWallet
@@ -641,11 +599,10 @@ public class OrderTest {
         assertNotNull(transactionId);
     }
 
-    // Makes an increasing buy wall on the LQID/USDC market in one transaction then cancels it in another
     @Test
     @Ignore
     public void spoofyTest() {
-        final PublicKey linkBullWallet = PublicKey.valueOf("CYm2rZWwHvv99JnDDnnGEcNTrzUGRGKX5Nqb1zExPebE"); // link bull
+        final PublicKey xrpBearWallet = PublicKey.valueOf("3Hbga31dmqqLauAUtHXyemNYXB1jYnS4t1ExmSdfe4sD"); // XRPBEAR
         final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
 
         byte[] data = new byte[0];
@@ -657,41 +614,41 @@ public class OrderTest {
 
         final Account account = new Account(Base58.decode(new String(data)));
 
-        final Market linkBullUsdcMarket = new MarketBuilder()
-                .setPublicKey(PublicKey.valueOf("9TDuAzrz3kCHcYiw1t4aheAZyXHvsB3SsVA8BiixSmGj")) // LINKBULL/USDC
+        final Market xrpBearUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("G2aPyW7r3gfW8GnRumiXXp1567XzMZsfwvbgxDiaNR4U")) // XRPBEAR/USDC
                 .setClient(client)
                 .setRetrieveDecimalsOnly(true)
                 .build();
 
         OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
                 client,
-                linkBullUsdcMarket.getOwnAddress(),
+                xrpBearUsdcMarket.getOwnAddress(),
                 account.getPublicKey()
         );
 
         for (int count = 0; count < 3; count++) {
             final Transaction transaction = new Transaction();
 
-            for (int i = 0; i < 8; i++) {
+            for (int i = 1; i <= 10; i++) {
                 long orderId = 10000L + i;
 
                 final Order order = new Order(
-                        0.1f + (i * .1f),
-                        0.1f * (8 - i),
+                        0.01f * i,
+                        1,
                         orderId
                 );
 
                 order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
                 order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
                 order.setBuy(true);
-                serumManager.setOrderPrices(order, linkBullUsdcMarket);
+                serumManager.setOrderPrices(order, xrpBearUsdcMarket);
 
                 transaction.addInstruction(
                         SerumProgram.placeOrder(
                                 account,
                                 usdcWallet,
                                 openOrdersAccount.getOwnPubkey(),
-                                linkBullUsdcMarket,
+                                xrpBearUsdcMarket,
                                 order
                         )
                 );
@@ -702,11 +659,17 @@ public class OrderTest {
 
                 LOGGER.info("Create orders TX = " + transactionId);
 
+                try {
+                    Thread.sleep(3000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 final Transaction cancelTransaction = new Transaction();
-                for(int i = 0; i < 8; i++) {
+                for(int i = 1; i <= 10; i++) {
                     cancelTransaction.addInstruction(
                             SerumProgram.cancelOrderByClientId(
-                                    linkBullUsdcMarket,
+                                    xrpBearUsdcMarket,
                                     openOrdersAccount.getOwnPubkey(),
                                     account.getPublicKey(),
                                     10000L + i
@@ -716,20 +679,19 @@ public class OrderTest {
 
                 cancelTransaction.addInstruction(
                         SerumProgram.settleFunds(
-                                linkBullUsdcMarket,
+                                xrpBearUsdcMarket,
                                 openOrdersAccount.getOwnPubkey(),
                                 account.getPublicKey(),
-                                linkBullWallet,
+                                xrpBearWallet,
                                 usdcWallet
                         )
                 );
-
-                Thread.sleep(1000L);
-
+                // double cancel
+                client.getApi().sendTransaction(cancelTransaction, account);
                 String cancelTxId = client.getApi().sendTransaction(cancelTransaction, account);
                 LOGGER.info("Cancel TX = " + cancelTxId);
 
-                Thread.sleep(500L);
+                Thread.sleep(2000L);
 
             } catch (Exception e) {
                 e.printStackTrace();
