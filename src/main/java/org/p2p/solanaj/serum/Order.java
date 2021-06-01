@@ -2,6 +2,8 @@ package org.p2p.solanaj.serum;
 
 import org.p2p.solanaj.core.PublicKey;
 
+import java.security.SecureRandom;
+
 /**
  * Class that represents a Serum order.
  */
@@ -20,6 +22,12 @@ public class Order {
     private OrderTypeLayout orderTypeLayout;
     private SelfTradeBehaviorLayout selfTradeBehaviorLayout;
     private boolean buy;
+
+    public Order(float floatPrice, float floatQuantity) {
+        this.floatPrice = floatPrice;
+        this.floatQuantity = floatQuantity;
+        this.clientOrderId = new SecureRandom().nextLong();
+    }
 
     // constructor used by new orders
     public Order(float floatPrice, float floatQuantity, long clientOrderId) {

@@ -601,6 +601,71 @@ public class OrderTest {
 
     @Test
     @Ignore
+    public void placeOrderRandomClientIdTest() {
+        final PublicKey xrpBearWallet = PublicKey.valueOf("3Hbga31dmqqLauAUtHXyemNYXB1jYnS4t1ExmSdfe4sD"); // XRPBEAR
+        final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        final Account account = new Account(Base58.decode(new String(data)));
+
+        final Market xrpBearUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("G2aPyW7r3gfW8GnRumiXXp1567XzMZsfwvbgxDiaNR4U")) // XRPBEAR/USDC
+                .setClient(client)
+                .setRetrieveDecimalsOnly(true)
+                .build();
+
+        OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                xrpBearUsdcMarket.getOwnAddress(),
+                account.getPublicKey()
+        );
+
+        final Order order = new Order(
+                0.01f,
+                1
+        );
+
+        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+        order.setBuy(true);
+
+        String transactionId = serumManager.placeOrder(
+                account,
+                xrpBearUsdcMarket,
+                order,
+                xrpBearWallet,
+                usdcWallet,
+                openOrdersAccount
+        );
+        LOGGER.info(String.format("Order ID %d, Transaction ID %s", order.getClientOrderId(), transactionId));
+
+        try {
+            Thread.sleep(3000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        String cancelTransactionId = serumManager.cancelOrderByClientIdAndSettle(
+                account,
+                xrpBearUsdcMarket,
+                order.getClientOrderId(),
+                openOrdersAccount,
+                xrpBearWallet,
+                usdcWallet
+        );
+
+        LOGGER.info(String.format("Cancellation TX %s", cancelTransactionId));
+        assertNotNull(cancelTransactionId);
+    }
+
+    @Test
+    @Ignore
     public void spoofyTest() {
         final PublicKey xrpBearWallet = PublicKey.valueOf("3Hbga31dmqqLauAUtHXyemNYXB1jYnS4t1ExmSdfe4sD"); // XRPBEAR
         final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
