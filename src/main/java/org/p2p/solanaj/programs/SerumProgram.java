@@ -25,6 +25,7 @@ public class SerumProgram extends Program {
     private static final int MATCH_ORDERS_METHOD_ID = 2;
     private static final int CONSUME_EVENTS_METHOD_ID = 3;
     private static final int SETTLE_ORDERS_METHOD_ID = 5;
+    private static final int CANCEL_ORDER_V2_METHOD_ID = 11;
     private static final int CANCEL_ORDER_BY_CLIENT_ID_V2_METHOD_ID = 12;
 
     /**
@@ -284,7 +285,7 @@ public class SerumProgram extends Program {
         ByteBuffer result = ByteBuffer.allocate(25);
         result.order(ByteOrder.LITTLE_ENDIAN);
 
-        result.put(1, (byte) 11);
+        result.put(1, (byte) CANCEL_ORDER_V2_METHOD_ID);
         result.put(5, (byte) side.getValue());
         for (int i = 0; i < 15; i++) {
             result.put(9 + i, clientOrderId[i]);
