@@ -479,12 +479,15 @@ public class SerumManager {
         final List<Account> signers = new ArrayList<>();
         signers.add(owner);
 
+        // for going over tx size limit, max >=15 at a time, haven't tested how high
+        int counter = 0;
+
         for (int i = 0; i < openOrdersAccount.getClientOrderIds().size(); i++) {
             boolean isBid = ByteUtils.getBit(openOrdersAccount.getIsBidBits(), i) == 1;
             byte[] clientOrderId = openOrdersAccount.getClientOrderIds().get(i);
             SideLayout side = isBid ? SideLayout.BUY : SideLayout.SELL;
 
-            if (clientOrderId[0] != 0) {
+            if (clientOrderId[0] != 0 && ++counter <= 15) {
                 transaction.addInstruction(
                         SerumProgram.cancelOrder(
                                 market,
@@ -642,7 +645,7 @@ public class SerumManager {
         }
     }
 
-    private void setOrderPrices(Order order, Market market) {
+    public void setOrderPrices(Order order, Market market) {
         long longPrice = SerumUtils.priceNumberToLots(
                 order.getFloatPrice(),
                 market
