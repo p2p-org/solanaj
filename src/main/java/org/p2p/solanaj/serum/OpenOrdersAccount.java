@@ -2,6 +2,7 @@ package org.p2p.solanaj.serum;
 
 import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
+import org.p2p.solanaj.utils.ByteUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,12 +42,16 @@ public class OpenOrdersAccount {
     private List<Long> longPrices;
     private List<Long> orderIds;
     private List<byte[]> clientOrderIds;
+    private List<Boolean> freeSlots; // true if the index is free
+    private List<Boolean> bidSlots; // true if the order is a bid
 
     public OpenOrdersAccount() {
         this.orders = new ArrayList<>(128);
         this.clientIds = new ArrayList<>(128);
         this.longPrices = new ArrayList<>(128);
         this.clientOrderIds = new ArrayList<>(128);
+        this.freeSlots = new ArrayList<>(128);
+        this.bidSlots = new ArrayList<>(128);
     }
 
     public static OpenOrdersAccount readOpenOrdersAccount(byte[] data) {
@@ -84,15 +89,12 @@ public class OpenOrdersAccount {
         byte[] orders = Arrays.copyOfRange(data, ORDERS_OFFSET, CLIENT_IDS_OFFSET);
         byte[] clientIds = Arrays.copyOfRange(data, CLIENT_IDS_OFFSET, CLIENT_IDS_OFFSET + 1024);
 
-        long firstClientId = Utils.readInt64(clientIds, 0);
-        long secondClientId = Utils.readInt64(clientIds, 8);
-        long thirdClientId = Utils.readInt64(clientIds, 16);
-        long fourthClientId = Utils.readInt64(clientIds, 24);
-
         final List<Long> orderIds = new ArrayList<>();
         final List<Long> prices = new ArrayList<>();
         // ?
         final List<byte[]> clientOrderIds = new ArrayList<>();
+        final List<Boolean> freeSlots = new ArrayList<>();
+        final List<Boolean> bidSlots = new ArrayList<>();
 
         for (int i = 0; i < 128; i++) {
             // read clientId
@@ -101,13 +103,23 @@ public class OpenOrdersAccount {
 
             // read price
             prices.add(Utils.readInt64(orders, (i * 16) + 8));
+            freeSlots.add(ByteUtils.getBit(freeSlotBits, i) == 1);
+            bidSlots.add(ByteUtils.getBit(isBidBits, i) == 1);
         }
 
         openOrdersAccount.setOrderIds(orderIds);
         openOrdersAccount.setLongPrices(prices);
         openOrdersAccount.setClientOrderIds(clientOrderIds);
+        openOrdersAccount.setFreeSlots(freeSlots);
+        openOrdersAccount.setBidSlots(bidSlots);
 
-        Logger.getAnonymousLogger().info(String.format("Order IDs: %d, %d, %d, %d", firstClientId, secondClientId, thirdClientId, fourthClientId));
+        Logger.getAnonymousLogger().info(
+                String.format(
+                        "Order IDs: %d, %d",
+                        Utils.readInt64(clientIds, 0),
+                        Utils.readInt64(clientIds, 8)
+                )
+        );
 
         return openOrdersAccount;
     }
@@ -238,5 +250,21 @@ public class OpenOrdersAccount {
 
     public void setClientOrderIds(List<byte[]> clientOrderIds) {
         this.clientOrderIds = clientOrderIds;
+    }
+
+    public List<Boolean> getFreeSlots() {
+        return freeSlots;
+    }
+
+    public void setFreeSlots(List<Boolean> freeSlots) {
+        this.freeSlots = freeSlots;
+    }
+
+    public List<Boolean> getBidSlots() {
+        return bidSlots;
+    }
+
+    public void setBidSlots(List<Boolean> bidSlots) {
+        this.bidSlots = bidSlots;
     }
 }
