@@ -658,7 +658,7 @@ public class OrderTest {
     @Test
     @Ignore
     public void spoofyTest() {
-        final PublicKey lqidWallet = PublicKey.valueOf("CYm2rZWwHvv99JnDDnnGEcNTrzUGRGKX5Nqb1zExPebE"); //linkbbull
+        final PublicKey linkBullWallet = PublicKey.valueOf("CYm2rZWwHvv99JnDDnnGEcNTrzUGRGKX5Nqb1zExPebE"); // link bull
         final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
 
         byte[] data = new byte[0];
@@ -670,15 +670,15 @@ public class OrderTest {
 
         final Account account = new Account(Base58.decode(new String(data)));
 
-        final Market lqidUsdcMarket = new MarketBuilder()
-                .setPublicKey(PublicKey.valueOf("9TDuAzrz3kCHcYiw1t4aheAZyXHvsB3SsVA8BiixSmGj")) // LQID/USDC
+        final Market linkBullUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("9TDuAzrz3kCHcYiw1t4aheAZyXHvsB3SsVA8BiixSmGj")) // LINKBULL/USDC
                 .setClient(client)
                 .setRetrieveDecimalsOnly(true)
                 .build();
 
         OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
                 client,
-                lqidUsdcMarket.getOwnAddress(),
+                linkBullUsdcMarket.getOwnAddress(),
                 account.getPublicKey()
         );
 
@@ -697,14 +697,14 @@ public class OrderTest {
                 order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
                 order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
                 order.setBuy(true);
-                serumManager.setOrderPrices(order, lqidUsdcMarket);
+                serumManager.setOrderPrices(order, linkBullUsdcMarket);
 
                 transaction.addInstruction(
                         SerumProgram.placeOrder(
                                 account,
                                 usdcWallet,
                                 openOrdersAccount.getOwnPubkey(),
-                                lqidUsdcMarket,
+                                linkBullUsdcMarket,
                                 order
                         )
                 );
@@ -719,7 +719,7 @@ public class OrderTest {
                 for(int i = 0; i < 8; i++) {
                     cancelTransaction.addInstruction(
                             SerumProgram.cancelOrderByClientId(
-                                    lqidUsdcMarket,
+                                    linkBullUsdcMarket,
                                     openOrdersAccount.getOwnPubkey(),
                                     account.getPublicKey(),
                                     10000L + i
@@ -729,10 +729,10 @@ public class OrderTest {
 
                 cancelTransaction.addInstruction(
                         SerumProgram.settleFunds(
-                                lqidUsdcMarket,
+                                linkBullUsdcMarket,
                                 openOrdersAccount.getOwnPubkey(),
                                 account.getPublicKey(),
-                                lqidWallet,
+                                linkBullWallet,
                                 usdcWallet
                         )
                 );
