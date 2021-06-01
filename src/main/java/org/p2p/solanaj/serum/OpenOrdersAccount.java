@@ -11,6 +11,85 @@ import java.util.logging.Logger;
 
 public class OpenOrdersAccount {
 
+    public static class Order {
+        private int orderIndex;
+        private long clientId;
+        private byte[] clientOrderId;
+        private long price;
+        private boolean isFreeSlot;
+        private boolean isBid;
+        private float floatPrice;
+
+        public int getOrderIndex() {
+            return orderIndex;
+        }
+
+        public void setOrderIndex(int orderIndex) {
+            this.orderIndex = orderIndex;
+        }
+
+        public long getClientId() {
+            return clientId;
+        }
+
+        public void setClientId(long clientId) {
+            this.clientId = clientId;
+        }
+
+        public byte[] getClientOrderId() {
+            return clientOrderId;
+        }
+
+        public void setClientOrderId(byte[] clientOrderId) {
+            this.clientOrderId = clientOrderId;
+        }
+
+        public long getPrice() {
+            return price;
+        }
+
+        public void setPrice(long price) {
+            this.price = price;
+        }
+
+        public boolean isFreeSlot() {
+            return isFreeSlot;
+        }
+
+        public void setFreeSlot(boolean freeSlot) {
+            isFreeSlot = freeSlot;
+        }
+
+        public boolean isBid() {
+            return isBid;
+        }
+
+        public void setBid(boolean bid) {
+            isBid = bid;
+        }
+
+        public float getFloatPrice() {
+            return floatPrice;
+        }
+
+        public void setFloatPrice(float floatPrice) {
+            this.floatPrice = floatPrice;
+        }
+
+        @Override
+        public String toString() {
+            return "Order{" +
+                    "orderIndex=" + orderIndex +
+                    ", clientId=" + clientId +
+                    ", clientOrderId=" + Arrays.toString(clientOrderId) +
+                    ", price=" + price +
+                    ", isFreeSlot=" + isFreeSlot +
+                    ", isBid=" + isBid +
+                    ", floatPrice=" + floatPrice +
+                    '}';
+        }
+    }
+
     private static final int MARKET_OFFSET = 13;
     private static final int OWNER_OFFSET = MARKET_OFFSET + 32;
     private static final int BASE_TOKEN_FREE_OFFSET = OWNER_OFFSET + 32;
@@ -31,7 +110,6 @@ public class OpenOrdersAccount {
     private long quoteTokenTotal;
     private byte[] freeSlotBits;
     private byte[] isBidBits;
-    private List<byte[]> orders;
     private List<byte[]> clientIds;
     private long referrerRebatesAccrued;
 
@@ -44,14 +122,15 @@ public class OpenOrdersAccount {
     private List<byte[]> clientOrderIds;
     private List<Boolean> freeSlots; // true if the index is free
     private List<Boolean> bidSlots; // true if the order is a bid
+    private List<OpenOrdersAccount.Order> orders;
 
     public OpenOrdersAccount() {
-        this.orders = new ArrayList<>(128);
         this.clientIds = new ArrayList<>(128);
         this.longPrices = new ArrayList<>(128);
         this.clientOrderIds = new ArrayList<>(128);
         this.freeSlots = new ArrayList<>(128);
         this.bidSlots = new ArrayList<>(128);
+        this.orders = new ArrayList<>(128);
     }
 
     public static OpenOrdersAccount readOpenOrdersAccount(byte[] data) {
@@ -95,18 +174,38 @@ public class OpenOrdersAccount {
         final List<byte[]> clientOrderIds = new ArrayList<>();
         final List<Boolean> freeSlots = new ArrayList<>();
         final List<Boolean> bidSlots = new ArrayList<>();
+        final List<OpenOrdersAccount.Order> openOrdersAccountOrders = new ArrayList<>();
 
         for (int i = 0; i < 128; i++) {
             // read clientId
-            orderIds.add(Utils.readInt64(clientIds, i * 8));
-            clientOrderIds.add(Arrays.copyOfRange(orders, i * 16, (i * 16) + 16));
+            long clientId = Utils.readInt64(clientIds, i * 8);
+            byte[] clientOrderId = Arrays.copyOfRange(orders, i * 16, (i * 16) + 16);
+
+            orderIds.add(clientId);
+            clientOrderIds.add(clientOrderId);
 
             // read price
-            prices.add(Utils.readInt64(orders, (i * 16) + 8));
-            freeSlots.add(ByteUtils.getBit(freeSlotBits, i) == 1);
-            bidSlots.add(ByteUtils.getBit(isBidBits, i) == 1);
+            long price = Utils.readInt64(orders, (i * 16) + 8);
+            boolean isFreeSlot = ByteUtils.getBit(freeSlotBits, i) == 1;
+            boolean isBid = ByteUtils.getBit(isBidBits, i) == 1;
+
+            prices.add(price);
+            freeSlots.add(isFreeSlot);
+            bidSlots.add(isBid);
+
+            if (!isFreeSlot) {
+                OpenOrdersAccount.Order order = new OpenOrdersAccount.Order();
+                order.setOrderIndex(i);
+                order.setBid(isBid);
+                order.setClientOrderId(clientOrderId);
+                order.setFreeSlot(isFreeSlot);
+                order.setPrice(price);
+                order.setClientId(clientId);
+                openOrdersAccountOrders.add(order);
+            }
         }
 
+        openOrdersAccount.setOrders(openOrdersAccountOrders);
         openOrdersAccount.setOrderIds(orderIds);
         openOrdersAccount.setLongPrices(prices);
         openOrdersAccount.setClientOrderIds(clientOrderIds);
@@ -196,14 +295,6 @@ public class OpenOrdersAccount {
         this.isBidBits = isBidBits;
     }
 
-    public List<byte[]> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<byte[]> orders) {
-        this.orders = orders;
-    }
-
     public List<byte[]> getClientIds() {
         return clientIds;
     }
@@ -266,5 +357,13 @@ public class OpenOrdersAccount {
 
     public void setBidSlots(List<Boolean> bidSlots) {
         this.bidSlots = bidSlots;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }

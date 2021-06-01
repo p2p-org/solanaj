@@ -309,32 +309,19 @@ public class OrderTest {
                 PublicKey.valueOf("F459S1MFG2whWbznzULPkYff6TFe2QjoKhgHXpRfDyCj")
         );
 
-        final List<Float> floatPrices = new ArrayList<>();
-
-        openOrdersAccount.getLongPrices().forEach(price -> {
+        final List<OpenOrdersAccount.Order> orders = openOrdersAccount.getOrders();
+        orders.forEach(order -> {
             float floatPrice = SerumUtils.priceLotsToNumber(
-                    price,
+                    order.getPrice(),
                     lqidUsdcMarket.getBaseDecimals(),
                     lqidUsdcMarket.getQuoteDecimals(),
                     lqidUsdcMarket.getBaseLotSize(),
                     lqidUsdcMarket.getQuoteLotSize()
             );
 
-            floatPrices.add(floatPrice);
+            order.setFloatPrice(floatPrice);
+            LOGGER.info(String.format("%s", order));
         });
-
-        final List<Long> orderIds = openOrdersAccount.getOrderIds();
-
-        for (int i = 0; i < floatPrices.size(); i++) {
-            float value = floatPrices.get(i);
-
-            if (value > 0 ) {
-                LOGGER.info(String.format("Order %d, price %.4f, orderId %d", i, floatPrices.get(i), orderIds.get(i)));
-            }
-        }
-
-
-        LOGGER.info("openOrdersAccount = " + openOrdersAccount.toString());
     }
 
     @Test
