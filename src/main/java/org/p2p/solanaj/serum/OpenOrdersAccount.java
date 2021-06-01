@@ -7,7 +7,6 @@ import org.p2p.solanaj.utils.ByteUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class OpenOrdersAccount {
 
@@ -110,7 +109,6 @@ public class OpenOrdersAccount {
     private long quoteTokenTotal;
     private byte[] freeSlotBits;
     private byte[] isBidBits;
-    private List<byte[]> clientIds;
     private long referrerRebatesAccrued;
 
     // set manually
@@ -125,8 +123,8 @@ public class OpenOrdersAccount {
     private List<OpenOrdersAccount.Order> orders;
 
     public OpenOrdersAccount() {
-        this.clientIds = new ArrayList<>(128);
         this.longPrices = new ArrayList<>(128);
+        this.orderIds = new ArrayList<>(128);
         this.clientOrderIds = new ArrayList<>(128);
         this.freeSlots = new ArrayList<>(128);
         this.bidSlots = new ArrayList<>(128);
@@ -198,7 +196,6 @@ public class OpenOrdersAccount {
                 order.setOrderIndex(i);
                 order.setBid(isBid);
                 order.setClientOrderId(clientOrderId);
-                order.setFreeSlot(isFreeSlot);
                 order.setPrice(price);
                 order.setClientId(clientId);
                 openOrdersAccountOrders.add(order);
@@ -211,14 +208,6 @@ public class OpenOrdersAccount {
         openOrdersAccount.setClientOrderIds(clientOrderIds);
         openOrdersAccount.setFreeSlots(freeSlots);
         openOrdersAccount.setBidSlots(bidSlots);
-
-        Logger.getAnonymousLogger().info(
-                String.format(
-                        "Order IDs: %d, %d",
-                        Utils.readInt64(clientIds, 0),
-                        Utils.readInt64(clientIds, 8)
-                )
-        );
 
         return openOrdersAccount;
     }
@@ -293,14 +282,6 @@ public class OpenOrdersAccount {
 
     public void setIsBidBits(byte[] isBidBits) {
         this.isBidBits = isBidBits;
-    }
-
-    public List<byte[]> getClientIds() {
-        return clientIds;
-    }
-
-    public void setClientIds(List<byte[]> clientIds) {
-        this.clientIds = clientIds;
     }
 
     public long getReferrerRebatesAccrued() {
