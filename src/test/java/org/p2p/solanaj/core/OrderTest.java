@@ -666,6 +666,143 @@ public class OrderTest {
 
     @Test
     @Ignore
+    public void place20OrderSRandomClientIdTest() {
+        final PublicKey xrpBearWallet = PublicKey.valueOf("3Hbga31dmqqLauAUtHXyemNYXB1jYnS4t1ExmSdfe4sD"); // XRPBEAR
+        final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        final Account account = new Account(Base58.decode(new String(data)));
+
+        final Market xrpBearUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("G2aPyW7r3gfW8GnRumiXXp1567XzMZsfwvbgxDiaNR4U")) // XRPBEAR/USDC
+                .setClient(client)
+                .setRetrieveDecimalsOnly(true)
+                .build();
+
+        OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                xrpBearUsdcMarket.getOwnAddress(),
+                account.getPublicKey()
+        );
+
+        List<Order> orders = new ArrayList<>();
+        Transaction transaction = new Transaction();
+
+        for (int i = 1; i <= 9; i++) {
+            Order order = new Order(
+                    0.01F + (0.01f * 1/2 * i),
+                    10 - i
+            );
+            order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+            order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+            order.setBuy(true);
+            serumManager.setOrderPrices(order, xrpBearUsdcMarket);
+
+            transaction.addInstruction(
+                    SerumProgram.placeOrder(
+                            account,
+                            usdcWallet,
+                            openOrdersAccount.getOwnPubkey(),
+                            xrpBearUsdcMarket,
+                            order
+                    )
+            );
+
+            LOGGER.info(String.format("Order ID %d", order.getClientOrderId()));
+            orders.add(order);
+        }
+
+        try {
+            String txId = client.getApi().sendTransaction(transaction, account);
+            LOGGER.info("Place order TX = " + txId);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(2000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        String cancelTx = serumManager.cancelOrdersByClientId(
+                account,
+                xrpBearUsdcMarket,
+                orders.stream().map(Order::getClientOrderId).collect(Collectors.toList()),
+                openOrdersAccount,
+                xrpBearWallet,
+                usdcWallet
+        );
+
+        LOGGER.info("Cancel TX = " + cancelTx);
+
+        try {
+            Thread.sleep(2000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        orders.clear();
+        transaction = new Transaction();
+
+        for (int i = 1; i <= 9; i++) {
+            Order order = new Order(
+                    0.01F + (0.01f * 1/2 * i),
+                    10 - i
+            );
+            order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+            order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+            order.setBuy(true);
+            serumManager.setOrderPrices(order, xrpBearUsdcMarket);
+
+            transaction.addInstruction(
+                    SerumProgram.placeOrder(
+                            account,
+                            usdcWallet,
+                            openOrdersAccount.getOwnPubkey(),
+                            xrpBearUsdcMarket,
+                            order
+                    )
+            );
+
+            LOGGER.info(String.format("Order ID %d", order.getClientOrderId()));
+            orders.add(order);
+        }
+
+        try {
+            String txId = client.getApi().sendTransaction(transaction, account);
+            LOGGER.info("Place order TX = " + txId);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(2000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        cancelTx = serumManager.cancelOrdersByClientId(
+                account,
+                xrpBearUsdcMarket,
+                orders.stream().map(Order::getClientOrderId).collect(Collectors.toList()),
+                openOrdersAccount,
+                xrpBearWallet,
+                usdcWallet
+        );
+
+        LOGGER.info("Cancel TX = " + cancelTx);
+
+    }
+
+    @Test
+    @Ignore
     public void spoofyTest() {
         final PublicKey xrpBearWallet = PublicKey.valueOf("3Hbga31dmqqLauAUtHXyemNYXB1jYnS4t1ExmSdfe4sD"); // XRPBEAR
         final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");

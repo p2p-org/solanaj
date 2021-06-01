@@ -441,6 +441,47 @@ public class SerumManager {
     }
 
     /**
+     * Cancels multiple Serum {@link Order}s by clientId with a pre-determined open orders account
+     *
+     * @param owner private key of the signer
+     * @param market market we are trading on
+     * @param clientIds clientIds for the orders we are cancelling
+     * @param openOrdersAccount pre-determined open orders account
+     * @return Solana transaction ID
+     */
+    public String cancelOrdersByClientId(Account owner,
+                                         Market market,
+                                         List<Long> clientIds,
+                                         OpenOrdersAccount openOrdersAccount,
+                                         PublicKey baseWallet,
+                                         PublicKey quoteWallet) {
+        final Transaction transaction = new Transaction();
+
+        clientIds.forEach(clientId -> {
+            transaction.addInstruction(
+                    SerumProgram.cancelOrderByClientId(
+                            market,
+                            openOrdersAccount.getOwnPubkey(),
+                            owner.getPublicKey(),
+                            clientId
+                    )
+            );
+        });
+
+        transaction.addInstruction(
+                SerumProgram.settleFunds(
+                        market,
+                        openOrdersAccount.getOwnPubkey(),
+                        owner.getPublicKey(),
+                        baseWallet,
+                        quoteWallet
+                )
+        );
+
+        return sendTransactionWithSigners(transaction, List.of(owner));
+    }
+
+    /**
      * Cancels a Serum {@link Order} by clientId
      *
      * @param owner private key of the signer
