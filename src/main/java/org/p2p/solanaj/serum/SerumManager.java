@@ -6,6 +6,7 @@ import org.p2p.solanaj.programs.SystemProgram;
 import org.p2p.solanaj.programs.TokenProgram;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
+import org.p2p.solanaj.utils.ByteUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -467,6 +468,95 @@ public class SerumManager {
         );
 
         return sendTransactionWithSigners(transaction, List.of(owner));
+    }
+
+    public String cancelAllOrdersAndSettle(Account owner,
+                                           Market market,
+                                           OpenOrdersAccount openOrdersAccount,
+                                           PublicKey baseWallet,
+                                           PublicKey quoteWallet) {
+        final Transaction transaction = new Transaction();
+        final List<Account> signers = new ArrayList<>();
+        signers.add(owner);
+
+        for (int i = 0; i < openOrdersAccount.getClientOrderIds().size(); i++) {
+            boolean isBid = ByteUtils.getBit(openOrdersAccount.getIsBidBits(), i) == 1;
+            byte[] clientOrderId = openOrdersAccount.getClientOrderIds().get(i);
+            SideLayout side = isBid ? SideLayout.BUY : SideLayout.SELL;
+
+            if (clientOrderId[0] != 0) {
+                transaction.addInstruction(
+                        SerumProgram.cancelOrder(
+                                market,
+                                openOrdersAccount.getOwnPubkey(),
+                                owner.getPublicKey(),
+                                side,
+                                clientOrderId
+                        )
+                );
+            }
+        }
+
+        boolean shouldWrapSol = market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) ||
+                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT);
+
+        Account wrappedSolAccount = null;
+
+        if (shouldWrapSol) {
+            wrappedSolAccount = new Account();
+            signers.add(wrappedSolAccount);
+
+            // Create account
+            transaction.addInstruction(
+                    SystemProgram.createAccount(
+                            owner.getPublicKey(),
+                            wrappedSolAccount.getPublicKey(),
+                            MINIMUM_BALANCE_FOR_RENT_EXEMPTION_165,
+                            REQUIRED_ACCOUNT_SPACE,
+                            TokenProgram.PROGRAM_ID
+                    )
+            );
+
+            // Initialize account
+            transaction.addInstruction(
+                    TokenProgram.initializeAccount(
+                            wrappedSolAccount.getPublicKey(),
+                            SerumUtils.WRAPPED_SOL_MINT,
+                            owner.getPublicKey()
+                    )
+            );
+        }
+
+        // Settle funds instruction
+        transaction.addInstruction(
+                SerumProgram.settleFunds(
+                        market,
+                        openOrdersAccount.getOwnPubkey(),
+                        openOrdersAccount.getOwner(),
+                        (
+                                market.getBaseMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
+                                        wrappedSolAccount.getPublicKey() :
+                                        baseWallet
+                        ),
+                        (
+                                market.getQuoteMint().equals(SerumUtils.WRAPPED_SOL_MINT) && wrappedSolAccount != null ?
+                                        wrappedSolAccount.getPublicKey() :
+                                        quoteWallet
+                        )
+                )
+        );
+
+        if (shouldWrapSol) {
+            transaction.addInstruction(
+                    TokenProgram.closeAccount(
+                            wrappedSolAccount.getPublicKey(),
+                            owner.getPublicKey(),
+                            owner.getPublicKey()
+                    )
+            );
+        }
+
+        return sendTransactionWithSigners(transaction, signers);
     }
 
     /**

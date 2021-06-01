@@ -76,6 +76,8 @@ public class OpenOrdersAccount {
 
         byte[] freeSlotBits = Arrays.copyOfRange(data, FREE_SLOT_BITS_OFFSET, IS_BID_BITS_OFFSET);
         byte[] isBidBits = Arrays.copyOfRange(data, IS_BID_BITS_OFFSET, ORDERS_OFFSET);
+        openOrdersAccount.setFreeSlotBits(freeSlotBits);
+        openOrdersAccount.setIsBidBits(isBidBits);
 
         // orders = 128 * 16 = 2048 bytes of orders
 

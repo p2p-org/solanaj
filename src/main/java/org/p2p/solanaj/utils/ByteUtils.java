@@ -64,4 +64,12 @@ public class ByteUtils {
         return Arrays.copyOf(bytes, i + 1);
     }
 
+    public static int getBit(byte[] data, int pos) {
+        int posByte = pos/8;
+        int posBit = pos%8;
+        byte valByte = data[posByte];
+        int valInt = (valByte >> posBit) & 1;
+        return valInt;
+    }
+
 }

@@ -209,6 +209,48 @@ public class OrderTest {
 
     @Test
     @Ignore
+    public void cancelAllOrdersAndSettleTest() {
+        // Build account from secretkey.dat
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create account from private key
+        final Account account = new Account(Base58.decode(new String(data)));
+
+        final Market lqidUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("4FPFh1iAiitKYMCPDBmEQrZVgA1DVMKHZBU2R7wjQWuu"))
+                .setRetrieveDecimalsOnly(true)
+                .setClient(client)
+                .build();
+
+        final PublicKey lqidWallet = PublicKey.valueOf("5uRbRHoVD6EeBM3MLjx7GadMxbprvNvABZGfmS1hVVGG");
+        final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+
+        final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                lqidUsdcMarket.getOwnAddress(),
+                PublicKey.valueOf("F459S1MFG2whWbznzULPkYff6TFe2QjoKhgHXpRfDyCj")
+        );
+
+        String transactionId = serumManager.cancelAllOrdersAndSettle(
+                account,
+                lqidUsdcMarket,
+                openOrdersAccount,
+                lqidWallet,
+                usdcWallet
+        );
+
+        LOGGER.info("Cancel all TX: " + transactionId);
+
+        assertNotNull(transactionId);
+    }
+
+    @Test
+    @Ignore
     public void openOrdersTest() {
         // Get SOL/USDC market
         final Market lqidUsdcMarket = new MarketBuilder()
@@ -345,7 +387,7 @@ public class OrderTest {
     @Ignore
     public void iocPlaceOrderLqidTest() {
         // Replace with the public key of your LQID and USDC wallet
-        final PublicKey oxyWallet = PublicKey.valueOf("5uRbRHoVD6EeBM3MLjx7GadMxbprvNvABZGfmS1hVVGG");
+        final PublicKey lqidWallet = PublicKey.valueOf("5uRbRHoVD6EeBM3MLjx7GadMxbprvNvABZGfmS1hVVGG");
         final PublicKey usdcPayer = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
 
         // Build account from secretkey.dat
@@ -382,7 +424,7 @@ public class OrderTest {
                 account,
                 lqidUsdcMarket,
                 order,
-                oxyWallet,
+                lqidWallet,
                 usdcPayer
         );
 
