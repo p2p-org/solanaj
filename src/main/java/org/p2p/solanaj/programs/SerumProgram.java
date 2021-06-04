@@ -75,6 +75,24 @@ public class SerumProgram extends Program {
     }
 
     /**
+     * Overloaded version of placeOrder which assumes no SRM fee discount
+     *
+     * @param account Account from private key which owns payer and openOrders
+     * @param payer token pubkey funding the order. could be your USDC wallet for example.
+     * @param openOrders open orders pubkey associated with this Account and market - look up using {@link SerumUtils}
+     * @param market loaded market that we are trading on. this must be built by a {@link MarketBuilder}
+     * @param order order we are placing
+     * @return {@link TransactionInstruction} for the placeOrder call
+     */
+    public static TransactionInstruction placeOrder(Account account,
+                                                    PublicKey payer,
+                                                    PublicKey openOrders,
+                                                    Market market,
+                                                    Order order) {
+        return placeOrder(account, payer, openOrders, market, order, null);
+    }
+
+    /**
      * Builds a {@link TransactionInstruction} to place a new v3 Serum order.
      *
      * @param account Account from private key which owns payer and openOrders
@@ -82,6 +100,7 @@ public class SerumProgram extends Program {
      * @param openOrders open orders pubkey associated with this Account and market - look up using {@link SerumUtils}
      * @param market loaded market that we are trading on. this must be built by a {@link MarketBuilder}
      * @param order order we are placing
+     * @param srmFeeDiscount pubkey of our SRM wallet for fee discount
      * @return {@link TransactionInstruction} for the placeOrder call
      */
     public static TransactionInstruction placeOrder(Account account,

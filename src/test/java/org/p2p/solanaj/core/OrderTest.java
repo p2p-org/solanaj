@@ -710,8 +710,7 @@ public class OrderTest {
                             usdcWallet,
                             openOrdersAccount.getOwnPubkey(),
                             xrpBearUsdcMarket,
-                            order,
-                            null
+                            order
                     )
             );
 
@@ -768,8 +767,7 @@ public class OrderTest {
                             usdcWallet,
                             openOrdersAccount.getOwnPubkey(),
                             xrpBearUsdcMarket,
-                            order,
-                            null
+                            order
                     )
             );
 
@@ -896,8 +894,7 @@ public class OrderTest {
                                 usdcWallet,
                                 openOrdersAccount.getOwnPubkey(),
                                 xrpBearUsdcMarket,
-                                order,
-                                null
+                                order
                         )
                 );
             }
