@@ -2,8 +2,6 @@ package org.p2p.solanaj.serum;
 
 import org.bitcoinj.core.Utils;
 import org.p2p.solanaj.core.PublicKey;
-import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.utils.ByteUtils;
 
 import java.util.*;
@@ -62,7 +60,6 @@ public class EventQueue {
     private int count;
     private int seqNum;
     private List<TradeEvent> events;
-    private List<PublicKey> topTraders = new ArrayList<>();
     private List<PublicKey> openOrdersAccounts = new ArrayList<>();
 
     private long baseLotSize;
@@ -182,37 +179,6 @@ public class EventQueue {
             eventQueue.getOpenOrdersAccounts().add(PublicKey.valueOf(publicKey));
         }
 
-//        Map<String, Integer> counter = new HashMap<>();
-//
-//        publicKeys.forEach(publicKey -> {
-//            int value = counter.getOrDefault(publicKey, 0) + 1;
-//            counter.put(publicKey, value);
-//        });
-//
-//        final List<PublicKey> sortedMarketMakers = counter.entrySet().stream()
-//                .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
-//                .map(stringIntegerEntry -> new PublicKey(stringIntegerEntry.getKey())).distinct().collect(Collectors.toList());
-//
-//        eventQueue.getTopTraders().clear();
-
-//        for (int i = 0; i < 5; i++) {
-//            try {
-//                PublicKey sortedMarketMaker = sortedMarketMakers.get(i);
-//                byte[] bytes = Base64.getDecoder().decode(client.getApi().getAccountInfo(sortedMarketMaker).getValue().getData().get(0));
-//                PublicKey owner = PublicKey.readPubkey(bytes, 45);
-//                eventQueue.getTopTraders().add(owner);
-//                LOGGER.info(String.format("Rank #%d Market Maker = %s, Owner = %s (https://explorer.solana.com/address/%s)", i + 1, sortedMarketMaker.toBase58(), owner.toBase58(), owner.toBase58()));
-//            } catch (RpcException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
-//        counter.entrySet().stream()
-//                .sorted((k1, k2) -> -k1.getValue().compareTo(k2.getValue()))
-//                .forEach(k -> {
-//                    LOGGER.info(String.format("Open Orders Account: %s, Number of Event Queue fills: %d\nExplorer: https://explorer.solana.com/address/%s", k.getKey(), k.getValue(), k.getKey()));
-//                });
-
         return eventQueue;
     }
 
@@ -254,14 +220,6 @@ public class EventQueue {
 
     public void setEvents(List<TradeEvent> events) {
         this.events = events;
-    }
-
-    public List<PublicKey> getTopTraders() {
-        return topTraders;
-    }
-
-    public void setTopTraders(List<PublicKey> topTraders) {
-        this.topTraders = topTraders;
     }
 
     public List<PublicKey> getOpenOrdersAccounts() {

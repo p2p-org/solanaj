@@ -223,7 +223,6 @@ public class MainnetTest extends AccountBasedTest {
 
         LOGGER.info("Market = " + solUsdcMarket.toString());
         LOGGER.info("Event Queue = " + solUsdcMarket.getEventQueue());
-        LOGGER.info("# of top traders = " + solUsdcMarket.getEventQueue().getTopTraders().size());
         LOGGER.info("# of Open Orders accounts = " + solUsdcMarket.getEventQueue().getOpenOrdersAccounts().size());
 
         List<TradeEvent> tradeEvents = solUsdcMarket.getEventQueue().getEvents();
