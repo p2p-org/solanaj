@@ -710,7 +710,8 @@ public class OrderTest {
                             usdcWallet,
                             openOrdersAccount.getOwnPubkey(),
                             xrpBearUsdcMarket,
-                            order
+                            order,
+                            null
                     )
             );
 
@@ -767,7 +768,8 @@ public class OrderTest {
                             usdcWallet,
                             openOrdersAccount.getOwnPubkey(),
                             xrpBearUsdcMarket,
-                            order
+                            order,
+                            null
                     )
             );
 
@@ -799,6 +801,49 @@ public class OrderTest {
 
         LOGGER.info("Cancel TX = " + cancelTx);
 
+    }
+
+    @Test
+    @Ignore
+    public void srmFeeDiscountTest() {
+        final PublicKey xrpBearWallet = PublicKey.valueOf("3Hbga31dmqqLauAUtHXyemNYXB1jYnS4t1ExmSdfe4sD"); // XRPBEAR
+        final PublicKey usdcWallet = PublicKey.valueOf("A71WvME6ZhR4SFG3Ara7zQK5qdRSB97jwTVmB3sr7XiN");
+        byte[] data = new byte[0];
+        try {
+            data = Files.readAllBytes(Paths.get("secretkey.dat"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        final Account account = new Account(Base58.decode(new String(data)));
+        final Market xrpBearUsdcMarket = new MarketBuilder()
+                .setPublicKey(PublicKey.valueOf("G2aPyW7r3gfW8GnRumiXXp1567XzMZsfwvbgxDiaNR4U")) // XRPBEAR/USDC
+                .setClient(client)
+                .setRetrieveDecimalsOnly(true)
+                .build();
+
+        OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
+                client,
+                xrpBearUsdcMarket.getOwnAddress(),
+                account.getPublicKey()
+        );
+
+        Order order = new Order(0.1f, 1);
+        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
+        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
+        order.setBuy(true);
+
+        String txId = serumManager.placeOrder(
+                account,
+                xrpBearUsdcMarket,
+                order,
+                xrpBearWallet,
+                usdcWallet,
+                openOrdersAccount,
+                PublicKey.valueOf("CvviJtGxVhCJsnJ8akbFgZs1ARzxrf6rLxpBn8GGP3wG") // My SRM wallet
+        );
+
+        LOGGER.info("Discount TX = " + txId);
     }
 
     @Test
@@ -851,7 +896,8 @@ public class OrderTest {
                                 usdcWallet,
                                 openOrdersAccount.getOwnPubkey(),
                                 xrpBearUsdcMarket,
-                                order
+                                order,
+                                null
                         )
                 );
             }

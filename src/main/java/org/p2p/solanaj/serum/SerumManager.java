@@ -47,7 +47,7 @@ public class SerumManager {
         );
         validateOpenOrdersAccount(openOrders);
 
-        return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrders);
+        return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrders, null);
     }
 
     /**
@@ -71,7 +71,33 @@ public class SerumManager {
         validateOrder(order);
         validateOpenOrdersAccount(openOrdersAccount);
 
-        return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrdersAccount);
+        return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrdersAccount, null);
+    }
+
+    /**
+     * Places order at the specified {@link Market} with the given {@link Order}
+     * This overloaded version takes in an {@link OpenOrdersAccount}, to skip the lookup step
+     * Allows a feeDiscountPubkey to be defined for SRM fee discount
+     *
+     * @param account private key for the signer
+     * @param market market being traded on
+     * @param order order containing all required details
+     * @param baseWallet base wallet to settle funds, used in IoC orders
+     * @param quoteWallet quote wallet to settle funds, used in IoC orders
+     * @param openOrdersAccount pre-determined open orders account, use {@link SerumUtils} to determine
+     * @return Solana transaction ID
+     */
+    public String placeOrder(Account account,
+                             Market market,
+                             Order order,
+                             PublicKey baseWallet,
+                             PublicKey quoteWallet,
+                             OpenOrdersAccount openOrdersAccount,
+                             PublicKey srmFeeDiscount) {
+        validateOrder(order);
+        validateOpenOrdersAccount(openOrdersAccount);
+
+        return placeOrderInternal(account, market, order, baseWallet, quoteWallet, openOrdersAccount, srmFeeDiscount);
     }
 
     /**
@@ -90,7 +116,8 @@ public class SerumManager {
                                       Order order,
                                       PublicKey baseWallet,
                                       PublicKey quoteWallet,
-                                      OpenOrdersAccount openOrdersAccount) {
+                                      OpenOrdersAccount openOrdersAccount,
+                                      PublicKey srmFeeDiscount) {
         final Transaction transaction = new Transaction();
         setOrderPrices(order, market);
 
@@ -144,7 +171,8 @@ public class SerumManager {
                         payerPublicKey,
                         openOrdersAccount.getOwnPubkey(),
                         market,
-                        order
+                        order,
+                        srmFeeDiscount
                 )
         );
 

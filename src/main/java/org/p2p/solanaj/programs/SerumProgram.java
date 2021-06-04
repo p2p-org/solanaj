@@ -88,7 +88,8 @@ public class SerumProgram extends Program {
                                                     PublicKey payer,
                                                     PublicKey openOrders,
                                                     Market market,
-                                                    Order order) {
+                                                    Order order,
+                                                    PublicKey srmFeeDiscount) {
         // pubkey: market
         final AccountMeta marketKey = new AccountMeta(market.getOwnAddress(), false, true);
 
@@ -125,7 +126,7 @@ public class SerumProgram extends Program {
         // pubkey: SYSVAR_RENT_PUBKEY
         final AccountMeta sysvarRentKey = new AccountMeta(SYSVAR_RENT_PUBKEY, false, false);
 
-        final List<AccountMeta> keys = List.of(
+        final List<AccountMeta> keys = new ArrayList<>(List.of(
                 marketKey,
                 openOrdersKey,
                 requestQueueKey,
@@ -138,7 +139,11 @@ public class SerumProgram extends Program {
                 quoteVaultKey,
                 tokenProgramIdKey,
                 sysvarRentKey
-        );
+        ));
+
+        if (srmFeeDiscount != null) {
+            keys.add(new AccountMeta(srmFeeDiscount, false, false));
+        }
 
         byte[] transactionData =  buildNewOrderv3InstructionData(
                 order
