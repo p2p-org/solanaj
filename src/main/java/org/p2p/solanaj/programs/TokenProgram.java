@@ -9,6 +9,9 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class for creating Token Program {@link TransactionInstruction}s
+ */
 public class TokenProgram extends Program {
 
     public static final PublicKey PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");

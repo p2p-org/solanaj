@@ -4,6 +4,9 @@ import org.p2p.solanaj.core.PublicKey;
 
 import java.util.Arrays;
 
+/**
+ * Represents a Trade Event that occurs inside of a Serum {@link EventQueue}
+ */
 public class TradeEvent {
 
     private PublicKey openOrders;

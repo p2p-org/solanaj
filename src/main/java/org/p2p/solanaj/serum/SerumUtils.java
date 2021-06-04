@@ -47,6 +47,10 @@ import java.util.logging.Logger;
  *   ....
  *
  */
+
+/**
+ * Utility class for reading/building Serum-related objects
+ */
 public class SerumUtils {
 
     private static final Logger LOGGER = Logger.getLogger(SerumUtils.class.getName());

@@ -42,6 +42,10 @@ const EVENT = struct([
   u64('clientOrderId'),
 ]);
  */
+
+/**
+ * Represents a Serum Event Queue
+ */
 public class EventQueue {
 
     private static final Logger LOGGER = Logger.getLogger(EventQueue.class.getName());

@@ -5,10 +5,12 @@ import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
 import org.p2p.solanaj.programs.MemoProgram;
 import org.p2p.solanaj.programs.TokenProgram;
-import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 
+/**
+ * Manager class for calling {@link TokenProgram}-related APIs
+ */
 public class TokenManager {
 
     private final RpcClient client;

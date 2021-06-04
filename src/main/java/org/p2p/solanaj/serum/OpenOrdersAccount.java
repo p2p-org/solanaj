@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Represents a Serum Open Orders account. Generally built from {@link SerumUtils}.
+ */
 public class OpenOrdersAccount {
 
     public static class Order {

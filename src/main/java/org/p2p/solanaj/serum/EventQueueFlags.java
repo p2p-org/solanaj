@@ -1,5 +1,8 @@
 package org.p2p.solanaj.serum;
 
+/**
+ * Used to represent flags for Event Queue events
+ */
 public class EventQueueFlags {
 
     private boolean fill;
