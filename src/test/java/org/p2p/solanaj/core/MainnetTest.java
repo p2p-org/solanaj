@@ -28,13 +28,14 @@ public class MainnetTest extends AccountBasedTest {
     private final SerumManager serumManager = new SerumManager(client);
 
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+    private static final long LAMPORTS_PER_SOL = 1000000000L;
 
     @Test
     public void getAccountInfoBase64() {
         try {
             // Get account Info
             final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"));
-            final double balance = (double) accountInfo.getValue().getLamports()/ 100000000;
+            final double balance = (double) accountInfo.getValue().getLamports()/ LAMPORTS_PER_SOL;
 
             // Account data list
             final List<String> accountData = accountInfo.getValue().getData();
@@ -52,7 +53,7 @@ public class MainnetTest extends AccountBasedTest {
         try {
             // Get account Info
             final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"), Map.of("encoding", "base58"));
-            final double balance = (double) accountInfo.getValue().getLamports()/ 100000000;
+            final double balance = (double) accountInfo.getValue().getLamports()/ LAMPORTS_PER_SOL;
 
             // Account data list
             final List<String> accountData = accountInfo.getValue().getData();
@@ -70,7 +71,7 @@ public class MainnetTest extends AccountBasedTest {
         try {
             // Get account Info
             final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"), Map.of("commitment", "root"));
-            final double balance = (double) accountInfo.getValue().getLamports()/ 100000000;
+            final double balance = (double) accountInfo.getValue().getLamports()/ LAMPORTS_PER_SOL;
 
             // Verify any balance
             assertTrue(balance > 0);
