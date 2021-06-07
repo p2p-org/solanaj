@@ -232,6 +232,16 @@ public class RpcApi {
         return client.call("getBlockTime", params, Long.class);
     }
 
+    /**
+     * Seemingly deprecated on the official Solana API.
+     *
+     * @return
+     * @throws RpcException
+     */
+    public long getBlockHeight() throws RpcException {
+        return client.call("getBlockHeight", new ArrayList<>(), Long.class);
+    }
+
     public String requestAirdrop(PublicKey address, long lamports) throws RpcException {
         List<Object> params = new ArrayList<Object>();
 

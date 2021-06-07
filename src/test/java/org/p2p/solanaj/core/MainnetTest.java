@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 
 public class MainnetTest extends AccountBasedTest {
 
-    private final RpcClient client = new RpcClient(Cluster.MAINNET);
+    private final RpcClient client = new RpcClient("https://solana.openserum.ch/");
     private final PublicKey publicKey = solDestination;
     public final TokenManager tokenManager = new TokenManager(client);
     private final SerumManager serumManager = new SerumManager(client);
@@ -295,6 +295,17 @@ public class MainnetTest extends AccountBasedTest {
 
             assertNotNull(blockCommitment);
             assertTrue(blockCommitment.getTotalStake() > 0);
+        } catch (RpcException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getBlockHeightTest() {
+        try {
+            long blockHeight = client.getApi().getBlockHeight();
+            LOGGER.info(String.format("Block height = %d", blockHeight));
+            assertTrue(blockHeight > 0);
         } catch (RpcException e) {
             e.printStackTrace();
         }
