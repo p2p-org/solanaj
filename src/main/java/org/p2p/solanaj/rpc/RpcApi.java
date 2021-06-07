@@ -242,6 +242,13 @@ public class RpcApi {
         return client.call("getBlockHeight", new ArrayList<>(), Long.class);
     }
 
+    // TODO - implement the parameters - currently takes in none
+    public BlockProduction getBlockProduction(long firstSlot, long lastSlot, PublicKey identity) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        return client.call("getBlockProduction", params, BlockProduction.class);
+    }
+
     public String requestAirdrop(PublicKey address, long lamports) throws RpcException {
         List<Object> params = new ArrayList<Object>();
 

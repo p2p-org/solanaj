@@ -312,6 +312,14 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getBlockProductionTest() throws RpcException {
+        BlockProduction blockProduction = client.getApi().getBlockProduction(0, 0, null);
+        LOGGER.info(String.format("Block height = %s", blockProduction.getValue()));
+        assertNotNull(blockProduction);
+    }
+
+
+    @Test
     public void getClusterNodesTest() {
         try {
             final List<ClusterNode> clusterNodes = client.getApi().getClusterNodes();
