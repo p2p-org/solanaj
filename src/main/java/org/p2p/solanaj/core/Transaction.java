@@ -13,23 +13,23 @@ public class Transaction {
 
     public static final int SIGNATURE_LENGTH = 64;
 
-    private Message messgae;
+    private Message message;
     private List<String> signatures;
     private byte[] serializedMessage;
 
     public Transaction() {
-        this.messgae = new Message();
+        this.message = new Message();
         this.signatures = new ArrayList<String>();
     }
 
     public Transaction addInstruction(TransactionInstruction instruction) {
-        messgae.addInstruction(instruction);
+        message.addInstruction(instruction);
 
         return this;
     }
 
     public void setRecentBlockHash(String recentBlockhash) {
-        messgae.setRecentBlockHash(recentBlockhash);
+        message.setRecentBlockHash(recentBlockhash);
     }
 
     public void sign(Account signer) {
@@ -43,9 +43,9 @@ public class Transaction {
         }
 
         Account feePayer = signers.get(0);
-        messgae.setFeePayer(feePayer);
+        message.setFeePayer(feePayer);
 
-        serializedMessage = messgae.serialize();
+        serializedMessage = message.serialize();
 
         for (Account signer : signers) {
             TweetNaclFast.Signature signatureProvider = new TweetNaclFast.Signature(new byte[0], signer.getSecretKey());
