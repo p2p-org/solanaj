@@ -290,11 +290,10 @@ public class RpcApi {
 
     /**
      * Returns identity and transaction information about a confirmed block in the ledger
-     * @return
-     * @throws RpcException
+     * DEPRECATED: use getBlock instead
      */
+    @Deprecated
     public Block getConfirmedBlock() throws RpcException {
-        // TODO
         return null;
     }
 
