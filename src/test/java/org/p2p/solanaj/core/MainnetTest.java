@@ -29,39 +29,31 @@ public class MainnetTest extends AccountBasedTest {
     private static final long LAMPORTS_PER_SOL = 1000000000L;
 
     @Test
-    public void getAccountInfoBase64() {
-        try {
-            // Get account Info
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"));
-            final double balance = (double) accountInfo.getValue().getLamports()/ LAMPORTS_PER_SOL;
+    public void getAccountInfoBase64() throws RpcException {
+        // Get account Info
+        final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"));
+        final double balance = (double) accountInfo.getValue().getLamports()/ LAMPORTS_PER_SOL;
 
-            // Account data list
-            final List<String> accountData = accountInfo.getValue().getData();
+        // Account data list
+        final List<String> accountData = accountInfo.getValue().getData();
 
-            // Verify "base64" string in accountData
-            assertTrue(accountData.stream().anyMatch(s -> s.equalsIgnoreCase("base64")));
-            assertTrue(balance > 0);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
+        // Verify "base64" string in accountData
+        assertTrue(accountData.stream().anyMatch(s -> s.equalsIgnoreCase("base64")));
+        assertTrue(balance > 0);
     }
 
     @Test
-    public void getAccountInfoBase58() {
-        try {
-            // Get account Info
-            final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"), Map.of("encoding", "base58"));
-            final double balance = (double) accountInfo.getValue().getLamports()/ LAMPORTS_PER_SOL;
+    public void getAccountInfoBase58() throws RpcException {
+        // Get account Info
+        final AccountInfo accountInfo = client.getApi().getAccountInfo(PublicKey.valueOf("So11111111111111111111111111111111111111112"), Map.of("encoding", "base58"));
+        final double balance = (double) accountInfo.getValue().getLamports()/ LAMPORTS_PER_SOL;
 
-            // Account data list
-            final List<String> accountData = accountInfo.getValue().getData();
+        // Account data list
+        final List<String> accountData = accountInfo.getValue().getData();
 
-            // Verify "base64" string in accountData
-            assertTrue(accountData.stream().anyMatch(s -> s.equalsIgnoreCase("base58")));
-            assertTrue(balance > 0);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
+        // Verify "base64" string in accountData
+        assertTrue(accountData.stream().anyMatch(s -> s.equalsIgnoreCase("base58")));
+        assertTrue(balance > 0);
     }
 
     @Test
