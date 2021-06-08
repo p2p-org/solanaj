@@ -339,6 +339,9 @@ public class RpcApi {
         return tokenAccountKey;
     }
 
+    public InflationRate getInflationRate() throws RpcException {
+        return client.call("getInflationRate", new ArrayList<>(), InflationRate.class);
+    }
 
 
 }

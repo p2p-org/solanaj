@@ -370,6 +370,20 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getInflationRateTest() throws RpcException {
+        InflationRate inflationRate = client.getApi().getInflationRate();
+        LOGGER.info(inflationRate.toString());
+
+        //validate the returned data
+        assertNotNull(inflationRate);
+        assertTrue(inflationRate.getEpoch() > 0);
+        assertTrue(inflationRate.getFoundation() >= 0);
+        assertTrue(inflationRate.getValidator() >= 0);
+        assertTrue(inflationRate.getTotal() >= 0);
+        assertEquals(inflationRate.getTotal(), inflationRate.getFoundation() + inflationRate.getValidator(), 0.0);
+    }
+
+    @Test
     @Ignore
     public void sendTokenTest() {
         final PublicKey source = usdcSource; // Private key's USDC token account
