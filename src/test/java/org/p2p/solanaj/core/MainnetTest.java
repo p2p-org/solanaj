@@ -22,10 +22,8 @@ import static org.junit.Assert.*;
 
 public class MainnetTest extends AccountBasedTest {
 
-    private final RpcClient client = new RpcClient("https://solana.openserum.ch/");
-    private final PublicKey publicKey = solDestination;
+    private final RpcClient client = new RpcClient(Cluster.MAINNET);
     public final TokenManager tokenManager = new TokenManager(client);
-    private final SerumManager serumManager = new SerumManager(client);
 
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
     private static final long LAMPORTS_PER_SOL = 1000000000L;
@@ -465,20 +463,12 @@ public class MainnetTest extends AccountBasedTest {
 
     @Test
     @Ignore
-    public void getConfirmedTransactionTest() {
+    public void getConfirmedTransactionTest() throws RpcException {
         String txId = "46VcVPoecvVASnX9vHEZLA8JMS6BVXhvMMhqtGBcn9eg4bHehK6uA2icuTjwjWLZxwfxdT2z1CqYxCHHvjorvWDi";
+        ConfirmedTransaction confirmedTransaction = client.getApi().getConfirmedTransaction(txId);
 
-        ConfirmedTransaction confirmedTransaction = null;
-        try {
-            confirmedTransaction = client.getApi().getConfirmedTransaction(txId);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
-        //
         if (confirmedTransaction != null) {
             LOGGER.info(String.format("Tx: %s", confirmedTransaction));
         }
-
-
     }
 }
