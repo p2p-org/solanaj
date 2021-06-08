@@ -253,6 +253,10 @@ public class RpcApi {
         return client.call("minimumLedgerSlot", new ArrayList<>(), Long.class);
     }
 
+    public SolanaVersion getVersion() throws RpcException {
+        return client.call("getVersion", new ArrayList<>(), SolanaVersion.class);
+    }
+
     public String requestAirdrop(PublicKey address, long lamports) throws RpcException {
         List<Object> params = new ArrayList<Object>();
 

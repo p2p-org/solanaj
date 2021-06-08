@@ -325,6 +325,20 @@ public class MainnetTest extends AccountBasedTest {
         assertTrue(minimumLedgerSlot > 0);
     }
 
+    @Test
+    public void getVersionTest() throws RpcException {
+        SolanaVersion version = client.getApi().getVersion();
+        LOGGER.info(
+                String.format(
+                        "solana-core: %s, feature-set: %s",
+                        version.getSolanaCore(),
+                        version.getFeatureSet()
+                )
+        );
+        assertNotNull(version);
+        assertNotNull(version.getSolanaCore());
+    }
+
 
     @Test
     public void getClusterNodesTest() {
