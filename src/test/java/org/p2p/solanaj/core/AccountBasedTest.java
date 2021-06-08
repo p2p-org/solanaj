@@ -26,8 +26,10 @@ public class AccountBasedTest {
 
         try {
             data = Files.readAllBytes(Paths.get("testnet.dat"));
+            testAccount = new Account(Base58.decode(new String(data)));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warning("Unable to read testnet.dat - tests may fail");
+            testAccount = new Account();
         }
 
         // Read test.solana.pubkey and test.solana.pubkey.source.usdc
@@ -39,10 +41,8 @@ public class AccountBasedTest {
             usdcSource = new PublicKey(properties.getProperty("test.solana.pubkey.source.usdc"));
             usdcDestination = new PublicKey(properties.getProperty("test.solana.pubkey.destination.usdc"));
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOGGER.warning("Unable to read solanaj.properties - tests may fail");
         }
-
-        testAccount = new Account(Base58.decode(new String(data)));
     }
 
 }

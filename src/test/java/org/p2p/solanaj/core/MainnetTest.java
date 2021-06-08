@@ -230,17 +230,6 @@ public class MainnetTest extends AccountBasedTest {
             LOGGER.info(tradeEvent.toString());
         });
 
-        //String transactionId = serumManager.consumeEvents(solUsdcMarket, testAccount, solUsdcMarket.getEventQueue().getOpenOrdersAccounts().stream().limit(5).collect(Collectors.toList()));
-
-//        List<Order> bids = solUsdcMarket.getBidOrderBook().getOrders();
-//
-//        for (int i = 0; i < bids.size(); i++) {
-//            LOGGER.info(String.format("Bid: %s", bids.get(i)));
-//        }
-//
-//        LOGGER.info("Reloading market");
-//        solUsdcMarket.reload(solUsdcMarketBuilder);
-
     }
 
     /**
@@ -377,19 +366,15 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
-    public void getEpochScheduleTest() {
-        try {
-            final EpochSchedule epochSchedule = client.getApi().getEpochSchedule();
-            assertNotNull(epochSchedule);
+    public void getEpochScheduleTest() throws RpcException {
+        final EpochSchedule epochSchedule = client.getApi().getEpochSchedule();
+        assertNotNull(epochSchedule);
 
-            LOGGER.info(epochSchedule.toString());
+        LOGGER.info(epochSchedule.toString());
 
-            // Validate the returned data
-            assertTrue(epochSchedule.getSlotsPerEpoch() > 0);
-            assertTrue(epochSchedule.getLeaderScheduleSlotOffset() > 0);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
+        // Validate the returned data
+        assertTrue(epochSchedule.getSlotsPerEpoch() > 0);
+        assertTrue(epochSchedule.getLeaderScheduleSlotOffset() > 0);
     }
 
     @Test
