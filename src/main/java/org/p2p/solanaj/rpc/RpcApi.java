@@ -249,6 +249,10 @@ public class RpcApi {
         return client.call("getBlockProduction", params, BlockProduction.class);
     }
 
+    public Long minimumLedgerSlot() throws RpcException {
+        return client.call("minimumLedgerSlot", new ArrayList<>(), Long.class);
+    }
+
     public String requestAirdrop(PublicKey address, long lamports) throws RpcException {
         List<Object> params = new ArrayList<Object>();
 

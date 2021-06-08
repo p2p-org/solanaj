@@ -318,6 +318,13 @@ public class MainnetTest extends AccountBasedTest {
         assertNotNull(blockProduction);
     }
 
+    @Test
+    public void minimumLedgerSlotTest() throws RpcException {
+        long minimumLedgerSlot = client.getApi().minimumLedgerSlot();
+        LOGGER.info(String.format("minimumLedgerSlot = %d", minimumLedgerSlot));
+        assertTrue(minimumLedgerSlot > 0);
+    }
+
 
     @Test
     public void getClusterNodesTest() {
