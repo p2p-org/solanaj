@@ -342,5 +342,9 @@ public class RpcApi {
         return client.call("getInflationRate", new ArrayList<>(), InflationRate.class);
     }
 
+    public InflationGovernor getInflationGovernor() throws RpcException {
+        return client.call("getInflationGovernor", new ArrayList<>(), InflationGovernor.class);
+    }
+
 
 }
