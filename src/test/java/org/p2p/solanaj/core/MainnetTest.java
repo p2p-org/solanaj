@@ -384,6 +384,20 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getInflationGovernorTest() throws RpcException {
+        InflationGovernor inflationGovernor = client.getApi().getInflationGovernor();
+        LOGGER.info(inflationGovernor.toString());
+
+        //validate the returned data
+        assertNotNull(inflationGovernor);
+        assertTrue(inflationGovernor.getInitial() > 0);
+        assertTrue(inflationGovernor.getTerminal() > 0);
+        assertTrue(inflationGovernor.getTaper() > 0);
+        assertTrue(inflationGovernor.getFoundation() >= 0);
+        assertTrue(inflationGovernor.getFoundationTerm() >= 0);
+    }
+
+    @Test
     @Ignore
     public void sendTokenTest() {
         final PublicKey source = usdcSource; // Private key's USDC token account
