@@ -450,6 +450,43 @@ public class MainnetTest extends AccountBasedTest {
 
     @Test
     @Ignore
+    public void getFeeCalculatorForBlockhashTest() throws RpcException, InterruptedException {
+        String recentBlockHash = client.getApi().getRecentBlockhash();
+        Thread.sleep(20000L);
+        FeeCalculatorInfo feeCalculatorInfo = client.getApi().getFeeCalculatorForBlockhash(recentBlockHash);
+        LOGGER.info(feeCalculatorInfo.getValue().getFeeCalculator().toString());
+
+        assertNotNull(feeCalculatorInfo);
+        assertTrue(feeCalculatorInfo.getValue().getFeeCalculator().getLamportsPerSignature() > 0);
+    }
+
+    @Test
+    public void getFeesRateGovernorTest() throws RpcException {
+        FeeRateGovernorInfo feeRateGovernorInfo = client.getApi().getFeeRateGovernor();
+        LOGGER.info(feeRateGovernorInfo.getValue().getFeeRateGovernor().toString());
+
+        assertNotNull(feeRateGovernorInfo);
+        assertTrue(feeRateGovernorInfo.getValue().getFeeRateGovernor().getBurnPercent() > 0);
+        assertTrue(feeRateGovernorInfo.getValue().getFeeRateGovernor().getMaxLamportsPerSignature() > 0);
+        assertTrue(feeRateGovernorInfo.getValue().getFeeRateGovernor().getMinLamportsPerSignature() > 0);
+        assertTrue(feeRateGovernorInfo.getValue().getFeeRateGovernor().getTargetLamportsPerSignature() >= 0);
+        assertTrue(feeRateGovernorInfo.getValue().getFeeRateGovernor().getTargetSignaturesPerSlot() >= 0);
+    }
+
+    @Test
+    public void getFeesInfoTest() throws RpcException {
+        FeesInfo feesInfo = client.getApi().getFees();
+        LOGGER.info(feesInfo.toString());
+
+        assertNotNull(feesInfo);
+        assertNotEquals("", feesInfo.getValue().getBlockhash());
+        assertTrue(feesInfo.getValue().getFeeCalculator().getLamportsPerSignature() > 0);
+        assertTrue(feesInfo.getValue().getLastValidSlot() > 0);
+        assertTrue(feesInfo.getValue().getLastValidBlockHeight() > 0);
+    }
+
+    @Test
+    @Ignore
     public void sendTokenTest() {
         final PublicKey source = usdcSource; // Private key's USDC token account
         final PublicKey destination = usdcDestination; // Destination's USDC account

@@ -275,6 +275,21 @@ public class RpcApi {
         return client.call("getBlockCommitment", params, BlockCommitment.class);
     }
 
+    public FeeCalculatorInfo getFeeCalculatorForBlockhash(String blockhash) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+        params.add(blockhash);
+        return client.call("getFeeCalculatorForBlockhash", params, FeeCalculatorInfo.class);
+    }
+
+    public FeeRateGovernorInfo getFeeRateGovernor() throws RpcException {
+        return client.call("getFeeRateGovernor", new ArrayList<>(), FeeRateGovernorInfo.class);
+    }
+
+    public FeesInfo getFees() throws RpcException {
+        return client.call("getFees", new ArrayList<>(), FeesInfo.class);
+    }
+
+
     public List<ClusterNode> getClusterNodes() throws RpcException {
         List<Object> params = new ArrayList<Object>();
 
