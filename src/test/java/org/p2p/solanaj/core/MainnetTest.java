@@ -398,8 +398,11 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
-    public void getFeeCalculatorForBlockhashTest() throws RpcException {
-        FeeCalculatorInfo feeCalculatorInfo = client.getApi().getFeeCalculatorForBlockhash("2wj2rpfmx5t8b2TaJkR7brCPyyRGR7jEbM8Pc9YjddbR");
+    @Ignore
+    public void getFeeCalculatorForBlockhashTest() throws RpcException, InterruptedException {
+        String recentBlockHash = client.getApi().getRecentBlockhash();
+        Thread.sleep(20000L);
+        FeeCalculatorInfo feeCalculatorInfo = client.getApi().getFeeCalculatorForBlockhash(recentBlockHash);
         LOGGER.info(feeCalculatorInfo.getValue().getFeeCalculator().toString());
 
         assertNotNull(feeCalculatorInfo);
