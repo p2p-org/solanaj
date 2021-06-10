@@ -398,6 +398,30 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getInflationRewardTest() throws RpcException {
+        List<InflationReward> inflationRewards = client.getApi().getInflationReward(
+                Arrays.asList(
+                        PublicKey.valueOf("H8VT3V6EDiYiQqmeDgqZJf4Tt76Qe6WZjPhighAGPL5T"),
+                        PublicKey.valueOf("BsXUTPFf5b82ptLGfDVXhAPmGk1ZwTirWA2aQrBq4zBW")
+                ),
+                155L,
+                null);
+
+        LOGGER.info(inflationRewards.toString());
+
+        //validate the returned data
+        assertNotNull(inflationRewards);
+        assertEquals(2, inflationRewards.size());
+        for (InflationReward inflationReward : inflationRewards) {
+            assertEquals(155, inflationReward.getEpoch(), 0);
+            assertTrue(inflationReward.getAmount() > 0);
+            assertTrue(inflationReward.getEffectiveSlot() > 0);
+            assertTrue(inflationReward.getPostBalance() > 0);
+        }
+
+    }
+
+    @Test
     @Ignore
     public void sendTokenTest() {
         final PublicKey source = usdcSource; // Private key's USDC token account
