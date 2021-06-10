@@ -377,5 +377,28 @@ public class RpcApi {
         return result;
     }
 
+    public long getSlot() throws RpcException {
+        return client.call("getSlot", new ArrayList<>(), Long.class);
+    }
+
+    public PublicKey getSlotLeader() throws RpcException {
+        return new PublicKey(client.call("getSlotLeader", new ArrayList<>(), String.class));
+    }
+
+    public List<PublicKey> getSlotLeaders(long startSlot, long limit) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        params.add(startSlot);
+        params.add(limit);
+
+        List<String> rawResult = client.call("getSlotLeaders", params, List.class);
+
+        List<PublicKey> result = new ArrayList<>();
+        for (String item : rawResult) {
+            result.add(new PublicKey(item));
+        }
+
+        return result;
+    }
 
 }

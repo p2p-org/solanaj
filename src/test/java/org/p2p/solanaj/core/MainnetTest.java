@@ -422,6 +422,33 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getSlotTest() throws RpcException {
+        long slot = client.getApi().getSlot();
+        LOGGER.info(String.format("Current slot = %d", slot));
+        assertTrue(slot > 0);
+    }
+
+    @Test
+    public void getSlotLeaderTest() throws RpcException {
+        PublicKey slotLeader = client.getApi().getSlotLeader();
+        LOGGER.info(String.format("Current slot leader = %s", slotLeader));
+        assertNotNull(slotLeader);
+    }
+
+    @Test
+    public void getSlotLeadersTest() throws RpcException {
+        long limit = 5;
+        long currentSlot = client.getApi().getSlot();
+        List<PublicKey> slotLeaders = client.getApi().getSlotLeaders(currentSlot, limit);
+        slotLeaders.forEach(slotLeader ->
+                LOGGER.info(slotLeader.toString())
+        );
+
+        assertNotNull(slotLeaders);
+        assertEquals(limit, slotLeaders.size());
+    }
+
+    @Test
     @Ignore
     public void sendTokenTest() {
         final PublicKey source = usdcSource; // Private key's USDC token account
