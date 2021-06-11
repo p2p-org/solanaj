@@ -64,5 +64,10 @@
             <artifactId>Java-WebSocket</artifactId>
             <version>1.5.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>RELEASE</version>
+        </dependency>
     </dependencies>
 </project>

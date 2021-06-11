@@ -64,15 +64,13 @@ public class OrderTest {
 
         long orderId = 11133711L;
 
-        final Order order = new Order(
-                1337,
-                0.1f,
-                orderId
-        );
-
-        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        order.setBuy(false);
+        final Order order = Order.builder()
+                .floatPrice(1337)
+                .floatQuantity(0.1f)
+                .clientOrderId(orderId)
+                .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                .buy(false).build();
 
         // Place order
         String transactionId = serumManager.placeOrder(
@@ -90,15 +88,13 @@ public class OrderTest {
 
         long usdcOrderId = 12321L;
 
-        final Order usdcOrder = new Order(
-                0.001f,
-                0.1f,
-                usdcOrderId
-        );
-
-        usdcOrder.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-        usdcOrder.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        usdcOrder.setBuy(true);
+        final Order usdcOrder = Order.builder()
+                .floatPrice(0.001f)
+                .floatQuantity(0.1f)
+                .clientOrderId(usdcOrderId)
+                .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                .buy(true).build();
 
         // Place order
         String usdcTransactionId = serumManager.placeOrder(
@@ -310,15 +306,13 @@ public class OrderTest {
         long orderId = 11133711L;
 
         // 1 oxy bid @ $0.01
-        final Order order = new Order(
-                0.01f,
-                1f,
-                orderId
-        );
-
-        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        order.setBuy(true);
+        final Order order = Order.builder()
+                .floatPrice(0.01f)
+                .floatQuantity(1f)
+                .clientOrderId(orderId)
+                .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                .buy(true).build();
 
         // Place order
         String transactionId = serumManager.placeOrder(
@@ -397,15 +391,14 @@ public class OrderTest {
                 .build();
 
         long orderId = 11133711L;
-        final Order order = new Order(
-                0.20f,
-                0.01f,
-                orderId
-        );
 
-        order.setOrderTypeLayout(OrderTypeLayout.IOC);
-        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        order.setBuy(true);
+        final Order order = Order.builder()
+                .floatPrice(0.20f)
+                .floatQuantity(0.01f)
+                .clientOrderId(orderId)
+                .orderTypeLayout(OrderTypeLayout.IOC)
+                .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                .buy(true).build();
 
         // Place order
         String transactionId = serumManager.placeOrder(
@@ -449,15 +442,13 @@ public class OrderTest {
         long orderId = 11133711L;
 
         // 0.1 mer offer @ $1337
-        final Order order = new Order(
-                1337,
-                0.1f,
-                orderId
-        );
-
-        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        order.setBuy(false);
+        final Order order = Order.builder()
+                .floatPrice(1337)
+                .floatQuantity(0.1f)
+                .clientOrderId(orderId)
+                .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                .buy(false).build();
 
         // Place order
         String transactionId = serumManager.placeOrder(
@@ -537,16 +528,15 @@ public class OrderTest {
 
         long orderId = 11133711L;
 
-        // 0.1 mer offer @ $1337
-        final Order order = new Order(
-                1337,
-                0.1f,
-                orderId
-        );
 
-        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        order.setBuy(false);
+        // 0.1 mer offer @ $1337
+        final Order order = Order.builder()
+                .floatPrice(1337)
+                .floatQuantity(0.1f)
+                .clientOrderId(orderId)
+                .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                .buy(false).build();
 
         final OpenOrdersAccount openOrdersAccount = SerumUtils.findOpenOrdersAccountForOwner(
                 client,
@@ -626,14 +616,12 @@ public class OrderTest {
                 account.getPublicKey()
         );
 
-        final Order order = new Order(
-                0.01f,
-                1
-        );
-
-        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        order.setBuy(true);
+        final Order order = Order.builder()
+                .floatPrice(0.01f)
+                .floatQuantity(1)
+                .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                .buy(true).build();
 
         String transactionId = serumManager.placeOrder(
                 account,
@@ -695,13 +683,14 @@ public class OrderTest {
         Transaction transaction = new Transaction();
 
         for (int i = 1; i <= 9; i++) {
-            Order order = new Order(
-                    0.01F + (0.01f * 1/2 * i),
-                    10 - i
-            );
-            order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-            order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-            order.setBuy(true);
+            final Order order = Order.builder()
+                    .floatPrice(0.01F + (0.01f * 1 / 2 * i))
+                    .floatQuantity(10 - i)
+                    .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                    .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                    .buy(true)
+                    .build();
+
             serumManager.setOrderPrices(order, xrpBearUsdcMarket);
 
             transaction.addInstruction(
@@ -752,13 +741,14 @@ public class OrderTest {
         transaction = new Transaction();
 
         for (int i = 1; i <= 9; i++) {
-            Order order = new Order(
-                    0.01F + (0.01f * 1/2 * i),
-                    10 - i
-            );
-            order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-            order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-            order.setBuy(true);
+            final Order order = Order.builder()
+                    .floatPrice(0.01F + (0.01f * 1 / 2 * i))
+                    .floatQuantity(10 - i)
+                    .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                    .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                    .buy(true)
+                    .build();
+
             serumManager.setOrderPrices(order, xrpBearUsdcMarket);
 
             transaction.addInstruction(
@@ -826,10 +816,12 @@ public class OrderTest {
                 account.getPublicKey()
         );
 
-        Order order = new Order(0.1f, 1);
-        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-        order.setBuy(true);
+        final Order order = Order.builder()
+                .floatPrice(0.1f)
+                .floatQuantity(1)
+                .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                .buy(true).build();
 
         String txId = serumManager.placeOrder(
                 account,
@@ -877,15 +869,14 @@ public class OrderTest {
             for (int i = 1; i <= 10; i++) {
                 long orderId = 10000L + i;
 
-                final Order order = new Order(
-                        0.01f * i,
-                        1,
-                        orderId
-                );
+                final Order order = Order.builder()
+                        .floatPrice(0.01f * i)
+                        .floatQuantity(1)
+                        .clientOrderId(orderId)
+                        .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                        .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                        .buy(true).build();
 
-                order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-                order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-                order.setBuy(true);
                 serumManager.setOrderPrices(order, xrpBearUsdcMarket);
 
                 transaction.addInstruction(
@@ -974,15 +965,13 @@ public class OrderTest {
         for (int i = 1; i <= 15; i++) {
             long orderId = 10000L + i;
 
-            final Order order = new Order(
-                    0.18f - (i * .001f),
-                    0.01f,
-                    orderId
-            );
-
-            order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-            order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-            order.setBuy(true);
+            final Order order = Order.builder()
+                    .floatPrice(0.18f - (i * .001f))
+                    .floatQuantity(0.01f)
+                    .clientOrderId(orderId)
+                    .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                    .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                    .buy(true).build();
 
             // Place order 1
             String transactionId = serumManager.placeOrder(
@@ -1050,15 +1039,13 @@ public class OrderTest {
         long orderId = 10000L;
 
         // 0.1 mer offer @ $1337
-        final Order order = new Order(
-                1000f,
-                0.1f,
-                orderId
-        );
-
-        order.setOrderTypeLayout(OrderTypeLayout.POST_ONLY);
-        order.setSelfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE);
-        order.setBuy(false);
+        final Order order = Order.builder()
+                .floatPrice(1000f)
+                .floatQuantity(0.1f)
+                .clientOrderId(orderId)
+                .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                .buy(false).build();
 
         // Place order 1
         String transactionId = serumManager.placeOrder(

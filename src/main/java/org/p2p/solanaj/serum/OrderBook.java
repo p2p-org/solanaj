@@ -52,15 +52,14 @@ public class OrderBook {
         slab.getSlabNodes().forEach(slabNode -> {
             if (slabNode instanceof SlabLeafNode) {
                 SlabLeafNode slabLeafNode = (SlabLeafNode) slabNode;
-                orders.add(
-                        new Order(
-                                slabLeafNode.getPrice(),
-                                slabLeafNode.getQuantity(),
-                                slabLeafNode.getClientOrderId(),
-                                SerumUtils.priceLotsToNumber(slabLeafNode.getPrice(), baseDecimals, quoteDecimals, baseLotSize, quoteLotSize),
-                                (float) ((slabLeafNode.getQuantity() * baseLotSize) / SerumUtils.getBaseSplTokenMultiplier(baseDecimals)),
-                                slabLeafNode.getOwner()
-                        )
+                orders.add(Order.builder()
+                        .price(slabLeafNode.getPrice())
+                        .quantity(slabLeafNode.getQuantity())
+                        .clientOrderId(slabLeafNode.getClientOrderId())
+                        .floatPrice(SerumUtils.priceLotsToNumber(slabLeafNode.getPrice(), baseDecimals, quoteDecimals, baseLotSize, quoteLotSize))
+                        .floatQuantity((float) ((slabLeafNode.getQuantity() * baseLotSize) / SerumUtils.getBaseSplTokenMultiplier(baseDecimals)))
+                        .owner(slabLeafNode.getOwner())
+                        .build()
                 );
             }
         });
