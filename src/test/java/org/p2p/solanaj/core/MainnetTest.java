@@ -398,6 +398,57 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getInflationRewardTest() throws RpcException {
+        List<InflationReward> inflationRewards = client.getApi().getInflationReward(
+                Arrays.asList(
+                        PublicKey.valueOf("H8VT3V6EDiYiQqmeDgqZJf4Tt76Qe6WZjPhighAGPL5T"),
+                        PublicKey.valueOf("BsXUTPFf5b82ptLGfDVXhAPmGk1ZwTirWA2aQrBq4zBW")
+                ),
+                155L,
+                null);
+
+        LOGGER.info(inflationRewards.toString());
+
+        //validate the returned data
+        assertNotNull(inflationRewards);
+        assertEquals(2, inflationRewards.size());
+        for (InflationReward inflationReward : inflationRewards) {
+            assertEquals(155, inflationReward.getEpoch(), 0);
+            assertTrue(inflationReward.getAmount() > 0);
+            assertTrue(inflationReward.getEffectiveSlot() > 0);
+            assertTrue(inflationReward.getPostBalance() > 0);
+        }
+
+    }
+
+    @Test
+    public void getSlotTest() throws RpcException {
+        long slot = client.getApi().getSlot();
+        LOGGER.info(String.format("Current slot = %d", slot));
+        assertTrue(slot > 0);
+    }
+
+    @Test
+    public void getSlotLeaderTest() throws RpcException {
+        PublicKey slotLeader = client.getApi().getSlotLeader();
+        LOGGER.info(String.format("Current slot leader = %s", slotLeader));
+        assertNotNull(slotLeader);
+    }
+
+    @Test
+    public void getSlotLeadersTest() throws RpcException {
+        long limit = 5;
+        long currentSlot = client.getApi().getSlot();
+        List<PublicKey> slotLeaders = client.getApi().getSlotLeaders(currentSlot, limit);
+        slotLeaders.forEach(slotLeader ->
+                LOGGER.info(slotLeader.toString())
+        );
+
+        assertNotNull(slotLeaders);
+        assertEquals(limit, slotLeaders.size());
+    }
+
+    @Test
     @Ignore
     public void getFeeCalculatorForBlockhashTest() throws RpcException, InterruptedException {
         String recentBlockHash = client.getApi().getRecentBlockhash();

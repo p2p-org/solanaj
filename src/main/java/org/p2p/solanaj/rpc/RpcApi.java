@@ -1,6 +1,7 @@
 package org.p2p.solanaj.rpc;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
@@ -361,5 +362,58 @@ public class RpcApi {
         return client.call("getInflationGovernor", new ArrayList<>(), InflationGovernor.class);
     }
 
+    public List<InflationReward> getInflationReward(List<PublicKey> addresses) throws RpcException {
+        return getInflationReward(addresses, null, null);
+    }
+
+    public List<InflationReward> getInflationReward(List<PublicKey> addresses, Long epoch, String commitment)
+            throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        params.add(addresses.stream().map(PublicKey::toString).collect(Collectors.toList()));
+
+        if (null != epoch) {
+            RpcEpochConfig rpcEpochConfig;
+            if (null == commitment) {
+                rpcEpochConfig = new RpcEpochConfig(epoch);
+            } else {
+                rpcEpochConfig = new RpcEpochConfig(epoch, commitment);
+            }
+            params.add(rpcEpochConfig);
+        }
+
+        List<AbstractMap> rawResult = client.call("getInflationReward", params, List.class);
+
+        List<InflationReward> result = new ArrayList<>();
+        for (AbstractMap item : rawResult) {
+            result.add(new InflationReward(item));
+        }
+
+        return result;
+    }
+
+    public long getSlot() throws RpcException {
+        return client.call("getSlot", new ArrayList<>(), Long.class);
+    }
+
+    public PublicKey getSlotLeader() throws RpcException {
+        return new PublicKey(client.call("getSlotLeader", new ArrayList<>(), String.class));
+    }
+
+    public List<PublicKey> getSlotLeaders(long startSlot, long limit) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        params.add(startSlot);
+        params.add(limit);
+
+        List<String> rawResult = client.call("getSlotLeaders", params, List.class);
+
+        List<PublicKey> result = new ArrayList<>();
+        for (String item : rawResult) {
+            result.add(new PublicKey(item));
+        }
+
+        return result;
+    }
 
 }
