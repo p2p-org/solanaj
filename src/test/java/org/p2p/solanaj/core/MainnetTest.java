@@ -491,6 +491,12 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getMaxRetransmitSlotTest() throws RpcException {
+        long maxRetransmitSlot = client.getApi().getMaxRetransmitSlot();
+        assertTrue(maxRetransmitSlot > 0);
+    }
+
+    @Test
     @Ignore
     public void sendTokenTest() {
         final PublicKey source = usdcSource; // Private key's USDC token account

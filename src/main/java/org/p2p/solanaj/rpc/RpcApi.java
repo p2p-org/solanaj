@@ -293,6 +293,10 @@ public class RpcApi {
         return client.call("getTransactionCount", new ArrayList<>(), Long.class);
     }
 
+    public long getMaxRetransmitSlot() throws RpcException {
+        return client.call("getMaxRetransmitSlot", new ArrayList<>(), Long.class);
+    }
+
 
     public List<ClusterNode> getClusterNodes() throws RpcException {
         List<Object> params = new ArrayList<Object>();
