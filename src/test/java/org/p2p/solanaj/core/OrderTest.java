@@ -13,6 +13,7 @@ import org.p2p.solanaj.serum.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -619,6 +620,7 @@ public class OrderTest {
         final Order order = Order.builder()
                 .floatPrice(0.01f)
                 .floatQuantity(1)
+                .clientOrderId(new SecureRandom().nextLong())
                 .orderTypeLayout(OrderTypeLayout.POST_ONLY)
                 .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
                 .buy(true).build();
@@ -686,6 +688,7 @@ public class OrderTest {
             final Order order = Order.builder()
                     .floatPrice(0.01F + (0.01f * 1 / 2 * i))
                     .floatQuantity(10 - i)
+                    .clientOrderId(new SecureRandom().nextLong())
                     .orderTypeLayout(OrderTypeLayout.POST_ONLY)
                     .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
                     .buy(true)
@@ -746,6 +749,7 @@ public class OrderTest {
                     .floatQuantity(10 - i)
                     .orderTypeLayout(OrderTypeLayout.POST_ONLY)
                     .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
+                    .clientOrderId(new SecureRandom().nextLong())
                     .buy(true)
                     .build();
 
@@ -821,6 +825,7 @@ public class OrderTest {
                 .floatQuantity(1)
                 .selfTradeBehaviorLayout(SelfTradeBehaviorLayout.DECREMENT_TAKE)
                 .orderTypeLayout(OrderTypeLayout.POST_ONLY)
+                .clientOrderId(new SecureRandom().nextLong())
                 .buy(true).build();
 
         String txId = serumManager.placeOrder(

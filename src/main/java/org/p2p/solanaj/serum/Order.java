@@ -3,8 +3,6 @@ package org.p2p.solanaj.serum;
 import lombok.*;
 import org.p2p.solanaj.core.PublicKey;
 
-import java.security.SecureRandom;
-
 /**
  * Class that represents a Serum order.
  */
