@@ -449,6 +449,12 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getTransactionCountTest() throws RpcException {
+        long transactionCount = client.getApi().getTransactionCount();
+        assertTrue(transactionCount > 0);
+    }
+
+    @Test
     @Ignore
     public void getFeeCalculatorForBlockhashTest() throws RpcException, InterruptedException {
         String recentBlockHash = client.getApi().getRecentBlockhash();

@@ -289,6 +289,10 @@ public class RpcApi {
         return client.call("getFees", new ArrayList<>(), FeesInfo.class);
     }
 
+    public long getTransactionCount() throws RpcException {
+        return client.call("getTransactionCount", new ArrayList<>(), Long.class);
+    }
+
 
     public List<ClusterNode> getClusterNodes() throws RpcException {
         List<Object> params = new ArrayList<Object>();
