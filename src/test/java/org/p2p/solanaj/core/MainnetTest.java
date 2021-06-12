@@ -488,7 +488,6 @@ public class MainnetTest extends AccountBasedTest {
         assertNotEquals("", feesInfo.getValue().getBlockhash());
         assertTrue(feesInfo.getValue().getFeeCalculator().getLamportsPerSignature() > 0);
         assertTrue(feesInfo.getValue().getLastValidSlot() > 0);
-        assertTrue(feesInfo.getValue().getLastValidBlockHeight() > 0);
     }
 
     @Test
