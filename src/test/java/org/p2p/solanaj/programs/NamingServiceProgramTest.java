@@ -1,5 +1,6 @@
 package org.p2p.solanaj.programs;
 
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.core.AccountBasedTest;
@@ -20,6 +21,12 @@ public class NamingServiceProgramTest extends AccountBasedTest {
     private final PublicKey publicKey = testAccount.getPublicKey();
     private static final String DOMAIN_NAME = ".sol";  // testdomainname.sol
     private final PublicKey skynetMainnetPubkey = new PublicKey("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq");
+
+    @BeforeClass
+    public static void beforeClass() throws InterruptedException {
+        // Prevent RPCPool rate limit
+        Thread.sleep(2000L);
+    }
 
     @Test
     @Ignore
