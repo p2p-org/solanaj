@@ -451,15 +451,22 @@ public class MainnetTest extends AccountBasedTest {
     @Test
     public void getSnapshotSlotTest() throws RpcException {
         long snapshotSlot = client.getApi().getSnapshotSlot();
-        LOGGER.info(String.format("Snapshot slot = %s", snapshotSlot));
+        LOGGER.info(String.format("Snapshot slot = %d", snapshotSlot));
         assertTrue(snapshotSlot > 0);
     }
 
     @Test
     public void getMaxShredInsertSlotTest() throws RpcException {
         long maxShredInsertSlot = client.getApi().getMaxShredInsertSlot();
-        LOGGER.info(String.format("Max slot after shred insert = %s", maxShredInsertSlot));
+        LOGGER.info(String.format("Max slot after shred insert = %d", maxShredInsertSlot));
         assertTrue(maxShredInsertSlot > 0);
+    }
+
+    @Test
+    public void getIdentityTest() throws RpcException {
+        PublicKey identity = client.getApi().getIdentity();
+        LOGGER.info(String.format("Identity of the current node = %s", identity));
+        assertNotNull(identity);
     }
 
     @Test

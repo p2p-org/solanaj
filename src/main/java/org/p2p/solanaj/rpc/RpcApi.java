@@ -452,4 +452,19 @@ public class RpcApi {
         return client.call("getMaxShredInsertSlot", new ArrayList<>(), Long.class);
     }
 
+    public PublicKey getIdentity() throws RpcException {
+        Map<String, Object> rawResult = client.call("getIdentity", new ArrayList<>(), Map.class);
+
+        PublicKey identity;
+        try {
+            String base58 = (String) rawResult.get("identity");
+            identity = new PublicKey(base58);
+
+        } catch (Exception ex) {
+            throw new RpcException("unable to get identity");
+        }
+
+        return identity;
+    }
+
 }
