@@ -444,4 +444,8 @@ public class RpcApi {
         return result;
     }
 
+    public long getSnapshotSlot() throws RpcException {
+        return client.call("getSnapshotSlot", new ArrayList<>(), Long.class);
+    }
+
 }

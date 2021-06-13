@@ -449,6 +449,13 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getSnapshotSlotTest() throws RpcException {
+        long snapshotSlot = client.getApi().getSnapshotSlot();
+        LOGGER.info(String.format("Snapshot slot = %s", snapshotSlot));
+        assertTrue(snapshotSlot > 0);
+    }
+
+    @Test
     public void getTransactionCountTest() throws RpcException {
         long transactionCount = client.getApi().getTransactionCount();
         assertTrue(transactionCount > 0);
