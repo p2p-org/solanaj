@@ -484,6 +484,13 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getFirstAvailableBlockTest() throws RpcException {
+        long firstAvailableBlock = client.getApi().getFirstAvailableBlock();
+        LOGGER.info(String.format("First available block in the ledger = %d", firstAvailableBlock));
+        assertTrue(firstAvailableBlock >= 0);
+    }
+
+    @Test
     public void getTransactionCountTest() throws RpcException {
         long transactionCount = client.getApi().getTransactionCount();
         assertTrue(transactionCount > 0);

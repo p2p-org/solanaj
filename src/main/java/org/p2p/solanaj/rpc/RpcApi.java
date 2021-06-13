@@ -471,4 +471,8 @@ public class RpcApi {
         return client.call("getSupply", new ArrayList<>(), Supply.class);
     }
 
+    public long getFirstAvailableBlock() throws RpcException {
+        return client.call("getFirstAvailableBlock", new ArrayList<>(), Long.class);
+    }
+
 }
