@@ -470,6 +470,20 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getSupplyTest() throws RpcException {
+        Supply supply = client.getApi().getSupply();
+        LOGGER.info(supply.toString());
+
+        //validate the returned data
+        assertNotNull(supply);
+        assertTrue(supply.getValue().getTotal() > 0);
+        assertTrue(supply.getValue().getCirculating() > 0);
+        assertTrue(supply.getValue().getNonCirculating() > 0);
+        assertEquals(supply.getValue().getTotal(), supply.getValue().getCirculating() + supply.getValue().getNonCirculating());
+        assertTrue(supply.getValue().getNonCirculatingAccounts().size() > 0);
+    }
+
+    @Test
     public void getTransactionCountTest() throws RpcException {
         long transactionCount = client.getApi().getTransactionCount();
         assertTrue(transactionCount > 0);

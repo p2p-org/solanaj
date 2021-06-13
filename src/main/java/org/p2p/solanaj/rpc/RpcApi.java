@@ -467,4 +467,8 @@ public class RpcApi {
         return identity;
     }
 
+    public Supply getSupply() throws RpcException {
+        return client.call("getSupply", new ArrayList<>(), Supply.class);
+    }
+
 }
