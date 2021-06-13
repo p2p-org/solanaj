@@ -456,6 +456,13 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getMaxShredInsertSlotTest() throws RpcException {
+        long maxShredInsertSlot = client.getApi().getMaxShredInsertSlot();
+        LOGGER.info(String.format("Max slot after shred insert = %s", maxShredInsertSlot));
+        assertTrue(maxShredInsertSlot > 0);
+    }
+
+    @Test
     public void getTransactionCountTest() throws RpcException {
         long transactionCount = client.getApi().getTransactionCount();
         assertTrue(transactionCount > 0);

@@ -448,4 +448,8 @@ public class RpcApi {
         return client.call("getSnapshotSlot", new ArrayList<>(), Long.class);
     }
 
+    public long getMaxShredInsertSlot() throws RpcException {
+        return client.call("getMaxShredInsertSlot", new ArrayList<>(), Long.class);
+    }
+
 }
