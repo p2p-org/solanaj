@@ -1,6 +1,7 @@
 package org.p2p.solanaj.core;
 
 import org.bitcoinj.core.Utils;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.programs.MemoProgram;
@@ -27,6 +28,13 @@ public class MainnetTest extends AccountBasedTest {
 
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
     private static final long LAMPORTS_PER_SOL = 1000000000L;
+
+
+    @Before
+    public void beforeMethod() throws InterruptedException {
+        // Prevent RPCPool rate limit
+        Thread.sleep(100L);
+    }
 
     @Test
     public void getAccountInfoBase64() throws RpcException {
