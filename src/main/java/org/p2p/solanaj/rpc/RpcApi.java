@@ -475,4 +475,8 @@ public class RpcApi {
         return client.call("getFirstAvailableBlock", new ArrayList<>(), Long.class);
     }
 
+    public String getGenesisHash() throws RpcException {
+        return client.call("getGenesisHash", new ArrayList<>(), String.class);
+    }
+
 }

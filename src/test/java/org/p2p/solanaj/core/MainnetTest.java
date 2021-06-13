@@ -491,6 +491,13 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    public void getGenesisHashTest() throws RpcException {
+        String genesisHash = client.getApi().getGenesisHash();
+        LOGGER.info(String.format("Genesis hash = %s", genesisHash));
+        assertNotNull(genesisHash);
+    }
+
+    @Test
     public void getTransactionCountTest() throws RpcException {
         long transactionCount = client.getApi().getTransactionCount();
         assertTrue(transactionCount > 0);
