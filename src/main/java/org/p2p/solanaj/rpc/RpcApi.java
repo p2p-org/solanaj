@@ -297,6 +297,26 @@ public class RpcApi {
         return client.call("getMaxRetransmitSlot", new ArrayList<>(), Long.class);
     }
 
+    public SimulatedTransaction simulateTransaction(String transaction, List<PublicKey> addresses) throws RpcException {
+        SimulateTransactionConfig simulateTransactionConfig = new SimulateTransactionConfig(Encoding.base64);
+        simulateTransactionConfig.setAccounts(
+                Map.of(
+                        "encoding",
+                        Encoding.base64,
+                        "addresses",
+                        addresses.stream().map(PublicKey::toBase58).collect(Collectors.toList()))
+        );
+        simulateTransactionConfig.setReplaceRecentBlockhash(true);
+
+        List<Object> params = new ArrayList<Object>();
+        params.add(transaction);
+        params.add(simulateTransactionConfig);
+
+        SimulatedTransaction simulatedTransaction = client.call("simulateTransaction", params, SimulatedTransaction.class);
+
+        return simulatedTransaction;
+    }
+
 
     public List<ClusterNode> getClusterNodes() throws RpcException {
         List<Object> params = new ArrayList<Object>();
