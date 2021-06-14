@@ -1,6 +1,7 @@
 package org.p2p.solanaj.core;
 
 import org.bitcoinj.core.Utils;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.p2p.solanaj.programs.MemoProgram;
@@ -27,6 +28,13 @@ public class MainnetTest extends AccountBasedTest {
 
     private static final PublicKey USDC_TOKEN_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
     private static final long LAMPORTS_PER_SOL = 1000000000L;
+
+
+    @Before
+    public void beforeMethod() throws InterruptedException {
+        // Prevent RPCPool rate limit
+        Thread.sleep(100L);
+    }
 
     @Test
     public void getAccountInfoBase64() throws RpcException {
@@ -446,6 +454,55 @@ public class MainnetTest extends AccountBasedTest {
 
         assertNotNull(slotLeaders);
         assertEquals(limit, slotLeaders.size());
+    }
+
+    @Test
+    public void getSnapshotSlotTest() throws RpcException {
+        long snapshotSlot = client.getApi().getSnapshotSlot();
+        LOGGER.info(String.format("Snapshot slot = %d", snapshotSlot));
+        assertTrue(snapshotSlot > 0);
+    }
+
+    @Test
+    public void getMaxShredInsertSlotTest() throws RpcException {
+        long maxShredInsertSlot = client.getApi().getMaxShredInsertSlot();
+        LOGGER.info(String.format("Max slot after shred insert = %d", maxShredInsertSlot));
+        assertTrue(maxShredInsertSlot > 0);
+    }
+
+    @Test
+    public void getIdentityTest() throws RpcException {
+        PublicKey identity = client.getApi().getIdentity();
+        LOGGER.info(String.format("Identity of the current node = %s", identity));
+        assertNotNull(identity);
+    }
+
+    @Test
+    public void getSupplyTest() throws RpcException {
+        Supply supply = client.getApi().getSupply();
+        LOGGER.info(supply.toString());
+
+        //validate the returned data
+        assertNotNull(supply);
+        assertTrue(supply.getValue().getTotal() > 0);
+        assertTrue(supply.getValue().getCirculating() > 0);
+        assertTrue(supply.getValue().getNonCirculating() > 0);
+        assertEquals(supply.getValue().getTotal(), supply.getValue().getCirculating() + supply.getValue().getNonCirculating());
+        assertTrue(supply.getValue().getNonCirculatingAccounts().size() > 0);
+    }
+
+    @Test
+    public void getFirstAvailableBlockTest() throws RpcException {
+        long firstAvailableBlock = client.getApi().getFirstAvailableBlock();
+        LOGGER.info(String.format("First available block in the ledger = %d", firstAvailableBlock));
+        assertTrue(firstAvailableBlock >= 0);
+    }
+
+    @Test
+    public void getGenesisHashTest() throws RpcException {
+        String genesisHash = client.getApi().getGenesisHash();
+        LOGGER.info(String.format("Genesis hash = %s", genesisHash));
+        assertNotNull(genesisHash);
     }
 
     @Test

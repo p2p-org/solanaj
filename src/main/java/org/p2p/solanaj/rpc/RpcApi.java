@@ -444,4 +444,39 @@ public class RpcApi {
         return result;
     }
 
+    public long getSnapshotSlot() throws RpcException {
+        return client.call("getSnapshotSlot", new ArrayList<>(), Long.class);
+    }
+
+    public long getMaxShredInsertSlot() throws RpcException {
+        return client.call("getMaxShredInsertSlot", new ArrayList<>(), Long.class);
+    }
+
+    public PublicKey getIdentity() throws RpcException {
+        Map<String, Object> rawResult = client.call("getIdentity", new ArrayList<>(), Map.class);
+
+        PublicKey identity;
+        try {
+            String base58 = (String) rawResult.get("identity");
+            identity = new PublicKey(base58);
+
+        } catch (Exception ex) {
+            throw new RpcException("unable to get identity");
+        }
+
+        return identity;
+    }
+
+    public Supply getSupply() throws RpcException {
+        return client.call("getSupply", new ArrayList<>(), Supply.class);
+    }
+
+    public long getFirstAvailableBlock() throws RpcException {
+        return client.call("getFirstAvailableBlock", new ArrayList<>(), Long.class);
+    }
+
+    public String getGenesisHash() throws RpcException {
+        return client.call("getGenesisHash", new ArrayList<>(), String.class);
+    }
+
 }
