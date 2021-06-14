@@ -5,6 +5,9 @@ Solanaj is an API for integrating with Solana blockchain using the [Solana RPC A
 
 This fork includes functionality for multiple Solana programs, including the Serum DEX.
 
+# solanaj-programs
+For SolanaJ implementations of popular Solana programs such as Serum, please visit: https://github.com/skynetcapital/solanaj-programs
+
 ## Requirements
 - Java 11+
 
