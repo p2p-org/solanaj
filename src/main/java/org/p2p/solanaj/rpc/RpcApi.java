@@ -29,7 +29,8 @@ public class RpcApi {
         return client.call("getRecentBlockhash", params, RecentBlockhash.class).getRecentBlockhash();
     }
 
-    public String sendTransaction(Transaction transaction, Account signer, String recentBlockHash) throws RpcException {
+    public String sendTransaction(Transaction transaction, Account signer, String recentBlockHash) throws
+            RpcException {
         return sendTransaction(transaction, Collections.singletonList(signer), recentBlockHash);
     }
 
@@ -37,7 +38,8 @@ public class RpcApi {
         return sendTransaction(transaction, Collections.singletonList(signer), null);
     }
 
-    public String sendTransaction(Transaction transaction, List<Account> signers, String recentBlockHash) throws RpcException {
+    public String sendTransaction(Transaction transaction, List<Account> signers, String recentBlockHash)
+            throws RpcException {
         if (recentBlockHash == null) {
             recentBlockHash = getRecentBlockhash();
         }
@@ -134,7 +136,8 @@ public class RpcApi {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public List<ProgramAccount> getProgramAccounts(PublicKey account, List<Memcmp> memcmpList, int dataSize) throws RpcException {
+    public List<ProgramAccount> getProgramAccounts(PublicKey account, List<Memcmp> memcmpList, int dataSize)
+            throws RpcException {
         List<Object> params = new ArrayList<>();
 
         params.add(account.toString());
@@ -308,11 +311,15 @@ public class RpcApi {
         );
         simulateTransactionConfig.setReplaceRecentBlockhash(true);
 
-        List<Object> params = new ArrayList<Object>();
+        List<Object> params = new ArrayList<>();
         params.add(transaction);
         params.add(simulateTransactionConfig);
 
-        SimulatedTransaction simulatedTransaction = client.call("simulateTransaction", params, SimulatedTransaction.class);
+        SimulatedTransaction simulatedTransaction = client.call(
+                "simulateTransaction",
+                params,
+                SimulatedTransaction.class
+        );
 
         return simulatedTransaction;
     }
