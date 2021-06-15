@@ -1,9 +1,11 @@
 package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
+import lombok.Data;
 
 import java.util.List;
 
+@Data
 public class Block {
 
     @Json(name = "blockTime")
