@@ -504,4 +504,12 @@ public class MainnetTest extends AccountBasedTest {
         Block block = this.client.getApi().getBlock(74953539);
         assertEquals("74953539", block.getBlockHeight());
     }
+
+    @Test
+    public void getConfirmedBlocksTest() throws RpcException {
+        List<Double> blocks = this.client.getApi().getConfirmedBlocks(5);
+        List<Double> singleBlock = this.client.getApi().getConfirmedBlocks(5, 5);
+        assertEquals(Double.valueOf(5), Double.valueOf(blocks.get(0)));
+        assertEquals(Double.valueOf(5), Double.valueOf(singleBlock.get(0)));
+    }
 }
