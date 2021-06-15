@@ -348,6 +348,18 @@ public class RpcApi {
         return null;
     }
 
+    /**
+     * Returns identity and transaction information about a confirmed block in the ledger
+     */
+    public Block getBlock(int slot) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(slot);
+        params.add(new BlockConfig());
+
+        return client.call("getBlock", params, Block.class);
+    }
+
 
     /**
      * Returns information about the current epoch
