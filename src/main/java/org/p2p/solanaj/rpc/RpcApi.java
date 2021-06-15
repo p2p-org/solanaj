@@ -344,8 +344,13 @@ public class RpcApi {
      * DEPRECATED: use getBlock instead
      */
     @Deprecated
-    public Block getConfirmedBlock() throws RpcException {
-        return null;
+    public ConfirmedBlock getConfirmedBlock(int slot) throws RpcException {
+        List<Object> params = new ArrayList<Object>();
+
+        params.add(slot);
+        params.add(new ConfirmedBlockConfig());
+
+        return client.call("getConfirmedBlock", params, ConfirmedBlock.class);
     }
 
 
