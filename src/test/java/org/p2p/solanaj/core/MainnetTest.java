@@ -496,4 +496,10 @@ public class MainnetTest extends AccountBasedTest {
             LOGGER.info(String.format("Tx: %s", confirmedTransaction));
         }
     }
+
+    @Test
+    public void getConfirmedBlockTest() throws RpcException {
+        ConfirmedBlock block = this.client.getApi().getConfirmedBlock(74953539);
+        assertEquals(74953538, block.getParentSlot());
+    }
 }
