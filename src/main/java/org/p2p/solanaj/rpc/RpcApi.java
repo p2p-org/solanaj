@@ -348,7 +348,7 @@ public class RpcApi {
         List<Object> params = new ArrayList<Object>();
 
         params.add(slot);
-        params.add(new ConfirmedBlockConfig());
+        params.add(new BlockConfig());
 
         return client.call("getConfirmedBlock", params, ConfirmedBlock.class);
     }
