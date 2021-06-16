@@ -9,9 +9,11 @@ import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.*;
+import org.p2p.solanaj.rpc.types.TokenResultObjects.*;
 import org.p2p.solanaj.token.TokenManager;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -359,6 +361,68 @@ public class MainnetTest extends AccountBasedTest {
         String genesisHash = client.getApi().getGenesisHash();
         LOGGER.info(String.format("Genesis hash = %s", genesisHash));
         assertNotNull(genesisHash);
+    }
+
+    @Test
+    public void getTokenAccountBalanceTest() throws RpcException {
+        TokenAmountInfo tokenAccountBalance = client.getApi().getTokenAccountBalance(PublicKey.valueOf(
+                "8tnpAECxAT9nHBqR1Ba494Ar5dQMPGhL31MmPJz1zZvY"));
+        LOGGER.info(tokenAccountBalance.toString());
+
+        //validate the returned data
+        assertNotNull(tokenAccountBalance);
+        assertEquals(6, tokenAccountBalance.getDecimals());
+        assertTrue(tokenAccountBalance.getUiAmount() > 0);
+    }
+
+    @Test
+    public void getTokenSupplyTest() throws RpcException {
+        TokenAmountInfo tokenSupply = client.getApi().getTokenSupply(PublicKey.valueOf(
+                "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"));
+        LOGGER.info(tokenSupply.toString());
+
+        //validate the returned data
+        assertNotNull(tokenSupply);
+        assertEquals(6, tokenSupply.getDecimals());
+        assertTrue(tokenSupply.getUiAmount() > 0);
+    }
+
+    @Test
+    public void getTokenLargestAccountsTest() throws RpcException {
+        List<TokenAccount> tokenAccounts = client.getApi().getTokenLargestAccounts(PublicKey.valueOf(
+                "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"));
+        LOGGER.info(tokenAccounts.toString());
+
+        //validate the returned data
+        assertNotNull(tokenAccounts);
+        assertEquals(20, tokenAccounts.size());
+        tokenAccounts.forEach(tokenAccount -> {
+            assertEquals(6, tokenAccount.getDecimals());
+        });
+    }
+
+    @Test
+    public void getTokenAccountsByOwnerTest() throws RpcException {
+        Map<String, Object> requiredParams = Map.of("mint", USDC_TOKEN_MINT);
+        TokenAccountInfo tokenAccount = client.getApi().getTokenAccountsByOwner(PublicKey.valueOf(
+                "AoUnMozL1ZF4TYyVJkoxQWfjgKKtu8QUK9L4wFdEJick"), requiredParams ,new HashMap<>());
+        LOGGER.info(tokenAccount.toString());
+
+        //validate the returned data
+        assertNotNull(tokenAccount);
+        assertEquals("27T5c11dNMXjcRuko9CeUy3Wq41nFdH3tz9Qt4REzZMM", tokenAccount.getValue().get(0).getPubkey());
+    }
+
+    @Test
+    public void getTokenAccountsByDelegateTest() throws RpcException {
+        Map<String, Object> requiredParams = Map.of("mint", USDC_TOKEN_MINT);
+        TokenAccountInfo tokenAccount = client.getApi().getTokenAccountsByDelegate(PublicKey.valueOf(
+                "AoUnMozL1ZF4TYyVJkoxQWfjgKKtu8QUK9L4wFdEJick"), requiredParams ,new HashMap<>());
+        LOGGER.info(tokenAccount.toString());
+
+        //validate the returned data
+        assertNotNull(tokenAccount);
+        assertTrue(tokenAccount.getValue().isEmpty());
     }
 
     @Test

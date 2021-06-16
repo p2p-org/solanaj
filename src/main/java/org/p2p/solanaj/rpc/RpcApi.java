@@ -10,6 +10,7 @@ import org.p2p.solanaj.rpc.types.*;
 import org.p2p.solanaj.rpc.types.ConfigObjects.*;
 import org.p2p.solanaj.rpc.types.RpcResultTypes.ValueLong;
 import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
+import org.p2p.solanaj.rpc.types.TokenResultObjects.*;
 import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
 import org.p2p.solanaj.ws.listeners.NotificationEventListener;
 
@@ -520,6 +521,78 @@ public class RpcApi {
     @Deprecated
     public List<Double> getConfirmedBlocks(Integer start) throws RpcException {
         return this.getConfirmedBlocks(start, null);
+    }
+
+    public TokenResultObjects.TokenAmountInfo getTokenAccountBalance(PublicKey tokenAccount) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(tokenAccount.toString());
+
+        Map<String, Object> rawResult = client.call("getTokenAccountBalance", params, Map.class);
+
+        return new TokenAmountInfo((AbstractMap) rawResult.get("value"));
+    }
+
+    public TokenAmountInfo getTokenSupply(PublicKey tokenMint) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(tokenMint.toString());
+
+        Map<String, Object> rawResult =  client.call("getTokenSupply", params, Map.class);
+
+        return new TokenAmountInfo((AbstractMap) rawResult.get("value"));
+    }
+
+    public List<TokenAccount> getTokenLargestAccounts(PublicKey tokenMint) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(tokenMint.toString());
+
+        Map<String, Object> rawResult = client.call("getTokenLargestAccounts", params, Map.class);
+
+        List<TokenAccount> result = new ArrayList<>();
+        for (AbstractMap item : (List<AbstractMap>) rawResult.get("value")) {
+            result.add(new TokenAccount(item));
+        }
+
+        return result;
+    }
+
+    public TokenAccountInfo getTokenAccountsByOwner(PublicKey accountOwner, Map<String, Object> requiredParams,
+            Map<String, Object> optionalParams) throws RpcException {
+        return getTokenAccount(accountOwner, requiredParams, optionalParams, "getTokenAccountsByOwner");
+    }
+
+    public TokenAccountInfo getTokenAccountsByDelegate(PublicKey accountDelegate, Map<String, Object> requiredParams,
+            Map<String, Object> optionalParams) throws RpcException {
+        return getTokenAccount(accountDelegate, requiredParams, optionalParams, "getTokenAccountsByDelegate");
+    }
+
+    private TokenAccountInfo getTokenAccount(PublicKey account, Map<String, Object> requiredParams,
+            Map<String, Object> optionalParams, String method) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(account.toString());
+
+        // Either mint or programId is required
+        Map<String, Object> parameterMap = new HashMap<>();
+        if (requiredParams.containsKey("mint")) {
+            parameterMap.put("mint", requiredParams.get("mint").toString());
+        } else if (requiredParams.containsKey("programId")) {
+            parameterMap.put("programId", requiredParams.get("programId").toString());
+        } else {
+            throw new RpcException("mint or programId are mandatory parameters");
+        }
+        params.add(parameterMap);
+
+        if (null != optionalParams) {
+            parameterMap = new HashMap<>();
+            parameterMap.put("commitment", optionalParams.getOrDefault("commitment", "max"));
+            parameterMap.put("encoding", optionalParams.getOrDefault("encoding", "jsonParsed"));
+            // No default for dataSlice
+            if (optionalParams.containsKey("dataSlice")) {
+                parameterMap.put("dataSlice", optionalParams.get("dataSlice"));
+            }
+            params.add(parameterMap);
+        }
+
+        return client.call(method, params, TokenAccountInfo.class);
     }
 
 }
