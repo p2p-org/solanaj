@@ -503,4 +503,23 @@ public class RpcApi {
         return client.call("getGenesisHash", new ArrayList<>(), String.class);
     }
 
+    /**
+     * Returns a list of confirmed blocks between two slots
+     * DEPRECATED: use getBlocks instead
+     */
+    @Deprecated
+    public List<Double> getConfirmedBlocks(Integer start, Integer end) throws RpcException {
+        List<Object> params;
+        params = (end == null ? Arrays.asList(start) : Arrays.asList(start, end));
+        return this.client.call("getConfirmedBlocks", params, List.class);
+    }
+    /**
+     * Returns a list of confirmed blocks between two slots
+     * DEPRECATED: use getBlocks instead
+     */
+    @Deprecated
+    public List<Double> getConfirmedBlocks(Integer start) throws RpcException {
+        return this.getConfirmedBlocks(start, null);
+    }
+
 }
