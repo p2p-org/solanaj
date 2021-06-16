@@ -498,6 +498,12 @@ public class MainnetTest extends AccountBasedTest {
         }
     }
 
+    @Test
+    public void getConfirmedBlockTest() throws RpcException {
+        ConfirmedBlock block = this.client.getApi().getConfirmedBlock(74953539);
+        assertEquals(74953538, block.getParentSlot());
+    }
+
     @Ignore
     @Test
     public void getBlockTest() throws RpcException {

@@ -162,9 +162,9 @@ public class ConfigObjects {
         }
 
         public BlockConfig(String encoding,
-                                    String transactionDetails,
-                                    Boolean rewards,
-                                    String commitment) {
+                           String transactionDetails,
+                           Boolean rewards,
+                           String commitment) {
             this.encoding = encoding;
             this.transactionDetails = transactionDetails;
             this.rewards = rewards;
