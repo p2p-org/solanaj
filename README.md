@@ -1,5 +1,7 @@
 # solanaj
 
+![Github Actions](https://github.com/skynetcapital/solanaj/actions/workflows/maven.yml/badge.svg)
+
 Solana blockchain client, written in pure Java.
 Solanaj is an API for integrating with Solana blockchain using the [Solana RPC API](https://docs.solana.com/apps/jsonrpc-api)
 
