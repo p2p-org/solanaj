@@ -551,7 +551,7 @@ public class RpcApi {
         if (requiredParams.containsKey("mint")) {
             parameterMap.put("mint", requiredParams.get("mint").toString());
         } else if (requiredParams.containsKey("programId")) {
-            parameterMap.put("programId", requiredParams.get("programId"));
+            parameterMap.put("programId", requiredParams.get("programId").toString());
         } else {
             throw new RpcException("mint or programId are mandatory parameters");
         }
