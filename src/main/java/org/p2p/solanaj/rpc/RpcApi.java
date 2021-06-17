@@ -2,7 +2,6 @@ package org.p2p.solanaj.rpc;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
