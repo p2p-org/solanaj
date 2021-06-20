@@ -1,22 +1,17 @@
 package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.p2p.solanaj.core.PublicKey;
 
 import java.util.AbstractMap;
 
+@Getter
+@ToString
+@NoArgsConstructor
 public class ClusterNode {
-
-    public ClusterNode() {
-    }
-
-    public ClusterNode(PublicKey pubkey, String gossip, String tpu, String rpc, String version) {
-        this.pubkey = pubkey;
-        this.gossip = gossip;
-        this.tpu = tpu;
-        this.rpc = rpc;
-        this.version = version;
-    }
 
     // Constructor for deserializing into List
     @SuppressWarnings({ "rawtypes" })
@@ -42,55 +37,4 @@ public class ClusterNode {
 
     @Json(name = "version")
     private String version;
-
-    public PublicKey getPubkey() {
-        return pubkey;
-    }
-
-    public void setPubkey(PublicKey pubkey) {
-        this.pubkey = pubkey;
-    }
-
-    public String getGossip() {
-        return gossip;
-    }
-
-    public void setGossip(String gossip) {
-        this.gossip = gossip;
-    }
-
-    public String getTpu() {
-        return tpu;
-    }
-
-    public void setTpu(String tpu) {
-        this.tpu = tpu;
-    }
-
-    public String getRpc() {
-        return rpc;
-    }
-
-    public void setRpc(String rpc) {
-        this.rpc = rpc;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    @Override
-    public String toString() {
-        return "ClusterNode{" +
-                "pubkey=" + pubkey +
-                ", gossip='" + gossip + '\'' +
-                ", tpu='" + tpu + '\'' +
-                ", rpc='" + rpc + '\'' +
-                ", version='" + version + '\'' +
-                '}';
-    }
 }

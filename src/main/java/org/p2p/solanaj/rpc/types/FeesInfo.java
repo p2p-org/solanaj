@@ -1,9 +1,17 @@
 package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
+import lombok.Getter;
+import lombok.ToString;
 
+@Getter
+@ToString
 public class FeesInfo extends RpcResultObject {
+
+    @Getter
+    @ToString
     public static class Value {
+
         @Json(name = "blockhash")
         private String blockhash;
 
@@ -15,38 +23,8 @@ public class FeesInfo extends RpcResultObject {
 
         @Json(name = "lastValidBlockHeight")
         private long lastValidBlockHeight;
-
-        public long getLastValidBlockHeight() {
-            return lastValidBlockHeight;
-        }
-
-        public long getLastValidSlot() {
-            return lastValidSlot;
-        }
-
-        public RecentBlockhash.FeeCalculator getFeeCalculator() {
-            return feeCalculator;
-        }
-
-        public String getBlockhash() {
-            return blockhash;
-        }
-
-        @Override
-        public String toString() {
-            return "FeesInfo{" +
-                    "blockhash=" + blockhash +
-                    ", lamportsPerSignature=" + feeCalculator.getLamportsPerSignature() +
-                    ", lastValidSlot=" + lastValidSlot +
-                    ", lastValidBlockHeight=" + lastValidBlockHeight +
-                    '}';
-        }
     }
 
     @Json(name = "value")
     private Value value;
-
-    public Value getValue() {
-        return value;
-    }
 }

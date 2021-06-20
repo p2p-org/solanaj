@@ -6,21 +6,31 @@ import java.util.Base64;
 
 import com.squareup.moshi.Json;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
 
 import org.bitcoinj.core.Base58;
 
+@Getter
+@ToString
 public class ProgramAccount {
 
-    public final class Account {
+    @Getter
+    @ToString
+    public static class Account {
         @Json(name = "data")
         private String data;
+
         @Json(name = "executable")
         private boolean executable;
+
         @Json(name = "lamports")
         private double lamports;
+
         @Json(name = "owner")
         private String owner;
+
         @Json(name = "rentEpoch")
         private double rentEpoch;
 
@@ -46,10 +56,6 @@ public class ProgramAccount {
             this.rentEpoch = (double) account.get("rentEpoch");
         }
 
-        public String getData() {
-            return data;
-        }
-
         public byte[] getDecodedData() {
             if (encoding != null && encoding.equals(Encoding.base64.toString())) {
                 return Base64.getDecoder().decode(data);
@@ -57,44 +63,17 @@ public class ProgramAccount {
 
             return Base58.decode(data);
         }
-
-        public boolean isExecutable() {
-            return executable;
-        }
-
-        public double getLamports() {
-            return lamports;
-        }
-
-        public String getOwner() {
-            return owner;
-        }
-
-        public double getRentEpoch() {
-            return rentEpoch;
-        }
-
     }
 
     @Json(name = "account")
     private Account account;
+
     @Json(name = "pubkey")
     private String pubkey;
 
-    public Account getAccount() {
-        return account;
-    }
-
-    public String getPubkey() {
-        return pubkey;
-    }
-
-    public ProgramAccount() {
-    }
-
     @SuppressWarnings({ "rawtypes" })
     public ProgramAccount(AbstractMap pa) {
-        this.account = (Account) new Account(pa.get("account"));
+        this.account = new Account(pa.get("account"));
         this.pubkey = (String) pa.get("pubkey");
     }
 }

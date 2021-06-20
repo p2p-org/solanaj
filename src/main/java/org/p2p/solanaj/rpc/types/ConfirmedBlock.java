@@ -2,10 +2,13 @@ package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
 import lombok.Data;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.util.List;
 
-@Data
+@Getter
+@ToString
 public class ConfirmedBlock {
 
     @Json(name = "blockTime")
@@ -22,5 +25,4 @@ public class ConfirmedBlock {
 
     @Json(name = "transactions")
     private List<ConfirmedTransaction> transactions;
-
 }

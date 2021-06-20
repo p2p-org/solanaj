@@ -1,12 +1,18 @@
 package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Map;
 
+@Getter
+@ToString
 public class BlockProduction {
 
+    @Getter
+    @ToString
     public static class BlockProductionRange {
         @Json(name = "firstSlot")
         private double firstSlot;
@@ -14,17 +20,11 @@ public class BlockProduction {
         @Json(name = "lastSlot")
         private double lastSlot;
 
-        public double getFirstSlot() {
-            return firstSlot;
-        }
-
-        public double getLastSlot() {
-            return lastSlot;
-        }
     }
 
+    @Getter
+    @ToString
     public static class BlockProductionValue {
-
         @Json(name = "byIdentity")
         private Map<String, List<Double>> byIdentity;
 
@@ -35,23 +35,8 @@ public class BlockProduction {
         @Json(name = "range")
         private BlockProductionRange blockProductionRange;
 
-        public BlockProductionRange getBlockProductionRange() {
-            return blockProductionRange;
-        }
     }
 
     @Json(name = "value")
     private BlockProductionValue value;
-
-
-    public BlockProduction() {
-    }
-
-    public BlockProductionValue getValue() {
-        return value;
-    }
-
-    public void setValue(BlockProductionValue value) {
-        this.value = value;
-    }
 }
