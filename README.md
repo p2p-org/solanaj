@@ -26,23 +26,11 @@ For SolanaJ implementations of popular Solana programs such as Serum, please vis
     <dependency>
             <groupId>org.p2p</groupId>
             <artifactId>solanaj</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.3</version>
     </dependency>
     ```
 
 ## Example
-
-### Required properties (for testing)
-secretkey.dat is required to be in the root directory.
-
-Create a solanaj.properties file.
-
-test.solana.pubkey = Pubkey of destination SOL wallet for testing
-
-test.solana.pubkey.source.usdc = Pubkey of private key's USDC wallet
-
-test.solana.pubkey.destination.usdc = Pubkey of destination's USDC wallet
-
 ##### Transfer lamports
 
 ```java
