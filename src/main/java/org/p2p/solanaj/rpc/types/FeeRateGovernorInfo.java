@@ -1,9 +1,15 @@
 package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
+import lombok.Getter;
+import lombok.ToString;
 
+@Getter
+@ToString
 public class FeeRateGovernorInfo extends RpcResultObject
 {
+    @Getter
+    @ToString
     public static class FeeRateGovernor {
         @Json(name = "burnPercent")
         private int burnPercent;
@@ -19,53 +25,16 @@ public class FeeRateGovernorInfo extends RpcResultObject
 
         @Json(name = "targetSignaturesPerSlot")
         private long targetSignaturesPerSlot;
-
-        public int getBurnPercent() {
-            return burnPercent;
-        }
-
-        public long getMaxLamportsPerSignature() {
-            return maxLamportsPerSignature;
-        }
-
-        public long getMinLamportsPerSignature() {
-            return minLamportsPerSignature;
-        }
-
-        public long getTargetLamportsPerSignature() {
-            return targetLamportsPerSignature;
-        }
-
-        public long getTargetSignaturesPerSlot() {
-            return targetSignaturesPerSlot;
-        }
-
-        @Override
-        public String toString() {
-            return "FeeRateGovernor{" +
-                    "burnPercent=" + burnPercent +
-                    ", maxLamportsPerSignature=" + maxLamportsPerSignature +
-                    ", minLamportsPerSignature=" + minLamportsPerSignature +
-                    ", targetLamportsPerSignature=" + targetLamportsPerSignature +
-                    ", targetSignaturesPerSlot=" + targetSignaturesPerSlot +
-                    '}';
-        }
     }
 
+    @Getter
+    @ToString
     public static class Value {
+
         @Json(name = "feeRateGovernor")
         private FeeRateGovernor feeRateGovernor;
-
-        public FeeRateGovernor getFeeRateGovernor() {
-            return feeRateGovernor;
-        }
     }
 
     @Json(name = "value")
     private Value value;
-
-    public Value getValue() {
-        return value;
-    }
-
 }

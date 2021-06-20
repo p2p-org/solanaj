@@ -1,18 +1,14 @@
 package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class Memcmp {
-        @Json(name = "offset")
-        private long offset;
-        @Json(name = "bytes")
-        private String bytes;
 
-        public Memcmp() {
-        }
+    @Json(name = "offset")
+    private long offset;
 
-        public Memcmp(long offset, String bytes) {
-            this.offset = offset;
-            this.bytes = bytes;
-        }
+    @Json(name = "bytes")
+    private String bytes;
 }

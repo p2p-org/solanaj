@@ -1,15 +1,11 @@
 package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class Filter {
-        @Json(name = "memcmp")
-        private Memcmp memcmp;
 
-        public Filter() {
-        }
-
-        public Filter(Memcmp memcmp) {
-            this.memcmp = memcmp;
-        }
+    @Json(name = "memcmp")
+    private Memcmp memcmp;
 }

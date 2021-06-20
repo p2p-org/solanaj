@@ -1,22 +1,18 @@
 package org.p2p.solanaj.rpc.types;
 
 import com.squareup.moshi.Json;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class RpcEpochConfig {
-        @Json(name="epoch")
-        private long epoch;
-        @Json(name="commitment")
-        private String commitment;
 
-        public RpcEpochConfig() {
-        }
+    @Json(name = "epoch")
+    private long epoch;
 
-        public RpcEpochConfig(long epoch) {
-            this.epoch = epoch;
-        }
+    @Json(name = "commitment")
+    private String commitment;
 
-        public RpcEpochConfig(long epoch, String commitment) {
-            this.epoch = epoch;
-            this.commitment = commitment;
-        }
- }
+    public RpcEpochConfig(long epoch) {
+        this.epoch = epoch;
+    }
+}
