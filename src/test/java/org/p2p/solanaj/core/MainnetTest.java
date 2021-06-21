@@ -582,4 +582,12 @@ public class MainnetTest extends AccountBasedTest {
         assertEquals(Double.valueOf(5), Double.valueOf(blocks.get(0)));
         assertEquals(Double.valueOf(5), Double.valueOf(singleBlock.get(0)));
     }
+
+    @Test
+    public void getVoteAccountsTest() throws RpcException {
+        VoteAccounts voteAccounts = client.getApi().getVoteAccounts();
+
+        assertNotNull(voteAccounts.getCurrent().get(0).getVotePubkey());
+
+    }
 }

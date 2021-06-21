@@ -601,4 +601,18 @@ public class RpcApi {
         return client.call(method, params, TokenAccountInfo.class);
     }
 
+    public VoteAccounts getVoteAccounts() throws RpcException {
+        return getVoteAccounts(null);
+    }
+
+    public VoteAccounts getVoteAccounts(PublicKey votePubkey) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (votePubkey != null) {
+            params.add(new VoteAccountConfig(votePubkey.toBase58()));
+        }
+
+        return client.call("getVoteAccounts", params, VoteAccounts.class);
+    }
+
 }
