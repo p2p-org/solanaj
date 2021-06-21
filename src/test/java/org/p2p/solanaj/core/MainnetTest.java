@@ -586,8 +586,6 @@ public class MainnetTest extends AccountBasedTest {
     @Test
     public void getVoteAccountsTest() throws RpcException {
         VoteAccounts voteAccounts = client.getApi().getVoteAccounts();
-
         assertNotNull(voteAccounts.getCurrent().get(0).getVotePubkey());
-
     }
 }

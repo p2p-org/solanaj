@@ -615,4 +615,20 @@ public class RpcApi {
         return client.call("getVoteAccounts", params, VoteAccounts.class);
     }
 
+    public StakeActivation getStakeActivation(PublicKey publicKey) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(publicKey.toBase58());
+
+        return client.call("getStakeActivation", params, StakeActivation.class);
+    }
+
+    public StakeActivation getStakeActivation(PublicKey publicKey, long epoch) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(publicKey.toBase58());
+        params.add(new StakeActivationConfig(epoch));
+
+        return client.call("getStakeActivation", params, StakeActivation.class);
+    }
+
+
 }
