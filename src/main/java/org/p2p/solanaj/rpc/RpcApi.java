@@ -639,4 +639,31 @@ public class RpcApi {
         return client.call("getSignatureStatuses", params, SignatureStatuses.class);
     }
 
+    public List<PerformanceSample> getRecentPerformanceSamples() throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        List<AbstractMap> rawResult = client.call("getRecentPerformanceSamples", params, List.class);
+
+        List<PerformanceSample> result = new ArrayList<>();
+        for (AbstractMap item : rawResult) {
+            result.add(new PerformanceSample(item));
+        }
+
+        return result;
+    }
+
+    public List<PerformanceSample> getRecentPerformanceSamples(int limit) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(limit);
+
+        List<AbstractMap> rawResult = client.call("getRecentPerformanceSamples", params, List.class);
+
+        List<PerformanceSample> result = new ArrayList<>();
+        for (AbstractMap item : rawResult) {
+            result.add(new PerformanceSample(item));
+        }
+
+        return result;
+    }
+
 }

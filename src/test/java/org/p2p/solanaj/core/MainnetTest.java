@@ -602,4 +602,12 @@ public class MainnetTest extends AccountBasedTest {
 
         assertTrue(signatureStatuses.getValue().get(0).getConfirmationStatus().length() > 0);
     }
+
+    @Test
+    public void getRecentPerformanceSamplesLimitTest() throws RpcException {
+        List<PerformanceSample> performanceSamples = client.getApi().getRecentPerformanceSamples(3);
+
+        assertEquals(3, performanceSamples.size());
+        assertTrue(performanceSamples.get(0).getSlot() > 0);
+    }
 }
