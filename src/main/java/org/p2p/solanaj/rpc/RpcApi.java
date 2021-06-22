@@ -673,4 +673,17 @@ public class RpcApi {
         return result.equals("ok");
     }
 
+    public List<LargeAccount> getLargestAccounts() throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        Map<String, Object> rawResult = client.call("getLargestAccounts", params, Map.class);
+
+        List<LargeAccount> result = new ArrayList<>();
+        for (AbstractMap item : (List<AbstractMap>) rawResult.get("value")) {
+            result.add(new LargeAccount(item));
+        }
+
+        return result;
+    }
+
 }

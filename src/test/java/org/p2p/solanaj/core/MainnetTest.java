@@ -617,4 +617,12 @@ public class MainnetTest extends AccountBasedTest {
 
         assertTrue(isHealthy);
     }
+
+    @Test
+    public void getLargestAccountsTest() throws RpcException {
+        List<LargeAccount> largeAccounts = client.getApi().getLargestAccounts();
+
+        assertTrue(largeAccounts.size() > 0);
+        assertTrue(largeAccounts.get(0).getLamports() > 0);
+    }
 }
