@@ -9,6 +9,7 @@ import okhttp3.Response;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -32,6 +33,7 @@ public class RpcClient {
     public RpcClient(String endpoint) {
         this.endpoint = endpoint;
         this.httpClient = new OkHttpClient.Builder()
+                .readTimeout(20, TimeUnit.SECONDS)
                 //.addInterceptor(new LoggingInterceptor())
                 .build();
         rpcApi = new RpcApi(this);
