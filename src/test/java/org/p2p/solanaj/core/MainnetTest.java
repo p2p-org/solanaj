@@ -612,6 +612,7 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    @Ignore
     public void getHealthTest() throws RpcException {
         boolean isHealthy = client.getApi().getHealth();
 
