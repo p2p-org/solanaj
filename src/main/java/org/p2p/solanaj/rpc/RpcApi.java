@@ -630,5 +630,13 @@ public class RpcApi {
         return client.call("getStakeActivation", params, StakeActivation.class);
     }
 
+    public SignatureStatuses getSignatureStatuses(List<String> signatures, boolean searchTransactionHistory)
+            throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(signatures);
+        params.add(new SignatureStatusConfig(searchTransactionHistory));
+
+        return client.call("getSignatureStatuses", params, SignatureStatuses.class);
+    }
 
 }

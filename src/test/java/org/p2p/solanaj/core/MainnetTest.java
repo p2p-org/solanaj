@@ -588,4 +588,18 @@ public class MainnetTest extends AccountBasedTest {
         VoteAccounts voteAccounts = client.getApi().getVoteAccounts();
         assertNotNull(voteAccounts.getCurrent().get(0).getVotePubkey());
     }
+
+    @Test
+    @Ignore
+    public void getSignatureStatusesTest() throws RpcException {
+        SignatureStatuses signatureStatuses = client.getApi().getSignatureStatuses(
+                List.of(
+                        "3nVfYabxKv9ohGb4nXF3EyJQnbVcGVQAm2QKzdPrsemrP4D8UEZEzK8bCWgyTFif6mjo99akvHcCbxiEKzN5L9ZG",
+                        "5GvXGwBGocNuVAuTuDyXfxJYMx7SC1cs7owC5r48RNg9UAhTBUQ6irU932fpVAwrVy8WFCUct2RSvtKHUJBRfC5j"
+                ),
+                true
+        );
+
+        assertTrue(true);
+    }
 }
