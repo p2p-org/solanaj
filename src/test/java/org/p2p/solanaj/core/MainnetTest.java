@@ -625,4 +625,11 @@ public class MainnetTest extends AccountBasedTest {
         assertTrue(largeAccounts.size() > 0);
         assertTrue(largeAccounts.get(0).getLamports() > 0);
     }
+
+    @Test
+    public void getLeaderScheduleTest() throws RpcException {
+        List<LeaderSchedule> leaderSchedules = client.getApi().getLeaderSchedule();
+
+        assertTrue(leaderSchedules.size() > 0);
+    }
 }

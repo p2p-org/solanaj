@@ -686,4 +686,31 @@ public class RpcApi {
         return result;
     }
 
+    public List<LeaderSchedule> getLeaderSchedule() throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        Map<String, Object> rawResult = client.call("getLeaderSchedule", params, Map.class);
+
+        List<LeaderSchedule> result = new ArrayList<>();
+        rawResult.forEach((key, value) -> {
+            result.add(new LeaderSchedule(key, (List<Double>) value));
+        });
+
+        return result;
+    }
+
+    public List<LeaderSchedule> getLeaderSchedule(long epoch) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(epoch);
+
+        Map<String, Object> rawResult = client.call("getLeaderSchedule", params, Map.class);
+
+        List<LeaderSchedule> result = new ArrayList<>();
+        rawResult.forEach((key, value) -> {
+            result.add(new LeaderSchedule(key, (List<Double>) value));
+        });
+
+        return result;
+    }
+
 }
