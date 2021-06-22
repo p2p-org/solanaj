@@ -26,7 +26,7 @@ For SolanaJ implementations of popular Solana programs such as Serum, please vis
     <dependency>
             <groupId>org.p2p</groupId>
             <artifactId>solanaj</artifactId>
-            <version>1.3</version>
+            <version>1.4</version>
     </dependency>
     ```
 
