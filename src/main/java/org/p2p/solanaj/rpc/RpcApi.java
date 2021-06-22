@@ -666,4 +666,11 @@ public class RpcApi {
         return result;
     }
 
+    // Throws an exception if not healthy
+    public boolean getHealth() throws RpcException {
+        List<Object> params = new ArrayList<>();
+        String result = client.call("getHealth", params, String.class);
+        return result.equals("ok");
+    }
+
 }

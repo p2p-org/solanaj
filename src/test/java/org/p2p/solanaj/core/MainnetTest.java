@@ -610,4 +610,11 @@ public class MainnetTest extends AccountBasedTest {
         assertEquals(3, performanceSamples.size());
         assertTrue(performanceSamples.get(0).getSlot() > 0);
     }
+
+    @Test
+    public void getHealthTest() throws RpcException {
+        boolean isHealthy = client.getApi().getHealth();
+
+        assertTrue(isHealthy);
+    }
 }
