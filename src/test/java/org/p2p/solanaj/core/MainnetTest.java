@@ -619,6 +619,7 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
+    @Ignore
     public void getLargestAccountsTest() throws RpcException {
         List<LargeAccount> largeAccounts = client.getApi().getLargestAccounts();
 
