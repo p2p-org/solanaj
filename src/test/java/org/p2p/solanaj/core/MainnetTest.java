@@ -600,6 +600,6 @@ public class MainnetTest extends AccountBasedTest {
                 true
         );
 
-        assertTrue(true);
+        assertTrue(signatureStatuses.getValue().get(0).getConfirmationStatus().length() > 0);
     }
 }
