@@ -713,4 +713,20 @@ public class RpcApi {
         return result;
     }
 
+    public List<AccountInfo.Value> getMultipleAccounts(List<PublicKey> publicKeys) throws RpcException {
+        List<Object> params = new ArrayList<>();
+        params.add(publicKeys.stream().map(PublicKey::toBase58).collect(Collectors.toList()));
+
+        Map<String, Object> rawResult = client.call("getMultipleAccounts", params, Map.class);
+        List<AccountInfo.Value> result = new ArrayList<>();
+
+        for (AbstractMap item : (List<AbstractMap>) rawResult.get("value")) {
+            if (item != null) {
+                result.add(new AccountInfo.Value(item));
+            }
+        }
+
+        return result;
+    }
+
 }

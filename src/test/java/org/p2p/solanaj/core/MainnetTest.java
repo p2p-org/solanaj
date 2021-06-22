@@ -632,4 +632,17 @@ public class MainnetTest extends AccountBasedTest {
 
         assertTrue(leaderSchedules.size() > 0);
     }
+
+    @Test
+    public void getMultipleAccountsTest() throws RpcException {
+        List<AccountInfo.Value> accounts = client.getApi().getMultipleAccounts(
+                List.of(
+                        PublicKey.valueOf("skynetDj29GH6o6bAqoixCpDuYtWqi1rm8ZNx1hB3vq"),
+                        PublicKey.valueOf("namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX")
+                )
+        );
+
+        assertNotNull(accounts);
+        assertEquals(2, accounts.size());
+    }
 }
