@@ -4,6 +4,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
 
 import org.bitcoinj.core.Base58;
 
@@ -38,6 +40,18 @@ public class AccountTest {
         Account acc = Account.fromJson(json);
 
         assertEquals("2cXAj2TagK3t6rb2CGRwyhF6sTFJgLyzyDGSWBcGd8Go", acc.getPublicKey().toString());
+    }
+
+    @Test
+    public void fromBip39MnemonicTest() {
+        Account account = Account.fromBip39Mnemonic(
+                Arrays.asList("iron", "make", "indoor", "where", "explain", "model", "maximum", "wonder",
+                        "toward", "salad", "fan",  "try"),
+                ""
+        );
+
+        Logger.getAnonymousLogger().info("Derived pubkey = " + account.getPublicKey().toBase58());
+        assertEquals("BeepMww3KwiDeEhEeZmqk4TegvJYNuDERPWm142X6Mx3", account.getPublicKey().toBase58());
     }
 
 }
