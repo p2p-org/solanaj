@@ -1,4 +1,4 @@
-package org.p2p.solanaj.rpc.types;
+package org.p2p.solanaj.rpc.types.config;
 
 import com.squareup.moshi.Json;
 

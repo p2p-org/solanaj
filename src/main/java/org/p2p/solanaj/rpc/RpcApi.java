@@ -6,17 +6,23 @@ import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.Transaction;
 import org.p2p.solanaj.rpc.types.*;
-import org.p2p.solanaj.rpc.types.BlockConfig;
+import org.p2p.solanaj.rpc.types.config.BlockConfig;
 import org.p2p.solanaj.rpc.types.ConfirmedSignFAddr2;
 import org.p2p.solanaj.rpc.types.DataSize;
 import org.p2p.solanaj.rpc.types.Filter;
 import org.p2p.solanaj.rpc.types.Memcmp;
-import org.p2p.solanaj.rpc.types.ProgramAccountConfig;
-import org.p2p.solanaj.rpc.types.RpcEpochConfig;
+import org.p2p.solanaj.rpc.types.config.LargestAccountConfig;
+import org.p2p.solanaj.rpc.types.config.LeaderScheduleConfig;
+import org.p2p.solanaj.rpc.types.config.ProgramAccountConfig;
+import org.p2p.solanaj.rpc.types.config.RpcEpochConfig;
 import org.p2p.solanaj.rpc.types.RpcResultTypes.ValueLong;
-import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
-import org.p2p.solanaj.rpc.types.SimulateTransactionConfig;
+import org.p2p.solanaj.rpc.types.config.RpcSendTransactionConfig;
+import org.p2p.solanaj.rpc.types.config.RpcSendTransactionConfig.Encoding;
+import org.p2p.solanaj.rpc.types.config.SignatureStatusConfig;
+import org.p2p.solanaj.rpc.types.config.SimulateTransactionConfig;
 import org.p2p.solanaj.rpc.types.TokenResultObjects.*;
+import org.p2p.solanaj.rpc.types.config.Commitment;
+import org.p2p.solanaj.rpc.types.config.VoteAccountConfig;
 import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
 import org.p2p.solanaj.ws.listeners.NotificationEventListener;
 
@@ -28,10 +34,15 @@ public class RpcApi {
     }
 
     public String getRecentBlockhash() throws RpcException {
+        return getRecentBlockhash(null);
+    }
+
+    public String getRecentBlockhash(Commitment commitment) throws RpcException {
         List<Object> params = new ArrayList<>();
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("commitment", "processed");
-        params.add(parameterMap);
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
 
         return client.call("getRecentBlockhash", params, RecentBlockhash.class).getValue().getBlockhash();
     }
@@ -73,9 +84,16 @@ public class RpcApi {
     }
 
     public long getBalance(PublicKey account) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+        return getBalance(account, null);
+    }
+
+    public long getBalance(PublicKey account, Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
 
         params.add(account.toString());
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
 
         return client.call("getBalance", params, ValueLong.class).getValue();
     }
@@ -202,10 +220,12 @@ public class RpcApi {
 
         Map<String, Object> parameterMap = new HashMap<>();
 
-        parameterMap.put("commitment", additionalParams.getOrDefault("commitment", "max"));
         parameterMap.put("encoding", additionalParams.getOrDefault("encoding", "base64"));
 
-        // No default for dataSlice
+        if (additionalParams.containsKey("commitment")) {
+            Commitment commitment = (Commitment) additionalParams.get("commitment");
+            parameterMap.put("commitment", commitment.getValue());
+        }
         if (additionalParams.containsKey("dataSlice")) {
             parameterMap.put("dataSlice", additionalParams.get("dataSlice"));
         }
@@ -228,15 +248,22 @@ public class RpcApi {
     }
 
     public long getMinimumBalanceForRentExemption(long dataLength) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+        return getMinimumBalanceForRentExemption(dataLength, null);
+    }
+
+    public long getMinimumBalanceForRentExemption(long dataLength, Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
 
         params.add(dataLength);
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
 
         return client.call("getMinimumBalanceForRentExemption", params, Long.class);
     }
 
     public long getBlockTime(long block) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+        List<Object> params = new ArrayList<>();
 
         params.add(block);
 
@@ -250,12 +277,32 @@ public class RpcApi {
      * @throws RpcException
      */
     public long getBlockHeight() throws RpcException {
-        return client.call("getBlockHeight", new ArrayList<>(), Long.class);
+        return getBlockHeight(null);
+    }
+
+    public long getBlockHeight(Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+        return client.call("getBlockHeight", params, Long.class);
+    }
+
+    public BlockProduction getBlockProduction() throws RpcException {
+        return getBlockProduction(new HashMap<>());
     }
 
     // TODO - implement the parameters - currently takes in none
-    public BlockProduction getBlockProduction(long firstSlot, long lastSlot, PublicKey identity) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+    public BlockProduction getBlockProduction(Map<String, Object> optionalParams) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        if (optionalParams.containsKey("commitment")) {
+            Commitment commitment = (Commitment) optionalParams.get("commitment");
+            parameterMap.put("commitment", commitment.getValue());
+        }
+        params.add(parameterMap);
 
         return client.call("getBlockProduction", params, BlockProduction.class);
     }
@@ -269,10 +316,17 @@ public class RpcApi {
     }
 
     public String requestAirdrop(PublicKey address, long lamports) throws RpcException {
+        return requestAirdrop(address, lamports, null);
+    }
+
+    public String requestAirdrop(PublicKey address, long lamports, Commitment commitment) throws RpcException {
         List<Object> params = new ArrayList<Object>();
 
         params.add(address.toString());
         params.add(lamports);
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
 
         return client.call("requestAirdrop", params, String.class);
     }
@@ -286,8 +340,17 @@ public class RpcApi {
     }
 
     public FeeCalculatorInfo getFeeCalculatorForBlockhash(String blockhash) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+        return getFeeCalculatorForBlockhash(blockhash, null);
+    }
+
+    public FeeCalculatorInfo getFeeCalculatorForBlockhash(String blockhash, Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
         params.add(blockhash);
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
         return client.call("getFeeCalculatorForBlockhash", params, FeeCalculatorInfo.class);
     }
 
@@ -296,11 +359,31 @@ public class RpcApi {
     }
 
     public FeesInfo getFees() throws RpcException {
-        return client.call("getFees", new ArrayList<>(), FeesInfo.class);
+        return getFees(null);
+    }
+
+    public FeesInfo getFees(Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
+        return client.call("getFees", params, FeesInfo.class);
     }
 
     public long getTransactionCount() throws RpcException {
-        return client.call("getTransactionCount", new ArrayList<>(), Long.class);
+        return getTransactionCount(null);
+    }
+
+    public long getTransactionCount(Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
+        return client.call("getTransactionCount", params, Long.class);
     }
 
     public long getMaxRetransmitSlot() throws RpcException {
@@ -352,7 +435,7 @@ public class RpcApi {
      */
     @Deprecated
     public ConfirmedBlock getConfirmedBlock(int slot) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+        List<Object> params = new ArrayList<>();
 
         params.add(slot);
         params.add(new BlockConfig());
@@ -364,10 +447,22 @@ public class RpcApi {
      * Returns identity and transaction information about a confirmed block in the ledger
      */
     public Block getBlock(int slot) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+        return getBlock(slot, null);
+    }
+
+    public Block getBlock(int slot, Map<String, Object> optionalParams) throws RpcException {
+        List<Object> params = new ArrayList<>();
 
         params.add(slot);
-        params.add(new BlockConfig());
+
+        if (null != optionalParams) {
+            BlockConfig blockConfig = new BlockConfig();
+            if (optionalParams.containsKey("commitment")) {
+                Commitment commitment = (Commitment) optionalParams.get("commitment");
+                blockConfig.setCommitment(commitment.getValue());
+            }
+            params.add(blockConfig);
+        }
 
         return client.call("getBlock", params, Block.class);
     }
@@ -379,7 +474,15 @@ public class RpcApi {
      * @throws RpcException
      */
     public EpochInfo getEpochInfo() throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+        return getEpochInfo(null);
+    }
+
+    public EpochInfo getEpochInfo(Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
 
         return client.call("getEpochInfo", params, EpochInfo.class);
     }
@@ -418,28 +521,37 @@ public class RpcApi {
     }
 
     public InflationGovernor getInflationGovernor() throws RpcException {
-        return client.call("getInflationGovernor", new ArrayList<>(), InflationGovernor.class);
+        return getInflationGovernor(null);
+    }
+
+    public InflationGovernor getInflationGovernor(Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
+        return client.call("getInflationGovernor", params, InflationGovernor.class);
     }
 
     public List<InflationReward> getInflationReward(List<PublicKey> addresses) throws RpcException {
         return getInflationReward(addresses, null, null);
     }
 
-    public List<InflationReward> getInflationReward(List<PublicKey> addresses, Long epoch, String commitment)
+    public List<InflationReward> getInflationReward(List<PublicKey> addresses, Long epoch, Commitment commitment)
             throws RpcException {
         List<Object> params = new ArrayList<>();
 
         params.add(addresses.stream().map(PublicKey::toString).collect(Collectors.toList()));
 
+        RpcEpochConfig rpcEpochConfig = new RpcEpochConfig();
         if (null != epoch) {
-            RpcEpochConfig rpcEpochConfig;
-            if (null == commitment) {
-                rpcEpochConfig = new RpcEpochConfig(epoch);
-            } else {
-                rpcEpochConfig = new RpcEpochConfig(epoch, commitment);
-            }
-            params.add(rpcEpochConfig);
+            rpcEpochConfig.setEpoch(epoch);
         }
+        if (null != commitment) {
+            rpcEpochConfig.setCommitment(commitment.getValue());
+        }
+        params.add(rpcEpochConfig);
 
         List<AbstractMap> rawResult = client.call("getInflationReward", params, List.class);
 
@@ -452,11 +564,31 @@ public class RpcApi {
     }
 
     public long getSlot() throws RpcException {
-        return client.call("getSlot", new ArrayList<>(), Long.class);
+        return getSlot(null);
+    }
+
+    public long getSlot(Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
+        return client.call("getSlot", params, Long.class);
     }
 
     public PublicKey getSlotLeader() throws RpcException {
-        return new PublicKey(client.call("getSlotLeader", new ArrayList<>(), String.class));
+        return getSlotLeader(null);
+    }
+
+    public PublicKey getSlotLeader(Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
+        return new PublicKey(client.call("getSlotLeader", params, String.class));
     }
 
     public List<PublicKey> getSlotLeaders(long startSlot, long limit) throws RpcException {
@@ -499,7 +631,17 @@ public class RpcApi {
     }
 
     public Supply getSupply() throws RpcException {
-        return client.call("getSupply", new ArrayList<>(), Supply.class);
+        return getSupply(null);
+    }
+
+    public Supply getSupply(Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
+        return client.call("getSupply", params, Supply.class);
     }
 
     public long getFirstAvailableBlock() throws RpcException {
@@ -530,8 +672,16 @@ public class RpcApi {
     }
 
     public TokenResultObjects.TokenAmountInfo getTokenAccountBalance(PublicKey tokenAccount) throws RpcException {
+        return getTokenAccountBalance(tokenAccount, null);
+    }
+
+    public TokenResultObjects.TokenAmountInfo getTokenAccountBalance(PublicKey tokenAccount, Commitment commitment) throws RpcException {
         List<Object> params = new ArrayList<>();
         params.add(tokenAccount.toString());
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
 
         Map<String, Object> rawResult = client.call("getTokenAccountBalance", params, Map.class);
 
@@ -539,8 +689,16 @@ public class RpcApi {
     }
 
     public TokenAmountInfo getTokenSupply(PublicKey tokenMint) throws RpcException {
+        return getTokenSupply(tokenMint, null);
+    }
+
+    public TokenAmountInfo getTokenSupply(PublicKey tokenMint, Commitment commitment) throws RpcException {
         List<Object> params = new ArrayList<>();
         params.add(tokenMint.toString());
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
 
         Map<String, Object> rawResult =  client.call("getTokenSupply", params, Map.class);
 
@@ -548,8 +706,16 @@ public class RpcApi {
     }
 
     public List<TokenAccount> getTokenLargestAccounts(PublicKey tokenMint) throws RpcException {
+        return getTokenLargestAccounts(tokenMint, null);
+    }
+
+    public List<TokenAccount> getTokenLargestAccounts(PublicKey tokenMint, Commitment commitment) throws RpcException {
         List<Object> params = new ArrayList<>();
         params.add(tokenMint.toString());
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
 
         Map<String, Object> rawResult = client.call("getTokenLargestAccounts", params, Map.class);
 
@@ -589,9 +755,11 @@ public class RpcApi {
 
         if (null != optionalParams) {
             parameterMap = new HashMap<>();
-            parameterMap.put("commitment", optionalParams.getOrDefault("commitment", "max"));
             parameterMap.put("encoding", optionalParams.getOrDefault("encoding", "jsonParsed"));
-            // No default for dataSlice
+            if (optionalParams.containsKey("commitment")) {
+                Commitment commitment = (Commitment) optionalParams.get("commitment");
+                parameterMap.put("commitment", commitment.getValue());
+            }
             if (optionalParams.containsKey("dataSlice")) {
                 parameterMap.put("dataSlice", optionalParams.get("dataSlice"));
             }
@@ -602,30 +770,40 @@ public class RpcApi {
     }
 
     public VoteAccounts getVoteAccounts() throws RpcException {
-        return getVoteAccounts(null);
+        return getVoteAccounts(null, null);
     }
 
-    public VoteAccounts getVoteAccounts(PublicKey votePubkey) throws RpcException {
+    public VoteAccounts getVoteAccounts(PublicKey votePubkey, Commitment commitment) throws RpcException {
         List<Object> params = new ArrayList<>();
 
+        VoteAccountConfig voteAccountConfig = new VoteAccountConfig();
         if (votePubkey != null) {
-            params.add(new VoteAccountConfig(votePubkey.toBase58()));
+            voteAccountConfig.setVotePubkey(votePubkey.toBase58());
         }
+        if (commitment != null) {
+            voteAccountConfig.setCommitment(commitment.getValue());
+        }
+        params.add(voteAccountConfig);
 
         return client.call("getVoteAccounts", params, VoteAccounts.class);
     }
 
     public StakeActivation getStakeActivation(PublicKey publicKey) throws RpcException {
-        List<Object> params = new ArrayList<>();
-        params.add(publicKey.toBase58());
-
-        return client.call("getStakeActivation", params, StakeActivation.class);
+        return getStakeActivation(publicKey, null, null);
     }
 
-    public StakeActivation getStakeActivation(PublicKey publicKey, long epoch) throws RpcException {
+    public StakeActivation getStakeActivation(PublicKey publicKey, Long epoch, Commitment commitment) throws RpcException {
         List<Object> params = new ArrayList<>();
         params.add(publicKey.toBase58());
-        params.add(new StakeActivationConfig(epoch));
+
+        RpcEpochConfig rpcEpochConfig = new RpcEpochConfig();
+        if (null != epoch) {
+            rpcEpochConfig.setEpoch(epoch);
+        }
+        if (null != commitment) {
+            rpcEpochConfig.setCommitment(commitment.getValue());
+        }
+        params.add(rpcEpochConfig);
 
         return client.call("getStakeActivation", params, StakeActivation.class);
     }
@@ -674,7 +852,20 @@ public class RpcApi {
     }
 
     public List<LargeAccount> getLargestAccounts() throws RpcException {
+        return getLargestAccounts(null, null);
+    }
+
+    public List<LargeAccount> getLargestAccounts(String filter, Commitment commitment) throws RpcException {
         List<Object> params = new ArrayList<>();
+
+        LargestAccountConfig largestAccountConfig = new LargestAccountConfig();
+        if (null != filter) {
+            largestAccountConfig.setFilter(filter);
+        }
+        if (null != commitment) {
+            largestAccountConfig.setCommitment(commitment.getValue());
+        }
+        params.add(largestAccountConfig);
 
         Map<String, Object> rawResult = client.call("getLargestAccounts", params, Map.class);
 
@@ -687,21 +878,24 @@ public class RpcApi {
     }
 
     public List<LeaderSchedule> getLeaderSchedule() throws RpcException {
-        List<Object> params = new ArrayList<>();
-
-        Map<String, Object> rawResult = client.call("getLeaderSchedule", params, Map.class);
-
-        List<LeaderSchedule> result = new ArrayList<>();
-        rawResult.forEach((key, value) -> {
-            result.add(new LeaderSchedule(key, (List<Double>) value));
-        });
-
-        return result;
+        return getLeaderSchedule(null, null, null);
     }
 
-    public List<LeaderSchedule> getLeaderSchedule(long epoch) throws RpcException {
+    public List<LeaderSchedule> getLeaderSchedule(Long epoch, String identity, Commitment commitment) throws RpcException {
         List<Object> params = new ArrayList<>();
-        params.add(epoch);
+
+        if (null != epoch) {
+            params.add(epoch);
+        }
+
+        LeaderScheduleConfig leaderScheduleConfig = new LeaderScheduleConfig();
+        if (null != identity) {
+            leaderScheduleConfig.setIdentity(identity);
+        }
+        if (null != commitment) {
+            leaderScheduleConfig.setCommitment(commitment.getValue());
+        }
+        params.add(leaderScheduleConfig);
 
         Map<String, Object> rawResult = client.call("getLeaderSchedule", params, Map.class);
 
@@ -714,8 +908,26 @@ public class RpcApi {
     }
 
     public List<AccountInfo.Value> getMultipleAccounts(List<PublicKey> publicKeys) throws RpcException {
+        return getMultipleAccounts(publicKeys, new HashMap<>());
+    }
+
+    public List<AccountInfo.Value> getMultipleAccounts(List<PublicKey> publicKeys, Map<String, Object> additionalParams) throws RpcException {
         List<Object> params = new ArrayList<>();
         params.add(publicKeys.stream().map(PublicKey::toBase58).collect(Collectors.toList()));
+
+        Map<String, Object> parameterMap = new HashMap<>();
+
+        parameterMap.put("encoding", additionalParams.getOrDefault("encoding", "base64"));
+
+        if (additionalParams.containsKey("commitment")) {
+            Commitment commitment = (Commitment) additionalParams.get("commitment");
+            parameterMap.put("commitment", commitment.getValue());
+        }
+        if (additionalParams.containsKey("dataSlice")) {
+            parameterMap.put("dataSlice", additionalParams.get("dataSlice"));
+        }
+
+        params.add(parameterMap);
 
         Map<String, Object> rawResult = client.call("getMultipleAccounts", params, Map.class);
         List<AccountInfo.Value> result = new ArrayList<>();

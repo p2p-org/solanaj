@@ -10,6 +10,7 @@ import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.rpc.types.*;
 import org.p2p.solanaj.rpc.types.TokenResultObjects.*;
+import org.p2p.solanaj.rpc.types.config.Commitment;
 import org.p2p.solanaj.token.TokenManager;
 
 import java.util.*;
@@ -158,7 +159,7 @@ public class MainnetTest extends AccountBasedTest {
 
     @Test
     public void getBlockProductionTest() throws RpcException {
-        BlockProduction blockProduction = client.getApi().getBlockProduction(0, 0, null);
+        BlockProduction blockProduction = client.getApi().getBlockProduction();
         LOGGER.info(String.format("Block height = %s", blockProduction.getValue()));
         assertNotNull(blockProduction);
     }
@@ -205,22 +206,18 @@ public class MainnetTest extends AccountBasedTest {
     }
 
     @Test
-    public void getEpochInfoTest() {
-        try {
-            final EpochInfo epochInfo = client.getApi().getEpochInfo();
-            assertNotNull(epochInfo);
+    public void getEpochInfoTest() throws RpcException {
+        final EpochInfo epochInfo = client.getApi().getEpochInfo();
+        assertNotNull(epochInfo);
 
-            LOGGER.info(epochInfo.toString());
+        LOGGER.info(epochInfo.toString());
 
-            // Validate the returned data
-            assertTrue(epochInfo.getAbsoluteSlot() > 0);
-            assertTrue(epochInfo.getEpoch() > 0);
-            assertTrue(epochInfo.getSlotsInEpoch() > 0);
-            assertTrue(epochInfo.getBlockHeight() > 0);
-            assertTrue(epochInfo.getSlotIndex() > 0);
-        } catch (RpcException e) {
-            e.printStackTrace();
-        }
+        // Validate the returned data
+        assertTrue(epochInfo.getAbsoluteSlot() > 0);
+        assertTrue(epochInfo.getEpoch() > 0);
+        assertTrue(epochInfo.getSlotsInEpoch() > 0);
+        assertTrue(epochInfo.getBlockHeight() > 0);
+        assertTrue(epochInfo.getSlotIndex() > 0);
     }
 
     @Test
@@ -284,7 +281,6 @@ public class MainnetTest extends AccountBasedTest {
             assertTrue(inflationReward.getEffectiveSlot() > 0);
             assertTrue(inflationReward.getPostBalance() > 0);
         }
-
     }
 
     @Test
@@ -405,7 +401,7 @@ public class MainnetTest extends AccountBasedTest {
     public void getTokenAccountsByOwnerTest() throws RpcException {
         Map<String, Object> requiredParams = Map.of("mint", USDC_TOKEN_MINT);
         TokenAccountInfo tokenAccount = client.getApi().getTokenAccountsByOwner(PublicKey.valueOf(
-                "AoUnMozL1ZF4TYyVJkoxQWfjgKKtu8QUK9L4wFdEJick"), requiredParams ,new HashMap<>());
+                "AoUnMozL1ZF4TYyVJkoxQWfjgKKtu8QUK9L4wFdEJick"), requiredParams, new HashMap<>());
         LOGGER.info(tokenAccount.toString());
 
         //validate the returned data
@@ -417,7 +413,7 @@ public class MainnetTest extends AccountBasedTest {
     public void getTokenAccountsByDelegateTest() throws RpcException {
         Map<String, Object> requiredParams = Map.of("mint", USDC_TOKEN_MINT);
         TokenAccountInfo tokenAccount = client.getApi().getTokenAccountsByDelegate(PublicKey.valueOf(
-                "AoUnMozL1ZF4TYyVJkoxQWfjgKKtu8QUK9L4wFdEJick"), requiredParams ,new HashMap<>());
+                "AoUnMozL1ZF4TYyVJkoxQWfjgKKtu8QUK9L4wFdEJick"), requiredParams, new HashMap<>());
         LOGGER.info(tokenAccount.toString());
 
         //validate the returned data
@@ -471,6 +467,43 @@ public class MainnetTest extends AccountBasedTest {
     public void getMaxRetransmitSlotTest() throws RpcException {
         long maxRetransmitSlot = client.getApi().getMaxRetransmitSlot();
         assertTrue(maxRetransmitSlot > 0);
+    }
+
+    @Test
+    public void getBalanceTest() throws RpcException {
+        long balance = client.getApi().getBalance(PublicKey.valueOf("H8VT3V6EDiYiQqmeDgqZJf4Tt76Qe6WZjPhighAGPL5T"));
+        LOGGER.info(String.format("Balance = %d", balance));
+        assertTrue(balance > 0);
+    }
+
+    @Test
+    public void getMinimumBalanceForRentExemptionTest() throws RpcException {
+        long minimumBalance = client.getApi().getMinimumBalanceForRentExemption(5000);
+        LOGGER.info(String.format("Minimum balance for rent exemption = %d", minimumBalance));
+        assertTrue(minimumBalance > 0);
+    }
+
+    @Test
+    public void getRecentBlockhashTest() throws RpcException {
+        String recentBlockhash = client.getApi().getRecentBlockhash();
+        LOGGER.info(String.format("Recent blockhash = %s", recentBlockhash));
+        assertNotNull(recentBlockhash);
+    }
+
+    @Test
+    public void getStakeActivationTest() throws RpcException {
+        StakeActivation stakeActivation = client.getApi().getStakeActivation(
+                        PublicKey.valueOf("H8VT3V6EDiYiQqmeDgqZJf4Tt76Qe6WZjPhighAGPL5T"),
+                155L,
+                null);
+
+        LOGGER.info(stakeActivation.toString());
+
+        //validate the returned data
+        assertNotNull(stakeActivation);
+        assertEquals("active", stakeActivation.getState());
+        assertTrue(stakeActivation.getActive() > 0);
+        assertEquals(0, stakeActivation.getInactive());
     }
 
     @Ignore
@@ -633,6 +666,15 @@ public class MainnetTest extends AccountBasedTest {
         List<LeaderSchedule> leaderSchedules = client.getApi().getLeaderSchedule();
 
         assertTrue(leaderSchedules.size() > 0);
+    }
+
+    @Test
+    public void getLeaderScheduleTest_identity() throws RpcException {
+        List<LeaderSchedule> leaderSchedules = client.getApi().getLeaderSchedule(null,
+                "12oRmi8YDbqpkn326MdjwFeZ1bh3t7zVw8Nra2QK2SnR", null);
+
+        assertSame(1, leaderSchedules.size());
+        assertEquals("12oRmi8YDbqpkn326MdjwFeZ1bh3t7zVw8Nra2QK2SnR", leaderSchedules.get(0).getIdentity());
     }
 
     @Test
