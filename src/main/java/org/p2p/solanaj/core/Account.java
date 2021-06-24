@@ -22,6 +22,7 @@ public class Account {
         this.keyPair = keyPair;
     }
 
+    @Deprecated
     public static Account fromMnemonic(List<String> words, String passphrase) {
         byte[] seed = MnemonicCode.toSeed(words, passphrase);
         DeterministicKey masterPrivateKey = HDKeyDerivation.createMasterPrivateKey(seed);
