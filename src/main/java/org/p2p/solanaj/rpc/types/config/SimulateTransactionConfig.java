@@ -1,9 +1,9 @@
-package org.p2p.solanaj.rpc.types;
+package org.p2p.solanaj.rpc.types.config;
 
 import java.util.Map;
 
 import lombok.Setter;
-import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
+import org.p2p.solanaj.rpc.types.config.RpcSendTransactionConfig.Encoding;
 
 import com.squareup.moshi.Json;
 
