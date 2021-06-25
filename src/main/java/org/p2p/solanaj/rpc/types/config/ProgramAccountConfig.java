@@ -1,20 +1,15 @@
-package org.p2p.solanaj.rpc.types;
+package org.p2p.solanaj.rpc.types.config;
 
 import java.util.List;
 
-import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
-
-import com.squareup.moshi.Json;
+import org.p2p.solanaj.rpc.types.config.RpcSendTransactionConfig.Encoding;
 
 public class ProgramAccountConfig {
 
-    @Json(name = "encoding")
     private Encoding encoding = null;
 
-    @Json(name = "filters")
     private List<Object> filters = null;
 
-    @Json(name = "commitment")
     private String commitment = "processed";
 
     public ProgramAccountConfig(List<Object> filters) {
