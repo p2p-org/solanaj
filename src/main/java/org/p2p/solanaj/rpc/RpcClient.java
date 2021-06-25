@@ -85,6 +85,12 @@ public class RpcClient {
         return endpoint;
     }
 
+    /**
+     * Returns RPC Endpoint based on a list of weighted endpoints
+     * Weighted endpoints can be given a integer weight, with higher weights used more than lower weights
+     * Total weights across all endpoints do not need to sum up to any specific number
+     * @return String RPCEndpoint
+     */
     private String getWeightedEndpoint() {
         int currentNumber = 0;
         int randomMultiplier = cluster.endpoints.stream().mapToInt(WeightedEndpoint::getWeight).sum();
@@ -93,9 +99,7 @@ public class RpcClient {
         for (WeightedEndpoint endpoint: cluster.endpoints) {
             if (randomNumber > currentNumber + endpoint.getWeight()) {
                 currentNumber += endpoint.getWeight();
-            } else if (randomNumber >= currentNumber && randomNumber < currentNumber + endpoint.getWeight()) {
-                return endpoint.getUrl();
-            } else {
+            } else if (randomNumber >= currentNumber && randomNumber <= currentNumber + endpoint.getWeight()) {
                 return endpoint.getUrl();
             }
         }
