@@ -17,6 +17,7 @@ import com.squareup.moshi.Types;
 
 import org.p2p.solanaj.rpc.types.RpcRequest;
 import org.p2p.solanaj.rpc.types.RpcResponse;
+import org.p2p.solanaj.rpc.types.WeightedEndpoint;
 
 import javax.net.ssl.*;
 
@@ -25,6 +26,11 @@ public class RpcClient {
     private String endpoint;
     private OkHttpClient httpClient;
     private RpcApi rpcApi;
+    private WeightedCluster cluster;
+
+    public RpcClient(WeightedCluster cluster) {
+        this.cluster = cluster;
+    }
 
     public RpcClient(Cluster endpoint) {
         this(endpoint.getEndpoint());
@@ -46,7 +52,7 @@ public class RpcClient {
         JsonAdapter<RpcResponse<T>> resultAdapter = new Moshi.Builder().build()
                 .adapter(Types.newParameterizedType(RpcResponse.class, Type.class.cast(clazz)));
 
-        Request request = new Request.Builder().url(endpoint)
+        Request request = new Request.Builder().url(getEndpoint())
                 .post(RequestBody.create(rpcRequestJsonAdapter.toJson(rpcRequest), JSON)).build();
 
         try {
@@ -73,7 +79,31 @@ public class RpcClient {
     }
 
     public String getEndpoint() {
+        if (cluster != null) {
+            return getWeightedEndpoint();
+        }
         return endpoint;
+    }
+
+    /**
+     * Returns RPC Endpoint based on a list of weighted endpoints
+     * Weighted endpoints can be given a integer weight, with higher weights used more than lower weights
+     * Total weights across all endpoints do not need to sum up to any specific number
+     * @return String RPCEndpoint
+     */
+    private String getWeightedEndpoint() {
+        int currentNumber = 0;
+        int randomMultiplier = cluster.endpoints.stream().mapToInt(WeightedEndpoint::getWeight).sum();
+        double randomNumber = Math.random() * randomMultiplier;
+        String currentEndpoint = "";
+        for (WeightedEndpoint endpoint: cluster.endpoints) {
+            if (randomNumber > currentNumber + endpoint.getWeight()) {
+                currentNumber += endpoint.getWeight();
+            } else if (randomNumber >= currentNumber && randomNumber <= currentNumber + endpoint.getWeight()) {
+                return endpoint.getUrl();
+            }
+        }
+        return currentEndpoint;
     }
 
 }
