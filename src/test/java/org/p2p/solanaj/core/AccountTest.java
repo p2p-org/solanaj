@@ -4,7 +4,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.bitcoinj.core.Base58;
@@ -24,6 +23,24 @@ public class AccountTest {
     public void generateNewAccount() {
         Account account = new Account();
         assertEquals(64, account.getSecretKey().length);
+    }
+
+    @Test
+    public void fromBip44Mnemonic() {
+        Account acc = Account.fromBip44Mnemonic(Arrays.asList("hint", "begin", "crowd", "dolphin", "drive", "render",
+                "finger", "above", "sponsor", "prize", "runway", "invest", "dizzy", "pony", "bitter", "trial", "ignore",
+                "crop", "please", "industry", "hockey", "wire", "use", "side"), "");
+
+        assertEquals("G75kGJiizyFNdnvvHxkrBrcwLomGJT2CigdXnsYzrFHv", acc.getPublicKey().toString());
+    }
+
+    @Test
+    public void fromBip44MnemonicChange() {
+        Account acc = Account.fromBip44MnemonicWithChange(Arrays.asList("hint", "begin", "crowd", "dolphin", "drive", "render",
+                "finger", "above", "sponsor", "prize", "runway", "invest", "dizzy", "pony", "bitter", "trial", "ignore",
+                "crop", "please", "industry", "hockey", "wire", "use", "side"), "");
+
+        assertEquals("AaXs7cLGcSVAsEt8QxstVrqhLhYN2iGhFNRemwYnHitV", acc.getPublicKey().toString());
     }
 
     @Test
