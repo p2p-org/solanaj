@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.p2p.solanaj.rpc.Cluster;
 import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
 
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -23,11 +24,18 @@ public class WebsocketTest {
         devnetClient.accountSubscribe(
                 PublicKey.valueOf("E36MyBbavhYKHVLWR79GiReNNnBDiHj6nWA7htbkNZbh").toBase58(),
                 data -> {
-                    Map<String, String> map = (Map<String, String>) data;
+                    Map<String, Object> map = (Map<String, Object>) data;
+                    String base64 = (String)((List) map.get("data")).get(0);
                     LOGGER.info(
                             String.format(
                                     "Event = %s",
                                     map
+                            )
+                    );
+                    LOGGER.info(
+                            String.format(
+                                    "Data = %s",
+                                    base64
                             )
                     );
                 }
