@@ -69,6 +69,11 @@
             <artifactId>lombok</artifactId>
             <version>RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>net.i2p.crypto</groupId>
+            <artifactId>eddsa</artifactId>
+            <version>0.3.0</version>
+        </dependency>
     </dependencies>
 
     <distributionManagement>
