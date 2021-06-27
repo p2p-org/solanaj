@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import com.squareup.moshi.JsonAdapter;
@@ -34,9 +33,9 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
 
     private static SubscriptionWebSocketClient instance;
 
-    private Map<String, SubscriptionParams> subscriptions = new ConcurrentHashMap<>();
-    private Map<String, Long> subscriptionIds = new ConcurrentHashMap<>();
-    private Map<Long, NotificationEventListener> subscriptionLinsteners = new ConcurrentHashMap<>();
+    private Map<String, SubscriptionParams> subscriptions = new HashMap<>();
+    private Map<String, Long> subscriptionIds = new HashMap<>();
+    private Map<Long, NotificationEventListener> subscriptionListeners = new HashMap<>();
     private static final Logger LOGGER = Logger.getLogger(SubscriptionWebSocketClient.class.getName());
 
     public static SubscriptionWebSocketClient getInstance(String endpoint) {
@@ -68,7 +67,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
     }
 
     public void accountSubscribe(String key, NotificationEventListener listener) {
-        List<Object> params = new ArrayList<Object>();
+        List<Object> params = new ArrayList<>();
         params.add(key);
         params.add(Map.of("encoding", "jsonParsed"));
 
@@ -137,7 +136,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
                 if (subscriptionIds.containsKey(rpcResultId)) {
                     try {
                         subscriptionIds.put(rpcResultId, rpcResult.getResult());
-                        subscriptionLinsteners.put(rpcResult.getResult(), subscriptions.get(rpcResultId).listener);
+                        subscriptionListeners.put(rpcResult.getResult(), subscriptions.get(rpcResultId).listener);
                         subscriptions.remove(rpcResultId);
                     } catch (NullPointerException ignored) {
 
@@ -147,7 +146,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
                 JsonAdapter<RpcNotificationResult> notificationResultAdapter = new Moshi.Builder().build()
                         .adapter(RpcNotificationResult.class);
                 RpcNotificationResult result = notificationResultAdapter.fromJson(message);
-                NotificationEventListener listener = subscriptionLinsteners.get(result.getParams().getSubscription());
+                NotificationEventListener listener = subscriptionListeners.get(result.getParams().getSubscription());
 
                 Map value = (Map) result.getParams().getResult().getValue();
 
