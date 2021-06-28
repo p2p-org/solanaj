@@ -17,6 +17,7 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.p2p.solanaj.rpc.types.RpcNotificationResult;
 import org.p2p.solanaj.rpc.types.RpcRequest;
 import org.p2p.solanaj.rpc.types.RpcResponse;
+import org.p2p.solanaj.rpc.types.config.Commitment;
 import org.p2p.solanaj.ws.listeners.NotificationEventListener;
 
 public class SubscriptionWebSocketClient extends WebSocketClient {
@@ -69,7 +70,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
     public void accountSubscribe(String key, NotificationEventListener listener) {
         List<Object> params = new ArrayList<>();
         params.add(key);
-        params.add(Map.of("encoding", "jsonParsed"));
+        params.add(Map.of("encoding", "jsonParsed", "commitment", Commitment.PROCESSED.getValue()));
 
         RpcRequest rpcRequest = new RpcRequest("accountSubscribe", params);
 
