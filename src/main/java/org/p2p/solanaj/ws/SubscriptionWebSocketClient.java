@@ -3,9 +3,9 @@ package org.p2p.solanaj.ws;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import com.squareup.moshi.JsonAdapter;
@@ -32,16 +32,34 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
         }
     }
 
-    private static SubscriptionWebSocketClient instance;
-
-    private Map<String, SubscriptionParams> subscriptions = new HashMap<>();
-    private Map<String, Long> subscriptionIds = new HashMap<>();
-    private Map<Long, NotificationEventListener> subscriptionListeners = new HashMap<>();
+    private Map<String, SubscriptionParams> subscriptions = new ConcurrentHashMap<>();
+    private Map<String, Long> subscriptionIds = new ConcurrentHashMap<>();
+    private Map<Long, NotificationEventListener> subscriptionListeners = new ConcurrentHashMap<>();
     private static final Logger LOGGER = Logger.getLogger(SubscriptionWebSocketClient.class.getName());
 
-    public static SubscriptionWebSocketClient getInstance(String endpoint) {
-        URI endpointURI;
+    public static SubscriptionWebSocketClient getExactPathInstance(String endpoint) {
         URI serverURI;
+        SubscriptionWebSocketClient instance;
+
+        try {
+            serverURI = new URI(endpoint);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        instance = new SubscriptionWebSocketClient(serverURI);
+
+        if (!instance.isOpen()) {
+            instance.connect();
+        }
+
+        return instance;
+    }
+
+    public static SubscriptionWebSocketClient getInstance(String endpoint) {
+        URI serverURI;
+        URI endpointURI;
+        SubscriptionWebSocketClient instance;
 
         try {
             endpointURI = new URI(endpoint);
@@ -50,16 +68,13 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
             throw new IllegalArgumentException(e);
         }
 
-        if (instance == null) {
-            instance = new SubscriptionWebSocketClient(serverURI);
-        }
+        instance = new SubscriptionWebSocketClient(serverURI);
 
         if (!instance.isOpen()) {
             instance.connect();
         }
 
         return instance;
-
     }
 
     public SubscriptionWebSocketClient(URI serverURI) {
@@ -75,7 +90,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
         RpcRequest rpcRequest = new RpcRequest("accountSubscribe", params);
 
         subscriptions.put(rpcRequest.getId(), new SubscriptionParams(rpcRequest, listener));
-        subscriptionIds.put(rpcRequest.getId(), null);
+        subscriptionIds.put(rpcRequest.getId(), 0L);
 
         updateSubscriptions();
     }
@@ -87,7 +102,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
         RpcRequest rpcRequest = new RpcRequest("signatureSubscribe", params);
 
         subscriptions.put(rpcRequest.getId(), new SubscriptionParams(rpcRequest, listener));
-        subscriptionIds.put(rpcRequest.getId(), null);
+        subscriptionIds.put(rpcRequest.getId(), 0L);
 
         updateSubscriptions();
     }
