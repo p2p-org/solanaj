@@ -40,7 +40,7 @@ public class Message {
     private String recentBlockhash;
     private AccountKeysList accountKeys;
     private List<TransactionInstruction> instructions;
-    private Account feePayer;
+    private PublicKey feePayer;
 
     public Message() {
         this.accountKeys = new AccountKeysList();
@@ -142,18 +142,23 @@ public class Message {
         return out.array();
     }
 
-    protected void setFeePayer(Account feePayer) {
+    protected void setFeePayer(PublicKey feePayer) {
         this.feePayer = feePayer;
     }
 
     private List<AccountMeta> getAccountKeys() {
         List<AccountMeta> keysList = accountKeys.getList();
-        int feePayerIndex = findAccountIndex(keysList, feePayer.getPublicKey());
+        int feePayerIndex = findAccountIndex(keysList, feePayer);
 
         List<AccountMeta> newList = new ArrayList<AccountMeta>();
-        AccountMeta feePayerMeta = keysList.get(feePayerIndex);
-        newList.add(new AccountMeta(feePayerMeta.getPublicKey(), true, true));
-        keysList.remove(feePayerIndex);
+
+        if (feePayerIndex != -1) {
+            AccountMeta feePayerMeta = keysList.get(feePayerIndex);
+            newList.add(new AccountMeta(feePayerMeta.getPublicKey(), true, true));
+            keysList.remove(feePayerIndex);
+        } else {
+            newList.add(new AccountMeta(feePayer, true, true));
+        }
         newList.addAll(keysList);
 
         return newList;
@@ -166,6 +171,6 @@ public class Message {
             }
         }
 
-        throw new RuntimeException("unable to find account index");
+        return -1;
     }
 }

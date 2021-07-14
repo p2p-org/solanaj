@@ -16,6 +16,7 @@ public class Transaction {
     private Message messgae;
     private List<String> signatures;
     private byte[] serializedMessage;
+    private PublicKey feePayer;
 
     public Transaction() {
         this.messgae = new Message();
@@ -32,6 +33,10 @@ public class Transaction {
         messgae.setRecentBlockHash(recentBlockhash);
     }
 
+    public void setFeePayer(PublicKey feePayer) {
+        this.feePayer = feePayer;
+    }
+
     public void sign(Account signer) {
         sign(Arrays.asList(signer));
     }
@@ -42,7 +47,9 @@ public class Transaction {
             throw new IllegalArgumentException("No signers");
         }
 
-        Account feePayer = signers.get(0);
+        if (feePayer == null) {
+            feePayer = signers.get(0).getPublicKey();
+        }
         messgae.setFeePayer(feePayer);
 
         serializedMessage = messgae.serialize();
@@ -72,5 +79,13 @@ public class Transaction {
         out.put(serializedMessage);
 
         return out.array();
+    }
+
+    public String getSignature() {
+        if (signatures.size() > 0) {
+            return signatures.get(0);
+        }
+
+        return null;
     }
 }
