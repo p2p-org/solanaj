@@ -16,7 +16,8 @@ public class AccountKeysList {
         String key = accountMeta.getPublicKey().toString();
 
         if (accounts.containsKey(key)) {
-            if (!accounts.get(key).isWritable() && accountMeta.isWritable()) {
+            if ((!accounts.get(key).isWritable() && accountMeta.isWritable())
+                    || (!accounts.get(key).isSigner() && accountMeta.isSigner())) {
                 accounts.put(key, accountMeta);
             }
         } else {
