@@ -41,16 +41,21 @@ public class Message {
     private AccountKeysList accountKeys;
     private List<TransactionInstruction> instructions;
     private PublicKey feePayer;
+    private List<String> programIds;
 
     public Message() {
+        this.programIds = new ArrayList<String>();
         this.accountKeys = new AccountKeysList();
         this.instructions = new ArrayList<TransactionInstruction>();
     }
 
     public Message addInstruction(TransactionInstruction instruction) {
         accountKeys.addAll(instruction.getKeys());
-        accountKeys.add(new AccountMeta(instruction.getProgramId(), false, false));
         instructions.add(instruction);
+
+        if (!programIds.contains(instruction.getProgramId().toBase58())) {
+            programIds.add(instruction.getProgramId().toBase58());
+        }
 
         return this;
     }
@@ -71,6 +76,9 @@ public class Message {
 
         messageHeader = new MessageHeader();
 
+        for (String programId : programIds) {
+            accountKeys.add(new AccountMeta(new PublicKey(programId), false, false));
+        }
         List<AccountMeta> keysList = getAccountKeys();
         int accountKeysSize = keysList.size();
 
@@ -84,11 +92,13 @@ public class Message {
 
             byte[] keyIndices = new byte[keysSize];
             for (int i = 0; i < keysSize; i++) {
-                keyIndices[i] = (byte) findAccountIndex(keysList, instruction.getKeys().get(i).getPublicKey());
+                keyIndices[i] = (byte) AccountMeta.findAccountIndex(keysList,
+                        instruction.getKeys().get(i).getPublicKey());
             }
 
             CompiledInstruction compiledInstruction = new CompiledInstruction();
-            compiledInstruction.programIdIndex = (byte) findAccountIndex(keysList, instruction.getProgramId());
+            compiledInstruction.programIdIndex = (byte) AccountMeta.findAccountIndex(keysList,
+                    instruction.getProgramId());
             compiledInstruction.keyIndicesCount = ShortvecEncoding.encodeLength(keysSize);
             compiledInstruction.keyIndices = keyIndices;
             compiledInstruction.dataLength = ShortvecEncoding.encodeLength(instruction.getData().length);
@@ -148,7 +158,7 @@ public class Message {
 
     private List<AccountMeta> getAccountKeys() {
         List<AccountMeta> keysList = accountKeys.getList();
-        int feePayerIndex = findAccountIndex(keysList, feePayer);
+        int feePayerIndex = AccountMeta.findAccountIndex(keysList, feePayer);
 
         List<AccountMeta> newList = new ArrayList<AccountMeta>();
 
@@ -164,13 +174,4 @@ public class Message {
         return newList;
     }
 
-    private int findAccountIndex(List<AccountMeta> accountMetaList, PublicKey key) {
-        for (int i = 0; i < accountMetaList.size(); i++) {
-            if (accountMetaList.get(i).getPublicKey().equals(key)) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
 }

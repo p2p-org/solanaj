@@ -3,39 +3,42 @@ package org.p2p.solanaj.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.List;
 
 public class AccountKeysList {
-    private HashMap<String, AccountMeta> accounts;
+    private List<AccountMeta> accountsList;
 
     public AccountKeysList() {
-        accounts = new HashMap<String, AccountMeta>();
+        accountsList = new ArrayList<AccountMeta>();
     }
 
     public void add(AccountMeta accountMeta) {
-        String key = accountMeta.getPublicKey().toString();
-
-        if (accounts.containsKey(key)) {
-            if ((!accounts.get(key).isWritable() && accountMeta.isWritable())
-                    || (!accounts.get(key).isSigner() && accountMeta.isSigner())) {
-                accounts.put(key, accountMeta);
-            }
-        } else {
-            accounts.put(key, accountMeta);
-        }
+        accountsList.add(accountMeta);
     }
 
     public void addAll(Collection<AccountMeta> metas) {
-        for (AccountMeta meta : metas) {
-            add(meta);
-        }
+        accountsList.addAll(metas);
     }
 
-    public ArrayList<AccountMeta> getList() {
-        ArrayList<AccountMeta> accountKeysList = new ArrayList<AccountMeta>(accounts.values());
-        accountKeysList.sort(metaComparator);
+    public List<AccountMeta> getList() {
+        ArrayList<AccountMeta> uniqueMetas = new ArrayList<AccountMeta>();
 
-        return accountKeysList;
+        for (AccountMeta accountMeta : accountsList) {
+            PublicKey pubKey = accountMeta.getPublicKey();
+
+            int index = AccountMeta.findAccountIndex(uniqueMetas, pubKey);
+            if (index > -1) {
+                uniqueMetas.set(index,
+                        new AccountMeta(pubKey, accountsList.get(index).isSigner() || accountMeta.isSigner(),
+                                accountsList.get(index).isWritable() || accountMeta.isWritable()));
+            } else {
+                uniqueMetas.add(accountMeta);
+            }
+        }
+
+        uniqueMetas.sort(metaComparator);
+
+        return uniqueMetas;
     }
 
     private static final Comparator<AccountMeta> metaComparator = new Comparator<AccountMeta>() {
@@ -53,7 +56,7 @@ public class AccountKeysList {
                 return cmpkWritable;
             }
 
-            return Integer.compare(cmpSigner, cmpkWritable);
+            return 0;
         }
     };
 
