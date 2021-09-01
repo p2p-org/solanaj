@@ -34,4 +34,14 @@ public class AccountMeta {
 
         return -1;
     }
+    public static AccountMeta findAccount(List<AccountMeta> accountMetaList, PublicKey key){
+        AccountMeta findOne =null;
+        for (int i = 0; i < accountMetaList.size(); i++) {
+            if(accountMetaList.get(i).getPublicKey().equals(key)){
+                findOne = accountMetaList.get(i);
+                break;
+            }
+        }
+        return findOne;
+    }
 }
