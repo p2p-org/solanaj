@@ -1,25 +1,33 @@
 package org.p2p.solanaj.core;
 
-import org.junit.Test;
-import org.p2p.solanaj.core.PublicKey.ProgramDerivedAddress;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.p2p.solanaj.core.PublicKey.ProgramDerivedAddress;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-public class PublicKeyTest {
+class PublicKeyTest {
 
-    @Test(expected = IllegalArgumentException.class)
-    public void ivalidKeys() {
-        new PublicKey(new byte[] { 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0 });
-        new PublicKey("300000000000000000000000000000000000000000000000000000000000000000000");
-        new PublicKey("300000000000000000000000000000000000000000000000000000000000000");
+    @Test
+    void ivalidKeys() {
+        assertThrows(IllegalArgumentException.class, () -> new PublicKey(
+            new byte[]{3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0,
+                0, 0, 0, 0, 0}));
+        assertThrows(IllegalArgumentException.class, () -> new PublicKey(
+            "300000000000000000000000000000000000000000000000000000000000000000000"));
+        assertThrows(IllegalArgumentException.class,
+            () -> new PublicKey("300000000000000000000000000000000000000000000000000000000000000"));
     }
 
     @Test
-    public void validKeys() {
+    void validKeys() {
         PublicKey key = new PublicKey(new byte[] { 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, });
         assertEquals("CiDwVBFgWV9E5MvXWoLgnEgn2hK7rJikbvfWavzAQz3", key.toString());
@@ -37,7 +45,7 @@ public class PublicKeyTest {
     }
 
     @Test
-    public void equals() {
+    void equals() {
         PublicKey key = new PublicKey("11111111111111111111111111111111");
         assertTrue(key.equals(key));
 
@@ -45,7 +53,7 @@ public class PublicKeyTest {
     }
 
     @Test
-    public void readPubkey() {
+    void readPubkey() {
         PublicKey key = new PublicKey("11111111111111111111111111111111");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -57,7 +65,7 @@ public class PublicKeyTest {
     }
 
     @Test
-    public void createProgramAddress() throws Exception {
+    void createProgramAddress() throws Exception {
         PublicKey programId = new PublicKey("BPFLoader1111111111111111111111111111111111");
 
         PublicKey programAddress = PublicKey.createProgramAddress(
@@ -79,7 +87,7 @@ public class PublicKeyTest {
     }
 
     @Test
-    public void findProgramAddress() throws Exception {
+    void findProgramAddress() throws Exception {
         PublicKey programId = new PublicKey("BPFLoader1111111111111111111111111111111111");
 
         ProgramDerivedAddress programAddress = PublicKey.findProgramAddress(Arrays.asList("".getBytes()), programId);
@@ -89,7 +97,7 @@ public class PublicKeyTest {
     }
 
     @Test
-    public void findProgramAddress1() throws Exception {
+    void findProgramAddress1() throws Exception {
         PublicKey programId = new PublicKey("6Cust2JhvweKLh4CVo1dt21s2PJ86uNGkziudpkNPaCj");
         PublicKey programId2 = new PublicKey("BPFLoader1111111111111111111111111111111111");
 
