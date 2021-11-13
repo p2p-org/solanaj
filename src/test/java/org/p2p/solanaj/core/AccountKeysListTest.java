@@ -1,17 +1,17 @@
 package org.p2p.solanaj.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.p2p.solanaj.programs.SystemProgram;
 
-public class AccountKeysListTest {
+class AccountKeysListTest {
 
     @Test
-    public void getSortedList() {
+    void getSortedList() {
         AccountKeysList list = new AccountKeysList();
 
         list.addAll(

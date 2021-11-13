@@ -1,17 +1,18 @@
 package org.p2p.solanaj.programs;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.bitcoinj.core.Base58;
 
-public class SystemProgramTest {
+class SystemProgramTest {
 
     @Test
-    public void transferInstruction() {
+    void transferInstruction() {
         PublicKey fromPublicKey = new PublicKey("QqCCvshxtqMAL2CVALqiJB7uEeE5mjSPsseQdDzsRUo");
         PublicKey toPublickKey = new PublicKey("GrDMoeqMLFjeXQ24H56S1RLgT4R76jsuWCd6SvXyGPQ5");
         int lamports = 3000;
@@ -26,7 +27,7 @@ public class SystemProgramTest {
     }
 
     @Test
-    public void createAccountInstruction() {
+    void createAccountInstruction() {
         TransactionInstruction instruction = SystemProgram.createAccount(SystemProgram.PROGRAM_ID,
                 SystemProgram.PROGRAM_ID, 2039280, 165, SystemProgram.PROGRAM_ID);
 

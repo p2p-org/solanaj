@@ -1,16 +1,18 @@
 package org.p2p.solanaj.utils;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import org.junit.jupiter.api.Test;
 
-public class ByteUtilsTest {
+class ByteUtilsTest {
 
     @Test
-    public void readBytes() {
+    void readBytes() {
         byte[] buf = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
         assertArrayEquals(new byte[] { 1, 2, 3, 4 }, ByteUtils.readBytes(buf, 0, 4));
@@ -18,7 +20,7 @@ public class ByteUtilsTest {
     }
 
     @Test
-    public void readUint64() throws IOException {
+    void readUint64() throws IOException {
         String bigIntValue = "96351551052682965";
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -29,13 +31,12 @@ public class ByteUtilsTest {
         assertEquals(bigIntValue, bn.toString());
     }
 
-    @Test(expected = RuntimeException.class)
-    public void uint64ToByteStreamLE() {
+    @Test
+    void uint64ToByteStreamLE() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            ByteUtils.uint64ToByteStreamLE(new BigInteger("137001898677442802701"), bos);
-        } catch (IOException e) {
-        }
+        assertThrows(RuntimeException.class,
+                () -> ByteUtils.uint64ToByteStreamLE(new BigInteger("137001898677442802701"), bos));
+
     }
 
 }
