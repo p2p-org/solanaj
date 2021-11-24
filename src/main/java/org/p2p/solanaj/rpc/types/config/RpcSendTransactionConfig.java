@@ -5,7 +5,7 @@ import com.squareup.moshi.Json;
 public class RpcSendTransactionConfig {
 
     public static enum Encoding {
-        base64("base64");
+        base64("base64"), jsonParsed("jsonParsed");
 
         private String enc;
 
