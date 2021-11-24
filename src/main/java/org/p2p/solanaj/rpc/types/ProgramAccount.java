@@ -35,12 +35,13 @@ public class ProgramAccount {
         private double rentEpoch;
 
         private String encoding;
+        private Object rawData;
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
         public Account(Object acc) {
             AbstractMap account = (AbstractMap) acc;
 
-            Object rawData = account.get("data");
+            this.rawData = account.get("data");
             if (rawData instanceof List) {
                 List<String> dataList = ((List<String>) rawData);
 
@@ -62,6 +63,10 @@ public class ProgramAccount {
             }
 
             return Base58.decode(data);
+        }
+
+        public Object getRawData() {
+            return rawData;
         }
     }
 
