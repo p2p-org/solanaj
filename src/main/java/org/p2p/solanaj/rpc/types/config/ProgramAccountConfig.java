@@ -19,4 +19,9 @@ public class ProgramAccountConfig {
     public ProgramAccountConfig(Encoding encoding) {
         this.encoding = encoding;
     }
+
+    public ProgramAccountConfig(Encoding encoding, List<Object> filters) {
+        this.encoding = encoding;
+        this.filters = filters;
+    }
 }
