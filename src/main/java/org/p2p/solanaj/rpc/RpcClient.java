@@ -45,6 +45,12 @@ public class RpcClient {
         rpcApi = new RpcApi(this);
     }
 
+    public RpcClient(String endpoint, OkHttpClient httpClient) {
+        this.endpoint = endpoint;
+        this.httpClient = httpClient;
+        rpcApi = new RpcApi(this);
+    }
+
     public <T> T call(String method, List<Object> params, Class<T> clazz) throws RpcException {
         RpcRequest rpcRequest = new RpcRequest(method, params);
 
