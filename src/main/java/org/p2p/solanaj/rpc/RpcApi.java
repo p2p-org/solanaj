@@ -461,6 +461,12 @@ public class RpcApi {
                 Commitment commitment = (Commitment) optionalParams.get("commitment");
                 blockConfig.setCommitment(commitment.getValue());
             }
+            if (optionalParams.containsKey("transactionDetails")) {
+                blockConfig.setTransactionDetails((String) optionalParams.get("transactionDetails"));
+            }
+            if (optionalParams.containsKey("rewards")) {
+                blockConfig.setRewards((Boolean) optionalParams.get("rewards"));
+            }
             params.add(blockConfig);
         }
 
