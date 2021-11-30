@@ -64,7 +64,11 @@ public class RpcApi {
         transaction.setRecentBlockHash(recentBlockHash);
         transaction.sign(signers);
         byte[] serializedTransaction = transaction.serialize();
+        return sendTransaction(serializedTransaction);
+    }
 
+    public String sendTransaction(byte[] serializedTransaction)
+            throws RpcException {
         String base64Trx = Base64.getEncoder().encodeToString(serializedTransaction);
 
         List<Object> params = new ArrayList<Object>();
