@@ -1,5 +1,6 @@
 package org.p2p.solanaj.rpc;
 
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -21,6 +22,25 @@ import org.p2p.solanaj.rpc.types.WeightedEndpoint;
 
 import javax.net.ssl.*;
 
+class XAuthTokenInterceptor implements Interceptor {
+    private String authToken;
+
+    public XAuthTokenInterceptor(String authToken) {
+        this.authToken = authToken;
+    }
+
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        Request.Builder builder = chain.request().newBuilder();
+
+        if (authToken != null && !authToken.isEmpty()) {
+            builder.addHeader("X-Auth-Token", authToken);
+        }
+
+        return chain.proceed(builder.build());
+    }
+}
+
 public class RpcClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private String endpoint;
@@ -33,14 +53,15 @@ public class RpcClient {
     }
 
     public RpcClient(Cluster endpoint) {
-        this(endpoint.getEndpoint());
+        this(endpoint.getEndpoint(), "");
     }
 
-    public RpcClient(String endpoint) {
+    public RpcClient(String endpoint, String authToken) {
         this.endpoint = endpoint;
         this.httpClient = new OkHttpClient.Builder()
                 .readTimeout(20, TimeUnit.SECONDS)
                 //.addInterceptor(new LoggingInterceptor())
+                .addInterceptor(new XAuthTokenInterceptor(authToken))
                 .build();
         rpcApi = new RpcApi(this);
     }
