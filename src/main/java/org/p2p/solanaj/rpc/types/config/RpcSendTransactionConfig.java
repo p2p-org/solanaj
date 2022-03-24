@@ -1,7 +1,9 @@
 package org.p2p.solanaj.rpc.types.config;
 
 import com.squareup.moshi.Json;
+import lombok.Setter;
 
+@Setter
 public class RpcSendTransactionConfig {
 
     public static enum Encoding {
