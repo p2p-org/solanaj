@@ -27,4 +27,6 @@ public class RpcSendTransactionConfig {
     @Json(name ="skipPreflight")
     private boolean skipPreFlight = true;
 
+    @Json(name = "preflightCommitment")
+    private String preflightCommitment = Commitment.FINALIZED.getValue();
 }

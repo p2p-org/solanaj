@@ -64,10 +64,10 @@ public class RpcApi {
         transaction.setRecentBlockHash(recentBlockHash);
         transaction.sign(signers);
         byte[] serializedTransaction = transaction.serialize();
-        return sendTransaction(serializedTransaction, true);
+        return sendTransaction(serializedTransaction, true, null);
     }
 
-    public String sendTransaction(byte[] serializedTransaction, boolean skipPreFlight)
+    public String sendTransaction(byte[] serializedTransaction, boolean skipPreFlight, Commitment preflightCommitment)
             throws RpcException {
         String base64Trx = Base64.getEncoder().encodeToString(serializedTransaction);
 
@@ -75,6 +75,9 @@ public class RpcApi {
 
         RpcSendTransactionConfig config = new RpcSendTransactionConfig();
         config.setSkipPreFlight(skipPreFlight);
+        if (!skipPreFlight && null != preflightCommitment) {
+            config.setPreflightCommitment(preflightCommitment.getValue());
+        }
         params.add(base64Trx);
         params.add(config);
 
