@@ -32,6 +32,8 @@ public class Transaction {
         message.setRecentBlockHash(recentBlockhash);
     }
 
+    public Message getMessage() { return message; }
+
     public List<String> getSignatures() {
         return signatures;
     }

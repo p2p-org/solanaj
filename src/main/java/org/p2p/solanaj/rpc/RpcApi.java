@@ -395,6 +395,19 @@ public class RpcApi {
         return client.call("getFees", params, FeesInfo.class);
     }
 
+    public ValueLong getFeeForMessage(byte[] serializedMessage, Commitment commitment)
+            throws RpcException {
+        String base64Message = Base64.getEncoder().encodeToString(serializedMessage);
+
+        List<Object> params = new ArrayList<Object>();
+        params.add(base64Message);
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
+        return client.call("getFeeForMessage", params, ValueLong.class);
+    }
+
     public long getTransactionCount() throws RpcException {
         return getTransactionCount(null);
     }
