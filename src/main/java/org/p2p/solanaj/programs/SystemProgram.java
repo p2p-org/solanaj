@@ -1,12 +1,13 @@
 package org.p2p.solanaj.programs;
 
-import java.util.ArrayList;
-
+import org.p2p.solanaj.core.AccountMeta;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
-import org.p2p.solanaj.core.AccountMeta;
 
-import static org.bitcoinj.core.Utils.*;
+import java.util.ArrayList;
+
+import static org.bitcoinj.core.Utils.int64ToByteArrayLE;
+import static org.bitcoinj.core.Utils.uint32ToByteArrayLE;
 
 public class SystemProgram {
     public static final PublicKey PROGRAM_ID = new PublicKey("11111111111111111111111111111111");
@@ -28,7 +29,7 @@ public class SystemProgram {
     }
 
     public static TransactionInstruction createAccount(PublicKey fromPublicKey, PublicKey newAccountPublikkey,
-            long lamports, long space, PublicKey programId) {
+                                                       long lamports, long space, PublicKey programId) {
         ArrayList<AccountMeta> keys = new ArrayList<AccountMeta>();
         keys.add(new AccountMeta(fromPublicKey, true, true));
         keys.add(new AccountMeta(newAccountPublikkey, true, true));

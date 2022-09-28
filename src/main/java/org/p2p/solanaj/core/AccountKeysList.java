@@ -6,10 +6,10 @@ import java.util.Comparator;
 import java.util.List;
 
 public class AccountKeysList {
-    private List<AccountMeta> accountsList;
+    private final List<AccountMeta> accountsList;
 
     public AccountKeysList() {
-        accountsList = new ArrayList<AccountMeta>();
+        accountsList = new ArrayList<>();
     }
 
     public void add(AccountMeta accountMeta) {
@@ -21,7 +21,7 @@ public class AccountKeysList {
     }
 
     public List<AccountMeta> getList() {
-        ArrayList<AccountMeta> uniqueMetas = new ArrayList<AccountMeta>();
+        ArrayList<AccountMeta> uniqueMetas = new ArrayList<>();
 
         for (AccountMeta accountMeta : accountsList) {
             PublicKey pubKey = accountMeta.getPublicKey();
@@ -41,23 +41,14 @@ public class AccountKeysList {
         return uniqueMetas;
     }
 
-    private static final Comparator<AccountMeta> metaComparator = new Comparator<AccountMeta>() {
+    private static final Comparator<AccountMeta> metaComparator = (am1, am2) -> {
 
-        @Override
-        public int compare(AccountMeta am1, AccountMeta am2) {
-
-            int cmpSigner = am1.isSigner() == am2.isSigner() ? 0 : am1.isSigner() ? -1 : 1;
-            if (cmpSigner != 0) {
-                return cmpSigner;
-            }
-
-            int cmpkWritable = am1.isWritable() == am2.isWritable() ? 0 : am1.isWritable() ? -1 : 1;
-            if (cmpkWritable != 0) {
-                return cmpkWritable;
-            }
-
-            return 0;
+        int cmpSigner = am1.isSigner() == am2.isSigner() ? 0 : am1.isSigner() ? -1 : 1;
+        if (cmpSigner != 0) {
+            return cmpSigner;
         }
+
+        return am1.isWritable() == am2.isWritable() ? 0 : am1.isWritable() ? -1 : 1;
     };
 
 }

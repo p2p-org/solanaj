@@ -1,16 +1,14 @@
 package org.p2p.solanaj.rpc.types;
 
-import java.util.List;
-
 import com.squareup.moshi.Json;
 
-import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
+import java.util.List;
 
 public class ConfigObjects {
 
     public static class ConfirmedSignFAddr2 {
         @Json(name = "limit")
-        private long limit;
+        private final long limit;
         @Json(name = "before")
         private String before;
         @Json(name = "until")
@@ -52,7 +50,7 @@ public class ConfigObjects {
 
     public static class ProgramAccountConfig {
         @Json(name = "encoding")
-        private Encoding encoding = null;
+        private RpcSendTransactionConfig.Encoding encoding = null;
         @Json(name = "filters")
         private List<Object> filters = null;
 
@@ -63,7 +61,7 @@ public class ConfigObjects {
             this.filters = filters;
         }
 
-        public ProgramAccountConfig(Encoding encoding) {
+        public ProgramAccountConfig(RpcSendTransactionConfig.Encoding encoding) {
             this.encoding = encoding;
         }
 

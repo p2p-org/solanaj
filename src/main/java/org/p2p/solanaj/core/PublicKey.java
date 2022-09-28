@@ -1,20 +1,20 @@
 package org.p2p.solanaj.core;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.Sha256Hash;
 import org.p2p.solanaj.utils.ByteUtils;
 import org.p2p.solanaj.utils.TweetNaclFast;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class PublicKey {
 
     public static final int PUBLIC_KEY_LENGTH = 32;
 
-    private byte[] pubkey;
+    private final byte[] pubkey;
 
     public PublicKey(String pubkey) {
         if (pubkey.length() < PUBLIC_KEY_LENGTH) {
@@ -54,6 +54,17 @@ public class PublicKey {
         return toBase58();
     }
 
+    public static ByteArrayOutputStream writeBytes(byte[] input, ByteArrayOutputStream byteArrayOutputStream) {
+        if (byteArrayOutputStream == null) {
+            byteArrayOutputStream = new ByteArrayOutputStream();
+        }
+        for (byte item : input) {
+            byteArrayOutputStream.write(item);
+        }
+
+        return byteArrayOutputStream;
+    }
+
     public static PublicKey createProgramAddress(List<byte[]> seeds, PublicKey programId) throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -62,11 +73,11 @@ public class PublicKey {
                 throw new IllegalArgumentException("Max seed length exceeded");
             }
 
-            buffer.writeBytes(seed);
+            PublicKey.writeBytes(seed, buffer);
         }
 
-        buffer.writeBytes(programId.toByteArray());
-        buffer.writeBytes("ProgramDerivedAddress".getBytes());
+        PublicKey.writeBytes(programId.toByteArray(), buffer);
+        PublicKey.writeBytes("ProgramDerivedAddress".getBytes(), buffer);
 
         byte[] hash = Sha256Hash.hash(buffer.toByteArray());
 
@@ -78,8 +89,8 @@ public class PublicKey {
     }
 
     public static class ProgramDerivedAddress {
-        private PublicKey address;
-        private int nonce;
+        private final PublicKey address;
+        private final int nonce;
 
         public ProgramDerivedAddress(PublicKey address, int nonce) {
             this.address = address;
@@ -100,12 +111,11 @@ public class PublicKey {
         int nonce = 255;
         PublicKey address;
 
-        List<byte[]> seedsWithNonce = new ArrayList<byte[]>();
-        seedsWithNonce.addAll(seeds);
+        List<byte[]> seedsWithNonce = new ArrayList<>(seeds);
 
         while (nonce != 0) {
             try {
-                seedsWithNonce.add(new byte[] { (byte) nonce });
+                seedsWithNonce.add(new byte[]{(byte) nonce});
                 address = createProgramAddress(seedsWithNonce, programId);
             } catch (Exception e) {
                 seedsWithNonce.remove(seedsWithNonce.size() - 1);

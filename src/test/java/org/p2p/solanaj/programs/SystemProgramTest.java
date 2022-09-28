@@ -1,12 +1,12 @@
 package org.p2p.solanaj.programs;
 
+import org.bitcoinj.core.Base58;
+import org.junit.Test;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.core.TransactionInstruction;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import org.bitcoinj.core.Base58;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class SystemProgramTest {
 
@@ -22,7 +22,7 @@ public class SystemProgramTest {
         assertEquals(2, instruction.getKeys().size());
         assertEquals(toPublickKey, instruction.getKeys().get(1).getPublicKey());
 
-        assertArrayEquals(new byte[] { 2, 0, 0, 0, -72, 11, 0, 0, 0, 0, 0, 0 }, instruction.getData());
+        assertArrayEquals(new byte[]{2, 0, 0, 0, -72, 11, 0, 0, 0, 0, 0, 0}, instruction.getData());
     }
 
     @Test
