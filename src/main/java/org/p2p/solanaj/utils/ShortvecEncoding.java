@@ -1,6 +1,6 @@
 package org.p2p.solanaj.utils;
 
-import static org.bitcoinj.core.Utils.*;
+import static org.bitcoinj.core.Utils.uint16ToByteArrayLE;
 
 public class ShortvecEncoding {
 
@@ -9,7 +9,7 @@ public class ShortvecEncoding {
         int remLen = len;
         int cursor = 0;
 
-        for (;;) {
+        for (; ; ) {
             int elem = remLen & 0x7f;
             remLen >>= 7;
             if (remLen == 0) {

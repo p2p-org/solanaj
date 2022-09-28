@@ -1,16 +1,12 @@
 package org.p2p.solanaj.core;
 
-import java.util.List;
-
-import org.bitcoinj.crypto.DeterministicHierarchy;
-import org.bitcoinj.crypto.DeterministicKey;
-import org.bitcoinj.crypto.HDKeyDerivation;
-import org.bitcoinj.crypto.HDUtils;
-import org.bitcoinj.crypto.MnemonicCode;
+import org.bitcoinj.crypto.*;
 import org.p2p.solanaj.utils.TweetNaclFast;
 
+import java.util.List;
+
 public class Account {
-    private TweetNaclFast.Signature.KeyPair keyPair;
+    private final TweetNaclFast.Signature.KeyPair keyPair;
 
     public Account() {
         this.keyPair = TweetNaclFast.Signature.keyPair();

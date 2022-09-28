@@ -1,7 +1,7 @@
 package org.p2p.solanaj.ws;
 
 public class SignatureNotification {
-    private Object error;
+    private final Object error;
 
     public SignatureNotification(Object error) {
         this.error = error;

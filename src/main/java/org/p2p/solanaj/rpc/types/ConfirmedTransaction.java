@@ -1,8 +1,8 @@
 package org.p2p.solanaj.rpc.types;
 
-import java.util.List;
-
 import com.squareup.moshi.Json;
+
+import java.util.List;
 
 public class ConfirmedTransaction {
 
@@ -32,7 +32,7 @@ public class ConfirmedTransaction {
     public static class Instruction {
 
         @Json(name = "accounts")
-        private List<Long> accounts = null;
+        private final List<Long> accounts = null;
         @Json(name = "data")
         private String data;
         @Json(name = "programIdIndex")
@@ -55,11 +55,11 @@ public class ConfirmedTransaction {
     public static class Message {
 
         @Json(name = "accountKeys")
-        private List<String> accountKeys = null;
+        private final List<String> accountKeys = null;
         @Json(name = "header")
         private Header header;
         @Json(name = "instructions")
-        private List<Instruction> instructions = null;
+        private final List<Instruction> instructions = null;
         @Json(name = "recentBlockhash")
         private String recentBlockhash;
 
@@ -99,11 +99,11 @@ public class ConfirmedTransaction {
         @Json(name = "fee")
         private long fee;
         @Json(name = "innerInstructions")
-        private List<Object> innerInstructions = null;
+        private final List<Object> innerInstructions = null;
         @Json(name = "postBalances")
-        private List<Long> postBalances = null;
+        private final List<Long> postBalances = null;
         @Json(name = "preBalances")
-        private List<Long> preBalances = null;
+        private final List<Long> preBalances = null;
         @Json(name = "status")
         private Status status;
 
@@ -138,7 +138,7 @@ public class ConfirmedTransaction {
         @Json(name = "message")
         private Message message;
         @Json(name = "signatures")
-        private List<String> signatures = null;
+        private final List<String> signatures = null;
 
         public Message getMessage() {
             return message;

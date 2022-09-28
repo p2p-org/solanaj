@@ -1,8 +1,8 @@
 package org.p2p.solanaj.rpc.types;
 
-import java.util.AbstractMap;
-
 import com.squareup.moshi.Json;
+
+import java.util.AbstractMap;
 
 public class SignatureInformation {
     @Json(name = "err")
@@ -17,7 +17,7 @@ public class SignatureInformation {
     public SignatureInformation() {
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     public SignatureInformation(AbstractMap info) {
         this.err = info.get("err");
         this.memo = info.get("memo");

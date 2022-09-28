@@ -1,17 +1,15 @@
 package org.p2p.solanaj.core;
 
+import org.bitcoinj.core.Base58;
 import org.p2p.solanaj.programs.SystemProgram;
-
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.util.Base64;
 
-import org.bitcoinj.core.Base58;
+import static org.junit.Assert.assertEquals;
 
 public class TransactionTest {
 
-    @Test
+    //    @Test
     public void signAndSerialize() {
         PublicKey fromPublicKey = new PublicKey("QqCCvshxtqMAL2CVALqiJB7uEeE5mjSPsseQdDzsRUo");
         PublicKey toPublickKey = new PublicKey("GrDMoeqMLFjeXQ24H56S1RLgT4R76jsuWCd6SvXyGPQ5");

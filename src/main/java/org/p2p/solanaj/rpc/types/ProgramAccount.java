@@ -1,14 +1,12 @@
 package org.p2p.solanaj.rpc.types;
 
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Base64;
-
 import com.squareup.moshi.Json;
-
+import org.bitcoinj.core.Base58;
 import org.p2p.solanaj.rpc.types.RpcSendTransactionConfig.Encoding;
 
-import org.bitcoinj.core.Base58;
+import java.util.AbstractMap;
+import java.util.Base64;
+import java.util.List;
 
 public class ProgramAccount {
 
@@ -16,17 +14,17 @@ public class ProgramAccount {
         @Json(name = "data")
         private String data;
         @Json(name = "executable")
-        private boolean executable;
+        private final boolean executable;
         @Json(name = "lamports")
-        private double lamports;
+        private final double lamports;
         @Json(name = "owner")
-        private String owner;
+        private final String owner;
         @Json(name = "rentEpoch")
-        private double rentEpoch;
+        private final double rentEpoch;
 
         private String encoding;
 
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings({"rawtypes", "unchecked"})
         public Account(Object acc) {
             AbstractMap account = (AbstractMap) acc;
 
@@ -35,7 +33,7 @@ public class ProgramAccount {
                 List<String> dataList = ((List<String>) rawData);
 
                 this.data = dataList.get(0);
-                this.encoding = (String) dataList.get(1);
+                this.encoding = dataList.get(1);
             } else if (rawData instanceof String) {
                 this.data = (String) rawData;
             }
@@ -92,9 +90,9 @@ public class ProgramAccount {
     public ProgramAccount() {
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     public ProgramAccount(AbstractMap pa) {
-        this.account = (Account) new Account(pa.get("account"));
+        this.account = new Account(pa.get("account"));
         this.pubkey = (String) pa.get("pubkey");
     }
 }
