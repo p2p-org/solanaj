@@ -33,6 +33,20 @@ public class RpcApi {
         this.client = client;
     }
 
+    public String getLatestBlockhash() throws RpcException {
+        return getLatestBlockhash(null);
+    }
+
+    public String getLatestBlockhash(Commitment commitment) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
+        return client.call("getLatestBlockhash", params, LatestBlockhash.class).getValue().getBlockhash();
+    }
+
     public String getRecentBlockhash() throws RpcException {
         return getRecentBlockhash(null);
     }
@@ -64,10 +78,10 @@ public class RpcApi {
         transaction.setRecentBlockHash(recentBlockHash);
         transaction.sign(signers);
         byte[] serializedTransaction = transaction.serialize();
-        return sendTransaction(serializedTransaction, true);
+        return sendTransaction(serializedTransaction, true, null);
     }
 
-    public String sendTransaction(byte[] serializedTransaction, boolean skipPreFlight)
+    public String sendTransaction(byte[] serializedTransaction, boolean skipPreFlight, Commitment preflightCommitment)
             throws RpcException {
         String base64Trx = Base64.getEncoder().encodeToString(serializedTransaction);
 
@@ -75,6 +89,9 @@ public class RpcApi {
 
         RpcSendTransactionConfig config = new RpcSendTransactionConfig();
         config.setSkipPreFlight(skipPreFlight);
+        if (!skipPreFlight && null != preflightCommitment) {
+            config.setPreflightCommitment(preflightCommitment.getValue());
+        }
         params.add(base64Trx);
         params.add(config);
 
@@ -376,6 +393,19 @@ public class RpcApi {
         }
 
         return client.call("getFees", params, FeesInfo.class);
+    }
+
+    public ValueLong getFeeForMessage(byte[] serializedMessage, Commitment commitment)
+            throws RpcException {
+        String base64Message = Base64.getEncoder().encodeToString(serializedMessage);
+
+        List<Object> params = new ArrayList<Object>();
+        params.add(base64Message);
+        if (null != commitment) {
+            params.add(Map.of("commitment", commitment.getValue()));
+        }
+
+        return client.call("getFeeForMessage", params, ValueLong.class);
     }
 
     public long getTransactionCount() throws RpcException {
