@@ -500,6 +500,9 @@ public class RpcApi {
             if (optionalParams.containsKey("transactionDetails")) {
                 blockConfig.setTransactionDetails((String) optionalParams.get("transactionDetails"));
             }
+            if (optionalParams.containsKey("maxSupportedTransactionVersion")) {
+                blockConfig.setMaxSupportedTransactionVersion((int) optionalParams.get("maxSupportedTransactionVersion"));
+            }
             if (optionalParams.containsKey("rewards")) {
                 blockConfig.setRewards((Boolean) optionalParams.get("rewards"));
             }

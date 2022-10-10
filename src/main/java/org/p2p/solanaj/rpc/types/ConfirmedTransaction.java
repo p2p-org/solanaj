@@ -125,4 +125,7 @@ public class ConfirmedTransaction {
 
     @Json(name = "transaction")
     private Transaction transaction;
+
+    @Json(name = "version")
+    private String version;
 }
