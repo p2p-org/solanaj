@@ -20,7 +20,6 @@ public class AccountInfo extends RpcResultObject {
             this.executable = (boolean) am.get("executable");
             this.lamports = (long) (double) am.get("lamports");
             this.owner = (String) am.get("owner");
-            this.rentEpoch = (long) (double) am.get("rentEpoch");
         }
 
         @Json(name = "data")
@@ -34,9 +33,6 @@ public class AccountInfo extends RpcResultObject {
 
         @Json(name = "owner")
         private String owner;
-
-        @Json(name = "rentEpoch")
-        private long rentEpoch;
     }
 
     @Json(name = "value")
