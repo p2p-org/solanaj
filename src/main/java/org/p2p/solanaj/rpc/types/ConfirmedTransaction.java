@@ -156,6 +156,8 @@ public class ConfirmedTransaction {
     private long slot;
     @Json(name = "transaction")
     private Transaction transaction;
+    @Json(name = "blockTime")
+    private long blockTime;
 
     public Meta getMeta() {
         return meta;
@@ -167,6 +169,10 @@ public class ConfirmedTransaction {
 
     public Transaction getTransaction() {
         return transaction;
+    }
+
+    public long getBlockTime() {
+        return blockTime;
     }
 
 }
