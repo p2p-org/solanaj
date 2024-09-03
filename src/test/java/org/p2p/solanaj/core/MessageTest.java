@@ -1,20 +1,20 @@
 package org.p2p.solanaj.core;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
 import org.bitcoinj.core.Base58;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.p2p.solanaj.programs.SystemProgram;
 
-import static org.junit.Assert.assertArrayEquals;
-
-public class MessageTest {
+class MessageTest {
 
     @Test
-    public void serializeMessage() {
+    void serializeMessage() {
         PublicKey fromPublicKey = new PublicKey("QqCCvshxtqMAL2CVALqiJB7uEeE5mjSPsseQdDzsRUo");
         PublicKey toPublickKey = new PublicKey("GrDMoeqMLFjeXQ24H56S1RLgT4R76jsuWCd6SvXyGPQ5");
         int lamports = 3000;
 
-        Account signer = new Account(Base58
+        PublicKey signer = new PublicKey(Base58
                 .decode("4Z7cXSyeFR8wNGMVXUE1TwtKn5D5Vu7FzEv69dokLv7KrQk7h6pu4LF8ZRR9yQBhc7uSM6RTTZtU1fmaxiNrxXrs"));
 
         Message message = new Message();

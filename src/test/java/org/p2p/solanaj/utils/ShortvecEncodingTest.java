@@ -1,12 +1,13 @@
 package org.p2p.solanaj.utils;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class ShortvecEncodingTest {
+import org.junit.jupiter.api.Test;
+
+class ShortvecEncodingTest {
 
     @Test
-    public void encodeLength() {
+    void encodeLength() {
         assertArrayEquals(new byte[] { 0 } /* [0] */, ShortvecEncoding.encodeLength(0));
         assertArrayEquals(new byte[] { 1 } /* [1] */, ShortvecEncoding.encodeLength(1));
         assertArrayEquals(new byte[] { 5 } /* [5] */, ShortvecEncoding.encodeLength(5));
