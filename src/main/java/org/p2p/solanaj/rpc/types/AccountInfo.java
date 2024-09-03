@@ -1,14 +1,14 @@
 package org.p2p.solanaj.rpc.types;
 
-import java.util.List;
-
 import com.squareup.moshi.Json;
+
+import java.util.List;
 
 public class AccountInfo extends RpcResultObject {
 
     public static class Value {
         @Json(name = "data")
-        private List<String> data = null;
+        private final List<String> data = null;
         @Json(name = "executable")
         private boolean executable;
         @Json(name = "lamports")

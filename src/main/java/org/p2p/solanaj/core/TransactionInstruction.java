@@ -4,9 +4,9 @@ import java.util.List;
 
 public class TransactionInstruction {
 
-    private List<AccountMeta> keys;
-    private PublicKey programId;
-    private byte[] data;
+    private final List<AccountMeta> keys;
+    private final PublicKey programId;
+    private final byte[] data;
 
     public TransactionInstruction(PublicKey programId, List<AccountMeta> keys, byte[] data) {
         this.programId = programId;

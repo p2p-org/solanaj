@@ -1,22 +1,21 @@
 package org.p2p.solanaj.ws;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
-
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.p2p.solanaj.rpc.types.RpcNotificationResult;
 import org.p2p.solanaj.rpc.types.RpcRequest;
 import org.p2p.solanaj.rpc.types.RpcResponse;
 import org.p2p.solanaj.ws.listeners.NotificationEventListener;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SubscriptionWebSocketClient extends WebSocketClient {
 
@@ -32,9 +31,9 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
 
     private static SubscriptionWebSocketClient instance;
 
-    private Map<String, SubscriptionParams> subscriptions = new HashMap<>();
-    private Map<String, Long> subscriptionIds = new HashMap<>();
-    private Map<Long, NotificationEventListener> subscriptionLinsteners = new HashMap<>();
+    private final Map<String, SubscriptionParams> subscriptions = new HashMap<>();
+    private final Map<String, Long> subscriptionIds = new HashMap<>();
+    private final Map<Long, NotificationEventListener> subscriptionLinsteners = new HashMap<>();
 
     public static SubscriptionWebSocketClient getInstance(String endpoint) {
         URI endpointURI;
@@ -93,7 +92,7 @@ public class SubscriptionWebSocketClient extends WebSocketClient {
         updateSubscriptions();
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     @Override
     public void onMessage(String message) {
         JsonAdapter<RpcResponse<Long>> resultAdapter = new Moshi.Builder().build()

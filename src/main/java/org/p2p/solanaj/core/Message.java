@@ -1,15 +1,14 @@
 package org.p2p.solanaj.core;
 
+import org.bitcoinj.core.Base58;
+import org.p2p.solanaj.utils.ShortvecEncoding;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bitcoinj.core.Base58;
-
-import org.p2p.solanaj.utils.ShortvecEncoding;
-
 public class Message {
-    private class MessageHeader {
+    private static class MessageHeader {
         static final int HEADER_LENGTH = 3;
 
         byte numRequiredSignatures = 0;
@@ -17,11 +16,11 @@ public class Message {
         byte numReadonlyUnsignedAccounts = 0;
 
         byte[] toByteArray() {
-            return new byte[] { numRequiredSignatures, numReadonlySignedAccounts, numReadonlyUnsignedAccounts };
+            return new byte[]{numRequiredSignatures, numReadonlySignedAccounts, numReadonlyUnsignedAccounts};
         }
     }
 
-    private class CompiledInstruction {
+    private static class CompiledInstruction {
         byte programIdIndex;
         byte[] keyIndicesCount;
         byte[] keyIndices;
@@ -38,24 +37,24 @@ public class Message {
 
     private MessageHeader messageHeader;
     private String recentBlockhash;
-    private AccountKeysList accountKeys;
-    private List<TransactionInstruction> instructions;
-    private PublicKey feePayer;
-    private List<String> programIds;
+    private final AccountKeysList accountKeys;
+
+    public List<TransactionInstruction> getInstructions() {
+        return instructions;
+    }
+
+    private final List<TransactionInstruction> instructions;
+    private Account feePayer;
 
     public Message() {
-        this.programIds = new ArrayList<String>();
         this.accountKeys = new AccountKeysList();
-        this.instructions = new ArrayList<TransactionInstruction>();
+        this.instructions = new ArrayList<>();
     }
 
     public Message addInstruction(TransactionInstruction instruction) {
         accountKeys.addAll(instruction.getKeys());
+        accountKeys.add(new AccountMeta(instruction.getProgramId(), false, false));
         instructions.add(instruction);
-
-        if (!programIds.contains(instruction.getProgramId().toBase58())) {
-            programIds.add(instruction.getProgramId().toBase58());
-        }
 
         return this;
     }
@@ -76,29 +75,24 @@ public class Message {
 
         messageHeader = new MessageHeader();
 
-        for (String programId : programIds) {
-            accountKeys.add(new AccountMeta(new PublicKey(programId), false, false));
-        }
         List<AccountMeta> keysList = getAccountKeys();
         int accountKeysSize = keysList.size();
 
         byte[] accountAddressesLength = ShortvecEncoding.encodeLength(accountKeysSize);
 
         int compiledInstructionsLength = 0;
-        List<CompiledInstruction> compiledInstructions = new ArrayList<CompiledInstruction>();
+        List<CompiledInstruction> compiledInstructions = new ArrayList<>();
 
         for (TransactionInstruction instruction : instructions) {
             int keysSize = instruction.getKeys().size();
 
             byte[] keyIndices = new byte[keysSize];
             for (int i = 0; i < keysSize; i++) {
-                keyIndices[i] = (byte) AccountMeta.findAccountIndex(keysList,
-                        instruction.getKeys().get(i).getPublicKey());
+                keyIndices[i] = (byte) findAccountIndex(keysList, instruction.getKeys().get(i).getPublicKey());
             }
 
             CompiledInstruction compiledInstruction = new CompiledInstruction();
-            compiledInstruction.programIdIndex = (byte) AccountMeta.findAccountIndex(keysList,
-                    instruction.getProgramId());
+            compiledInstruction.programIdIndex = (byte) findAccountIndex(keysList, instruction.getProgramId());
             compiledInstruction.keyIndicesCount = ShortvecEncoding.encodeLength(keysSize);
             compiledInstruction.keyIndices = keyIndices;
             compiledInstruction.dataLength = ShortvecEncoding.encodeLength(instruction.getData().length);
@@ -152,26 +146,30 @@ public class Message {
         return out.array();
     }
 
-    protected void setFeePayer(PublicKey feePayer) {
+    protected void setFeePayer(Account feePayer) {
         this.feePayer = feePayer;
     }
 
     private List<AccountMeta> getAccountKeys() {
         List<AccountMeta> keysList = accountKeys.getList();
-        int feePayerIndex = AccountMeta.findAccountIndex(keysList, feePayer);
+        int feePayerIndex = findAccountIndex(keysList, feePayer.getPublicKey());
 
-        List<AccountMeta> newList = new ArrayList<AccountMeta>();
-
-        if (feePayerIndex != -1) {
-            AccountMeta feePayerMeta = keysList.get(feePayerIndex);
-            newList.add(new AccountMeta(feePayerMeta.getPublicKey(), true, true));
-            keysList.remove(feePayerIndex);
-        } else {
-            newList.add(new AccountMeta(feePayer, true, true));
-        }
+        List<AccountMeta> newList = new ArrayList<>();
+        AccountMeta feePayerMeta = keysList.get(feePayerIndex);
+        newList.add(new AccountMeta(feePayerMeta.getPublicKey(), true, true));
+        keysList.remove(feePayerIndex);
         newList.addAll(keysList);
 
         return newList;
     }
 
+    private int findAccountIndex(List<AccountMeta> accountMetaList, PublicKey key) {
+        for (int i = 0; i < accountMetaList.size(); i++) {
+            if (accountMetaList.get(i).getPublicKey().equals(key)) {
+                return i;
+            }
+        }
+
+        throw new RuntimeException("unable to find account index");
+    }
 }

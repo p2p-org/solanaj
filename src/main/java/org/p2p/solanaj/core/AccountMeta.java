@@ -3,9 +3,9 @@ package org.p2p.solanaj.core;
 import java.util.List;
 
 public class AccountMeta {
-    private PublicKey publicKey;
-    private boolean isSigner;
-    private boolean isWritable;
+    private final PublicKey publicKey;
+    private final boolean isSigner;
+    private final boolean isWritable;
 
     public AccountMeta(PublicKey publicKey, boolean isSigner, boolean isWritable) {
         this.publicKey = publicKey;

@@ -1,19 +1,19 @@
 package org.p2p.solanaj.rpc.types;
 
+import com.squareup.moshi.Json;
+
 import java.util.List;
 import java.util.UUID;
 
-import com.squareup.moshi.Json;
-
 public class RpcRequest {
     @Json(name = "jsonrpc")
-    private String jsonrpc = "2.0";
+    private final String jsonrpc = "2.0";
     @Json(name = "method")
-    private String method;
+    private final String method;
     @Json(name = "params")
     private List<Object> params = null;
     @Json(name = "id")
-    private String id = UUID.randomUUID().toString();
+    private final String id = UUID.randomUUID().toString();
 
     public RpcRequest(String method) {
         this(method, null);

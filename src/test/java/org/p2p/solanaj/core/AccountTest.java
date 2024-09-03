@@ -1,11 +1,11 @@
 package org.p2p.solanaj.core;
 
+import org.bitcoinj.core.Base58;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
-import org.bitcoinj.core.Base58;
+import static org.junit.Assert.assertEquals;
 
 public class AccountTest {
 
