@@ -38,6 +38,16 @@ RpcClient client = new RpcClient(Cluster.TESTNET);
 long balance = client.getApi().getBalance(new PublicKey("QqCCvshxtqMAL2CVALqiJB7uEeE5mjSPsseQdDzsRUo"));
 ```
 
+##### Versioned Transaction decode
+
+```java
+
+String tx = "...";
+
+byte[] txBytes = Base64.getDecoder().decode(tx);
+VersionedTransaction versionedTransaction = VersionedTransaction.fromEncodeedTransaction(txBytes);
+```
+
 ## Contribution
 
 Welcome to contribute, feel free to change and open a PR.
